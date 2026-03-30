@@ -1,0 +1,304 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
+import { cn } from "@/lib/utils"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { 
+  Truck, 
+  Plus, 
+  Search, 
+  Edit2, 
+  Trash2, 
+  Settings2,
+  AlertTriangle,
+  FileText
+} from "lucide-react"
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+export default function FlotaMasterPage() {
+  const [vehiculos, setVehiculos] = useState<any[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [editingVehiculo, setEditingVehiculo] = useState<any>(null)
+  
+  // Form State
+  const [formData, setFormData] = useState({
+    patente: "",
+    tipo: "CAMION",
+    estado: "OPERATIVO",
+    capacidad: ""
+  })
+
+  useEffect(() => {
+    fetchVehiculos()
+  }, [])
+
+  const fetchVehiculos = async () => {
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('vehiculos')
+        .select('*')
+        .order('patente')
+      
+      if (error) throw error
+      setVehiculos(data || [])
+    } catch (error) {
+      console.error("Error fetching vehicles:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOpenCreate = () => {
+    setEditingVehiculo(null)
+    setFormData({ patente: "", tipo: "CAMION", estado: "OPERATIVO", capacidad: "" })
+    setIsDialogOpen(true)
+  }
+
+  const handleOpenEdit = (v: any) => {
+    setEditingVehiculo(v)
+    setFormData({ 
+      patente: v.patente, 
+      tipo: v.tipo, 
+      estado: v.estado || "OPERATIVO",
+      capacidad: v.capacidad || ""
+    })
+    setIsDialogOpen(true)
+  }
+
+  const handleSave = async () => {
+    if (!formData.patente.trim()) return
+    
+    try {
+      if (editingVehiculo) {
+        const { error } = await supabase
+          .from('vehiculos')
+          .update({
+            patente: formData.patente.toUpperCase(),
+            tipo: formData.tipo,
+            estado: formData.estado,
+            capacidad: formData.capacidad
+          })
+          .eq('id', editingVehiculo.id)
+        if (error) throw error
+      } else {
+        const { error } = await supabase
+          .from('vehiculos')
+          .insert([{
+            patente: formData.patente.toUpperCase(),
+            tipo: formData.tipo,
+            estado: formData.estado,
+            capacidad: formData.capacidad
+          }])
+        if (error) throw error
+      }
+      
+      setIsDialogOpen(false)
+      fetchVehiculos()
+    } catch (error) {
+      console.error("Error saving vehicle:", error)
+      alert("Error al guardar vehículo")
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Está seguro de eliminar este vehículo?")) return
+    
+    try {
+      const { error } = await supabase.from('vehiculos').delete().eq('id', id)
+      if (error) throw error
+      fetchVehiculos()
+    } catch (error) {
+      console.error("Error deleting vehicle:", error)
+    }
+  }
+
+  const filteredVehiculos = vehiculos.filter(v => 
+    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    v.tipo?.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h2 className="text-3xl font-black text-[#323232] dark:text-white tracking-tight">Gestión de Flota</h2>
+          <p className="text-slate-500 font-medium">Administra y configura los activos de transporte de la empresa.</p>
+        </div>
+        <Button onClick={handleOpenCreate} className="bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-2xl font-black px-6 shadow-lg shadow-[#116CA2]/20">
+           <Plus className="size-4 mr-2" />
+           Nuevo Vehículo
+        </Button>
+      </div>
+
+      <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
+        <CardHeader className="p-8 border-b border-slate-50 dark:border-zinc-800">
+           <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
+              <Input 
+                placeholder="Buscar por patente o tipo..." 
+                className="pl-12 h-14 bg-slate-50 border-none rounded-2xl text-slate-600 focus-visible:ring-2 focus-visible:ring-[#116CA2]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+           </div>
+        </CardHeader>
+        <CardContent className="p-0">
+           <Table>
+              <TableHeader>
+                <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
+                  <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Vehículo</TableHead>
+                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Configuración</TableHead>
+                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado Actual</TableHead>
+                  <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">Cargando flota...</TableCell>
+                  </TableRow>
+                ) : filteredVehiculos.length === 0 ? (
+                  <TableRow>
+                     <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No hay vehículos registrados</TableCell>
+                  </TableRow>
+                ) : filteredVehiculos.map((v) => (
+                  <TableRow key={v.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                    <TableCell className="px-8 py-6">
+                       <div className="flex items-center gap-4">
+                          <div className="size-12 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex flex-col items-center justify-center font-black text-[#116CA2]">
+                             <Truck className="size-5 mb-0.5" />
+                             <span className="text-[8px] tracking-widest uppercase">ID</span>
+                          </div>
+                          <div>
+                            <p className="font-black text-[#323232] dark:text-white text-lg tracking-tight leading-none mb-1">{v.patente}</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{v.capacidad || 'Capacidad N/A'}</p>
+                          </div>
+                       </div>
+                    </TableCell>
+                    <TableCell className="py-6">
+                       <Badge variant="outline" className="border-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                          {v.tipo}
+                       </Badge>
+                    </TableCell>
+                    <TableCell className="py-6">
+                       <Badge className={cn(
+                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
+                         v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
+                         v.estado === 'FALLA MECÁNICA' ? "bg-red-100 text-red-600" :
+                         "bg-amber-100 text-amber-600"
+                       )}>
+                          {v.estado || 'DESCONOCIDO'}
+                       </Badge>
+                    </TableCell>
+                    <TableCell className="px-8 py-6 text-right space-x-2">
+                       <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(v)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
+                          <Edit2 className="size-4" />
+                       </Button>
+                       <Button variant="ghost" size="icon" onClick={() => handleDelete(v.id)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                          <Trash2 className="size-4" />
+                       </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+           </Table>
+        </CardContent>
+      </Card>
+
+      {/* Fleet Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-zinc-900">
+          <div className="bg-[#116CA2] p-8 text-white">
+             <div className="bg-white/20 p-3 rounded-2xl w-fit mb-4">
+                <Truck className="size-8" />
+             </div>
+             <DialogTitle className="text-2xl font-black uppercase tracking-tight">{editingVehiculo ? "Editar Vehículo" : "Nuevo Vehículo"}</DialogTitle>
+             <DialogDescription className="text-white/60 font-medium">Datos técnicos y operacionales del activo.</DialogDescription>
+          </div>
+          
+          <div className="p-8 space-y-6">
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Patente</Label>
+                    <Input 
+                      value={formData.patente}
+                      onChange={(e) => setFormData({...formData, patente: e.target.value})}
+                      className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] font-black placeholder:font-medium uppercase"
+                      placeholder="ABCD-12"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Capacidad</Label>
+                    <Input 
+                      value={formData.capacidad}
+                      onChange={(e) => setFormData({...formData, capacidad: e.target.value})}
+                      className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]"
+                      placeholder="Ej: 30m3"
+                    />
+                </div>
+             </div>
+             
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo de Vehículo</Label>
+                <Select value={formData.tipo} onValueChange={(val) => setFormData({...formData, tipo: val ?? "CAMION"})}>
+                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
+                    <SelectValue placeholder="Seleccionar Tipo" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-xl border-none p-2">
+                    <SelectItem value="CAMION" className="py-3 font-bold">CAMIÓN SIMPLE</SelectItem>
+                    <SelectItem value="CAMION+CARRO" className="py-3 font-bold">CAMIÓN + CARRO</SelectItem>
+                    <SelectItem value="ROLL-OFF" className="py-3 font-bold">CAMIÓN ROLL-OFF</SelectItem>
+                    <SelectItem value="ESTANQUE" className="py-3 font-bold">CAMIÓN ESTANQUE</SelectItem>
+                  </SelectContent>
+                </Select>
+             </div>
+
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Estado Operativo</Label>
+                <Select value={formData.estado} onValueChange={(val) => setFormData({...formData, estado: val ?? "OPERATIVO"})}>
+                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
+                    <SelectValue placeholder="Seleccionar Estado" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl shadow-xl border-none p-2">
+                    <SelectItem value="OPERATIVO" className="py-3 font-bold text-emerald-600">OPERATIVO</SelectItem>
+                    <SelectItem value="FALLA MECÁNICA" className="py-3 font-bold text-red-600">FALLA MECÁNICA</SelectItem>
+                    <SelectItem value="MANTENCIÓN" className="py-3 font-bold text-amber-600">MANTENCIÓN PREVENTIVA</SelectItem>
+                  </SelectContent>
+                </Select>
+             </div>
+          </div>
+
+          <DialogFooter className="p-8 pt-0 flex gap-3">
+             <Button variant="ghost" className="flex-1 h-12 rounded-xl font-bold text-slate-400" onClick={() => setIsDialogOpen(false)}>
+                CANCELAR
+             </Button>
+             <Button 
+                onClick={handleSave} 
+                className="flex-1 h-12 rounded-xl bg-[#116CA2] hover:bg-[#0d5985] text-white font-black shadow-lg shadow-[#116CA2]/20"
+                disabled={!formData.patente.trim()}
+             >
+                {editingVehiculo ? "ACTUALIZAR" : "CREAR"}
+             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "id": "fix_bat_execution",
+    "description": "Mejorar el archivo .bat para que lance la plataforma de forma robusta, abra el navegador automáticamente y proporcione una mejor UI en consola.",
+    "status": "in-progress"
+  }
+]

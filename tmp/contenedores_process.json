@@ -1,0 +1,1622 @@
+[
+  {
+    "numero": 1,
+    "tipo": "CA",
+    "capacidad": 25,
+    "id_referencia": "CA-1-25m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-1(25M3).jpg"
+  },
+  {
+    "numero": 2,
+    "tipo": "CA",
+    "capacidad": 25,
+    "id_referencia": "CA-2-25m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-2(25M3).jpg"
+  },
+  {
+    "numero": 2,
+    "tipo": "CA",
+    "capacidad": 30,
+    "id_referencia": "CA-2-30m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-2(30M3).jpg"
+  },
+  {
+    "numero": 3,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-3-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-3(15M3).jpg"
+  },
+  {
+    "numero": 3,
+    "tipo": "CA",
+    "capacidad": 30,
+    "id_referencia": "CA-3-30m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-3(30M3).jpg"
+  },
+  {
+    "numero": 4,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-4-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-4(15M3).jpg"
+  },
+  {
+    "numero": 4,
+    "tipo": "CA",
+    "capacidad": 30,
+    "id_referencia": "CA-4-30m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-4(30M3).jpg"
+  },
+  {
+    "numero": 5,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-5-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-5(20M3).jpg"
+  },
+  {
+    "numero": 5,
+    "tipo": "CA",
+    "capacidad": 30,
+    "id_referencia": "CA-5-30m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-5(30M3).jpg"
+  },
+  {
+    "numero": 6,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-6-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-6(20M3).jpg"
+  },
+  {
+    "numero": 6,
+    "tipo": "CA",
+    "capacidad": 30,
+    "id_referencia": "CA-6-30m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-6(30M3).jpg"
+  },
+  {
+    "numero": 7,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-7-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-7(15M3).jpg"
+  },
+  {
+    "numero": 8,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-8-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-8(15M3).jpg"
+  },
+  {
+    "numero": 9,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-9-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-9(15M3).jpg"
+  },
+  {
+    "numero": 9,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-9-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-9(20M3).jpg"
+  },
+  {
+    "numero": 10,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-10-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-10(15M3).jpg"
+  },
+  {
+    "numero": 11,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-11-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-11(15M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-12-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-12(15M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-12-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-12(20M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-13-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-13(15M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-13-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-13(20M3).jpg"
+  },
+  {
+    "numero": 14,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-14-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-14(15M3).jpg"
+  },
+  {
+    "numero": 15,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-15-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-15(15M3).jpg"
+  },
+  {
+    "numero": 16,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-16-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-16(15M3).jpg"
+  },
+  {
+    "numero": 17,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-17-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-17(15M3).jpg"
+  },
+  {
+    "numero": 17,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-17-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-17(20M3).jpg"
+  },
+  {
+    "numero": 18,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-18-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-18(15M3).jpg"
+  },
+  {
+    "numero": 19,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-19-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-19(15M3).jpg"
+  },
+  {
+    "numero": 20,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-20-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-20(15M3).jpg"
+  },
+  {
+    "numero": 20,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-20-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-20(20M3).jpg"
+  },
+  {
+    "numero": 21,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-21-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-21(20M3).jpg"
+  },
+  {
+    "numero": 21,
+    "tipo": "CA",
+    "capacidad": "N.O",
+    "id_referencia": "CA-21-N.Om³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-21.jpg"
+  },
+  {
+    "numero": 22,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-22-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-22(15M3).jpg"
+  },
+  {
+    "numero": 22,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-22-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-22(20M3).jpg"
+  },
+  {
+    "numero": 23,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-23-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-23(15M3).jpg"
+  },
+  {
+    "numero": 23,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-23-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-23(20M3).jpg"
+  },
+  {
+    "numero": 24,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-24-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-24(15M3).jpg"
+  },
+  {
+    "numero": 24,
+    "tipo": "CA",
+    "capacidad": "N.O",
+    "id_referencia": "CA-24-N.Om³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 25,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-25-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-25(15M3).jpg"
+  },
+  {
+    "numero": 25,
+    "tipo": "CA",
+    "capacidad": "N.O",
+    "id_referencia": "CA-25-N.Om³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 26,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-26-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-26(15M3).jpg"
+  },
+  {
+    "numero": 26,
+    "tipo": "CA",
+    "capacidad": "N.O",
+    "id_referencia": "CA-26-N.Om³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-26.jpg"
+  },
+  {
+    "numero": 27,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-27-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-27(15M3).jpg"
+  },
+  {
+    "numero": 27,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-27-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-27(20M3).jpg"
+  },
+  {
+    "numero": 28,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-28-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-28(15M3).jpg"
+  },
+  {
+    "numero": 28,
+    "tipo": "CA",
+    "capacidad": 20,
+    "id_referencia": "CA-28-20m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-28(20M3).jpg"
+  },
+  {
+    "numero": 29,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-29-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-29(15M3).jpg"
+  },
+  {
+    "numero": 33,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-33-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-33(15M3).jpg"
+  },
+  {
+    "numero": 34,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-34-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-34(15M3).jpg"
+  },
+  {
+    "numero": 35,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-35-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-35(15M3).jpg"
+  },
+  {
+    "numero": 36,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-36-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-36(15M3).jpg"
+  },
+  {
+    "numero": 37,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-37-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-37(15M3).jpg"
+  },
+  {
+    "numero": 38,
+    "tipo": "CA",
+    "capacidad": 15,
+    "id_referencia": "CA-38-15m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-38(15M3).jpg"
+  },
+  {
+    "numero": 3,
+    "tipo": "CA",
+    "capacidad": 25,
+    "id_referencia": "CA-3-25m³",
+    "nombre_categoria": "Contenedores abiertos",
+    "prefix": "CA",
+    "foto_encontrada": "CA-3(25M3).jpg"
+  },
+  {
+    "numero": 2,
+    "tipo": "CC",
+    "capacidad": 30,
+    "id_referencia": "CC-2-30m³",
+    "nombre_categoria": "Contenedores Cerrados",
+    "prefix": "CC",
+    "foto_encontrada": "CC-2(30M3).jpg"
+  },
+  {
+    "numero": 4,
+    "tipo": "CC",
+    "capacidad": 30,
+    "id_referencia": "CC-4-30m³",
+    "nombre_categoria": "Contenedores Cerrados",
+    "prefix": "CC",
+    "foto_encontrada": "CC-4(30M3).jpg"
+  },
+  {
+    "numero": 5,
+    "tipo": "CC",
+    "capacidad": 30,
+    "id_referencia": "CC-5-30m³",
+    "nombre_categoria": "Contenedores Cerrados",
+    "prefix": "CC",
+    "foto_encontrada": "CC-5(30M3).jpg"
+  },
+  {
+    "numero": 18,
+    "tipo": "CC",
+    "capacidad": 15,
+    "id_referencia": "CC-18-15m³",
+    "nombre_categoria": "Contenedores Cerrados",
+    "prefix": "CC",
+    "foto_encontrada": "CC-18(15M3).jpg"
+  },
+  {
+    "numero": 5,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-5-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-5(15M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-12-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-12(15M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-13-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-13(15M3).jpg"
+  },
+  {
+    "numero": 14,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-14-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-14(15M3).jpg"
+  },
+  {
+    "numero": 15,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-15-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-15(15M3).jpg"
+  },
+  {
+    "numero": 16,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-16-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-16(15M3).jpg"
+  },
+  {
+    "numero": 17,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-17-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-17(15M3).jpg"
+  },
+  {
+    "numero": 19,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-19-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-19(15M3).jpg"
+  },
+  {
+    "numero": 20,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-20-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-20(15M3).jpg"
+  },
+  {
+    "numero": 21,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-21-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-21(15M3).jpg"
+  },
+  {
+    "numero": 22,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-22-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-22(15M3).jpg"
+  },
+  {
+    "numero": 23,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-23-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-23(15M3).jpg"
+  },
+  {
+    "numero": 24,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-24-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-24(15M3).jpg"
+  },
+  {
+    "numero": 25,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-25-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-25(15M3).jpg"
+  },
+  {
+    "numero": 26,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-26-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-26(15M3).jpg"
+  },
+  {
+    "numero": 27,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-27-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": "CCI-27(15M3).jpg"
+  },
+  {
+    "numero": 1,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-1-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 7,
+    "tipo": "CCI",
+    "capacidad": 15,
+    "id_referencia": "CCI-7-15m³",
+    "nombre_categoria": "Contenedores Cerrados Iglú",
+    "prefix": "CCI",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 1,
+    "tipo": "CCL",
+    "capacidad": 12,
+    "id_referencia": "CCL-1-12m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-1(12M3).jpg"
+  },
+  {
+    "numero": 1,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-1-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-1(15M3).jpg"
+  },
+  {
+    "numero": 10,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-10-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-10(15M3).jpg"
+  },
+  {
+    "numero": 11,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-11-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-11(15M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-12-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-12(15M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-13-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-13(15M3).jpg"
+  },
+  {
+    "numero": 14,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-14-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-14(15M3).jpg"
+  },
+  {
+    "numero": 15,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-15-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-15(15M3).jpg"
+  },
+  {
+    "numero": 16,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-16-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-16(15M3).jpg"
+  },
+  {
+    "numero": 17,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-17-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-17(15M3).jpg"
+  },
+  {
+    "numero": 18,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-18-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-18(15M3).jpg"
+  },
+  {
+    "numero": 19,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-19-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-19(15M3).jpg"
+  },
+  {
+    "numero": 20,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-20-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-20(15M3).jpg"
+  },
+  {
+    "numero": 22,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-22-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-22(15M3).jpg"
+  },
+  {
+    "numero": 23,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-23-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-23(15M3).jpg"
+  },
+  {
+    "numero": 24,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-24-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-24(15M3).jpg"
+  },
+  {
+    "numero": 25,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-25-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-25(15M3).jpg"
+  },
+  {
+    "numero": 27,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-27-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-27(15M3).jpg"
+  },
+  {
+    "numero": 28,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-28-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-28(15M3).jpg"
+  },
+  {
+    "numero": 29,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-29-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-29(15M3).jpg"
+  },
+  {
+    "numero": 30,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-30-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-30(15M3).jpg"
+  },
+  {
+    "numero": 31,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-31-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-31(15M3).jpg"
+  },
+  {
+    "numero": 36,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-36-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-36(15M3).jpg"
+  },
+  {
+    "numero": 43,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-43-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-43(15M3).jpg"
+  },
+  {
+    "numero": 44,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-44-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-44(15M3).jpg"
+  },
+  {
+    "numero": 45,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-45-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-45(15M3).jpg"
+  },
+  {
+    "numero": 50,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-50-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-50(15M3).jpg"
+  },
+  {
+    "numero": 53,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-53-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-53(15M3).jpg"
+  },
+  {
+    "numero": 56,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-56-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-56(15M3).jpg"
+  },
+  {
+    "numero": 58,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-58-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-58(15M3).jpg"
+  },
+  {
+    "numero": 59,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-59-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-59(15M3).jpg"
+  },
+  {
+    "numero": 60,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-60-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-60(15M3).jpg"
+  },
+  {
+    "numero": 62,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-62-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-62(15M3).jpg"
+  },
+  {
+    "numero": 65,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-65-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-65(15M3).jpg"
+  },
+  {
+    "numero": 67,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-67-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-67(15M3).jpg"
+  },
+  {
+    "numero": 69,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-69-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-69(15M3).jpg"
+  },
+  {
+    "numero": 72,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-72-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-72(15M3).jpg"
+  },
+  {
+    "numero": 82,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-82-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-82(15M3).jpg"
+  },
+  {
+    "numero": 83,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-83-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 84,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-84-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 95,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-95-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 96,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-96-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 97,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-97-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 98,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-98-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-98(15M3).jpg"
+  },
+  {
+    "numero": 101,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-101-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-101.jpg"
+  },
+  {
+    "numero": 103,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-103-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-103(15M3).jpg"
+  },
+  {
+    "numero": 200,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-200-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-200(15M3).jpg"
+  },
+  {
+    "numero": 201,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-201-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-201(15M3).jpg"
+  },
+  {
+    "numero": 79,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-79-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 92,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-92-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-92.jpg"
+  },
+  {
+    "numero": 78,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-78-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 93,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-93-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-93.jpg"
+  },
+  {
+    "numero": 94,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-94-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-94.jpg"
+  },
+  {
+    "numero": 88,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-88-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 89,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-89-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 90,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-90-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 92,
+    "tipo": "CCL",
+    "capacidad": 15,
+    "id_referencia": "CCL-92-15m³",
+    "nombre_categoria": "Contenedor Cerrado Lodo",
+    "prefix": "CCL",
+    "foto_encontrada": "CCL-92.jpg"
+  },
+  {
+    "numero": 2,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-2-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": "CCR-2(4.5M3).jpg"
+  },
+  {
+    "numero": 10,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-10-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": null
+  },
+  {
+    "numero": 11,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-11-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": "CCR-11(4.5M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-12-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": "CCR-12(4.5M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-13-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": "CCR-13(4.5M3).jpg"
+  },
+  {
+    "numero": 14,
+    "tipo": "CCR",
+    "capacidad": 4.5,
+    "id_referencia": "CCR-14-4.5m³",
+    "nombre_categoria": "Contedor Cerrado Recolector",
+    "prefix": "CCR",
+    "foto_encontrada": "CCR-14(4.5M3).jpg"
+  },
+  {
+    "numero": 2,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-2-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-2(20M3).jpg"
+  },
+  {
+    "numero": 3,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-3-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-3(20M3).jpg"
+  },
+  {
+    "numero": 6,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-6-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-6(20M3).jpg"
+  },
+  {
+    "numero": 8,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-8-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-8(20M3).jpg"
+  },
+  {
+    "numero": 9,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-9-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-9(20M3).jpg"
+  },
+  {
+    "numero": 12,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-12-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-12(20M3).jpg"
+  },
+  {
+    "numero": 13,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-13-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-13(20M3).jpg"
+  },
+  {
+    "numero": 14,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-14-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-14(20M3).jpg"
+  },
+  {
+    "numero": 15,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-15-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-15(20M3).jpg"
+  },
+  {
+    "numero": 16,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-16-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-16(20M3).jpg"
+  },
+  {
+    "numero": 17,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-17-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-17(20M3).jpg"
+  },
+  {
+    "numero": 18,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-18-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-18(20M3).jpg"
+  },
+  {
+    "numero": 19,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-19-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-19(20M3).jpg"
+  },
+  {
+    "numero": 20,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-20-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-20(20M3).jpg"
+  },
+  {
+    "numero": 21,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-21-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-21(20M3).jpg"
+  },
+  {
+    "numero": 22,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-22-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-22(20M3).jpg"
+  },
+  {
+    "numero": 23,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-23-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-23(20M3).jpg"
+  },
+  {
+    "numero": 24,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-24-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-24(20M3).jpg"
+  },
+  {
+    "numero": 26,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-26-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-26(20M3).jpg"
+  },
+  {
+    "numero": 28,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-28-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-28(20M3).jpg"
+  },
+  {
+    "numero": 29,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-29-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-29(20M3).jpg"
+  },
+  {
+    "numero": 30,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-30-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-30(20M3).jpg"
+  },
+  {
+    "numero": 31,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-31-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-31(20M3).jpg"
+  },
+  {
+    "numero": 33,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-33-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-33(20M3).jpg"
+  },
+  {
+    "numero": 34,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-34-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-34(20M3).jpg"
+  },
+  {
+    "numero": 35,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-35-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-35(20M3).jpg"
+  },
+  {
+    "numero": 36,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-36-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-36(20M3).jpg"
+  },
+  {
+    "numero": 38,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-38-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-38(20M3).jpg"
+  },
+  {
+    "numero": 39,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-39-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-39(20M3).jpg"
+  },
+  {
+    "numero": 40,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-40-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-40(20M3).jpg"
+  },
+  {
+    "numero": 41,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-41-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-41(20M3).jpg"
+  },
+  {
+    "numero": 42,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-42-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-42(20M3).jpg"
+  },
+  {
+    "numero": 43,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-43-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-43(20M3).jpg"
+  },
+  {
+    "numero": 44,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-44-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-44(20M3).jpg"
+  },
+  {
+    "numero": 45,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-45-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-45(20M3).jpg"
+  },
+  {
+    "numero": 46,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-46-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-46(20M3).jpg"
+  },
+  {
+    "numero": 47,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-47-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-47(20M3).jpg"
+  },
+  {
+    "numero": 48,
+    "tipo": "CMP",
+    "capacidad": 20,
+    "id_referencia": "CMP-48-20m³",
+    "nombre_categoria": "Compactador",
+    "prefix": "CMP",
+    "foto_encontrada": "CMP-48(20M3).jpg"
+  },
+  {
+    "numero": 1,
+    "tipo": "CMPL",
+    "capacidad": 15,
+    "id_referencia": "CMPL-1-15m³",
+    "nombre_categoria": "Compactador Lodo",
+    "prefix": "CMPL",
+    "foto_encontrada": "CMPL-1(15M3).jpg"
+  },
+  {
+    "numero": 5,
+    "tipo": "CMPL",
+    "capacidad": 15,
+    "id_referencia": "CMPL-5-15m³",
+    "nombre_categoria": "Compactador Lodo",
+    "prefix": "CMPL",
+    "foto_encontrada": "CMPL-5(15M3).jpg"
+  },
+  {
+    "numero": 6,
+    "tipo": "CMPL",
+    "capacidad": 15,
+    "id_referencia": "CMPL-6-15m³",
+    "nombre_categoria": "Compactador Lodo",
+    "prefix": "CMPL",
+    "foto_encontrada": "CMPL-6(15M3).jpg"
+  }
+]
