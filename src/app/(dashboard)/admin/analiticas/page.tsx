@@ -1,13 +1,13 @@
 "use client"
+export const dynamic = 'force-dynamic'
+
 
 import { useState, useEffect, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
 import { 
-  BarChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -17,8 +17,7 @@ import {
   Pie, 
   Cell,
   AreaChart,
-  Area,
-  Legend
+  Area
 } from "recharts"
 import { 
   TrendingUp, 
@@ -35,9 +34,14 @@ import {
 } from "lucide-react"
 
 import * as XLSX from "xlsx"
+import { Comprobante, ServicioAsignado, Activo } from "@/types/database"
 
 export default function AnaliticasPage() {
-  const [data, setData] = useState<any>({
+  const [data, setData] = useState<{
+    comprobantes: Comprobante[];
+    servicios: ServicioAsignado[];
+    vehiculos: Activo[];
+  }>({
     comprobantes: [],
     servicios: [],
     vehiculos: []
@@ -73,9 +77,9 @@ export default function AnaliticasPage() {
   const exportConsolidatedReport = () => {
     try {
       // 1. Prepare data for Export
-      const exportData = data.comprobantes.map((c: any) => {
+      const exportData = data.comprobantes.map((c: Comprobante) => {
         // Find associated service
-        const service = data.servicios.find((s: any) => s.id === c.servicio_id)
+        const service = data.servicios.find((s: ServicioAsignado) => s.id === c.servicio_id)
         
         return {
           "Fecha Servicio": service?.fecha || c.fecha,
@@ -112,7 +116,7 @@ export default function AnaliticasPage() {
 
   // Memoized KPIs
   const kpis = useMemo(() => {
-    const totalKilos = data.comprobantes.reduce((sum: number, c: any) => {
+    const totalKilos = data.comprobantes.reduce((sum: number, c: Comprobante) => {
       return sum + (Number(c.cat_asimilables_kilos) || 0) + 
                  (Number(c.cat_lodos_kilos) || 0) + 
                  (Number(c.cat_escombros_kilos) || 0) + 
@@ -122,14 +126,14 @@ export default function AnaliticasPage() {
     }, 0)
 
     const fleetUtilization = data.vehiculos.length > 0 
-      ? Math.round((data.servicios.filter((s: any) => s.estado !== 'pendiente').length / data.vehiculos.length) * 100)
+      ? Math.round((data.servicios.filter((s: ServicioAsignado) => s.estado !== 'pendiente').length / data.vehiculos.length) * 100)
       : 0
 
     const completionRate = data.servicios.length > 0
-      ? Math.round((data.servicios.filter((s: any) => s.estado === 'completado').length / data.servicios.length) * 100)
+      ? Math.round((data.servicios.filter((s: ServicioAsignado) => s.estado === 'completado').length / data.servicios.length) * 100)
       : 0
 
-    const criticalVehicles = data.vehiculos.filter((v: any) => v.estado === 'FALLA MECÁNICA').length
+    const criticalVehicles = data.vehiculos.filter((v: Activo) => v.estado === 'MANTENCION').length
 
     return { totalKilos, fleetUtilization, completionRate, criticalVehicles }
   }, [data])
@@ -159,8 +163,8 @@ export default function AnaliticasPage() {
 
   const weeklyTrend = useMemo(() => {
     // Basic trend mock-up using real dates from DB
-    const days: any = {}
-    data.comprobantes.forEach((c: any) => {
+    const days: Record<string, number> = {}
+    data.comprobantes.forEach((c: Comprobante) => {
       const date = new Date(c.created_at).toLocaleDateString()
       days[date] = (days[date] || 0) + 1
     })
@@ -342,8 +346,24 @@ export default function AnaliticasPage() {
   )
 }
 
-function KPICard({ title, value, icon: Icon, trend, up, color, isAlert }: any) {
-  const colors: any = {
+function KPICard({ 
+  title, 
+  value, 
+  icon: Icon, 
+  trend, 
+  up, 
+  color, 
+  isAlert 
+}: { 
+  title: string; 
+  value: string | number; 
+  icon: any; 
+  trend: string; 
+  up: boolean; 
+  color: string; 
+  isAlert?: boolean; 
+}) {
+  const colors: Record<string, string> = {
     blue: "bg-blue-50 text-blue-600",
     emerald: "bg-emerald-50 text-emerald-600",
     amber: "bg-amber-50 text-amber-600",

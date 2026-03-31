@@ -3,16 +3,16 @@
 import { useState } from "react"
 import { ChevronLeft, ChevronRight, Info, Calendar as CalendarIcon, Clock, Truck, User, MapPin, Package } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/uib/button"
+import { Card, CardContent } from "@/components/uib/card"
+import { Badge } from "@/components/uib/badge"
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogDescription 
-} from "@/components/ui/dialog"
+} from "@/components/uib/dialog"
 
 interface Service {
   id: string

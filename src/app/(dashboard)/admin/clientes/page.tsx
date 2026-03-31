@@ -1,13 +1,14 @@
 "use client"
+export const dynamic = 'force-dynamic'
+
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
+import { Badge } from "@/components/uib/badge"
 import { 
   MapPin, 
   Plus, 
@@ -16,25 +17,24 @@ import {
   Trash2, 
   ArrowRight,
   Building2,
-  Trash,
   X
 } from "lucide-react"
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
   DialogTitle, 
   DialogFooter,
   DialogDescription
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/uib/dialog"
+import { Label } from "@/components/uib/label"
+import { Cliente } from "@/types/database"
 
 export default function ClientesMasterPage() {
-  const [rutas, setRutas] = useState<any[]>([])
+  const [rutas, setRutas] = useState<Cliente[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingRuta, setEditingRuta] = useState<any>(null)
+  const [editingRuta, setEditingRuta] = useState<Cliente | null>(null)
   
   // Form State for Associations
   const [formData, setFormData] = useState({
@@ -160,7 +160,7 @@ export default function ClientesMasterPage() {
     r.disposicion_final?.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const groupedRutas = filteredRutas.reduce((acc: any, curr: any) => {
+  const groupedRutas = filteredRutas.reduce((acc: Record<string, { nombre: string; destinos: { id: string; nombre: string }[] }>, curr: Cliente) => {
     const key = curr.nombre || "Sin Nombre"
     if (!acc[key]) {
       acc[key] = {
@@ -177,7 +177,7 @@ export default function ClientesMasterPage() {
     return acc
   }, {})
 
-  const groupedArray = Object.values(groupedRutas).sort((a: any, b: any) => a.nombre.localeCompare(b.nombre))
+  const groupedArray = Object.values(groupedRutas).sort((a, b) => a.nombre.localeCompare(b.nombre))
 
   return (
     <div className="space-y-8">
@@ -223,7 +223,7 @@ export default function ClientesMasterPage() {
                   <TableRow>
                      <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No hay clientes configurados</TableCell>
                   </TableRow>
-                ) : groupedArray.map((group: any) => (
+                ) : groupedArray.map((group) => (
                   <TableRow key={group.nombre} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
                     <TableCell className="px-8 py-6">
                        <div className="flex items-center gap-4">
@@ -241,7 +241,7 @@ export default function ClientesMasterPage() {
                           {group.destinos.length === 0 ? (
                              <span className="text-xs font-bold text-slate-400 italic">Sin destinos</span>
                           ) : (
-                             group.destinos.map((d: any) => (
+                             group.destinos.map((d: { id: string; nombre: string }) => (
                                <Badge key={d.id} variant="secondary" className="px-3 py-1.5 bg-[#116CA2]/10 text-[#116CA2] hover:bg-[#116CA2]/20 font-bold uppercase tracking-tight flex items-center gap-2">
                                   {d.nombre}
                                   <button 

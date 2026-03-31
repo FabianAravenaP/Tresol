@@ -1,13 +1,15 @@
 "use client"
+export const dynamic = 'force-dynamic'
+
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
+import { Badge } from "@/components/uib/badge"
 import { 
   Package, 
   Plus, 
@@ -16,26 +18,25 @@ import {
   Trash2, 
   Filter,
   Image as ImageIcon,
-  ChevronRight,
-  Truck
+  ChevronRight
 } from "lucide-react"
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
   DialogTitle, 
   DialogFooter,
   DialogDescription
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/uib/dialog"
+import { Label } from "@/components/uib/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/uib/select"
+import { Activo } from "@/types/database"
 
 export default function ActivosPage() {
-  const [activos, setActivos] = useState<any[]>([])
+  const [activos, setActivos] = useState<Activo[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingActivo, setEditingActivo] = useState<any>(null)
+  const [editingActivo, setEditingActivo] = useState<Activo | null>(null)
   const [filterType, setFilterType] = useState<string>("TODOS")
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null)
   
@@ -85,7 +86,7 @@ export default function ActivosPage() {
     setIsDialogOpen(true)
   }
 
-  const handleOpenEdit = (a: any) => {
+  const handleOpenEdit = (a: Activo) => {
     setEditingActivo(a)
     setFormData({ 
       codigo: a.codigo, 
@@ -213,7 +214,7 @@ export default function ActivosPage() {
                                 onClick={() => a.foto_url && setViewingPhoto(a.foto_url)}
                               >
                                  {a.foto_url ? (
-                                     <img src={a.foto_url} alt={a.codigo} className="w-full h-full object-cover" />
+                                     <img src={a.foto_url} alt={a.codigo} className="w-full h-full object-cover" loading="lazy" />
                                  ) : (
                                      <ImageIcon className="size-6 text-slate-300" />
                                  )}

@@ -1,10 +1,11 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
 import { 
   Users, 
   Truck, 
@@ -268,4 +269,3 @@ function ModuleCard({ title, status, desc, path, icon: Icon }: any) {
     </Card>
   )
 }
-

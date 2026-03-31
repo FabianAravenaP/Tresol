@@ -1,34 +1,55 @@
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin as supabase } from '@/lib/supabase-admin'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: NextRequest) {
   try {
-    const { table, data, method, match } = await request.json()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-    let query = supabase.from(table)
-    let result: any
-    
-    if (method === 'insert') {
-      // Silently satisfy not-null constraints for specific tables if missing
-      if (table === 'servicios_asignados') {
-        if (Array.isArray(data)) {
-          data.forEach(item => {
-            if (!item.tipo_servicio) item.tipo_servicio = 'RETIRO';
-          });
-        }
+    if (!supabaseUrl || !supabaseServiceKey) {
+       throw new Error('Supabase environment variables are missing in production environment.')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
-      result = await query.insert(data)
+    })
+
+    const rawBody = await request.json();
+    const { table, data, method, match } = rawBody as { 
+      table: string; 
+      data: any; 
+      method: string; 
+      match?: Record<string, string> 
+    };
+
+    const query = supabase.from(table)
+    let result: { data?: unknown; error?: { message: string } | null }
+
+    if (method === 'insert') {
+      if (table === 'servicios_asignados') {
+        const dataArray = Array.isArray(data) ? data : [data];
+        dataArray.forEach((item: { tipo_servicio?: string }) => {
+          if (!item.tipo_servicio) item.tipo_servicio = 'RETIRO';
+        });
+        result = await query.insert(dataArray).select()
+      } else {
+        result = await query.insert(data as Record<string, unknown>).select()
+      }
     } else if (method === 'update') {
-      result = await query.update(data).match(match)
+      if (!match) throw new Error("Update requiere match")
+      result = await query.update(data as Record<string, unknown>).match(match).select()
     } else if (method === 'select') {
-      let q = query.select(data || '*')
+      let q = query.select((data as string) || '*')
       if (match) {
         Object.entries(match).forEach(([key, value]) => {
           q = q.eq(key, value)
         })
       }
-      
-      // Simply execute the query. Sorting is removed for performance.
       result = await q
     } else if (method === 'delete') {
       let q = query.delete()
@@ -37,7 +58,6 @@ export async function POST(request: NextRequest) {
           q = q.eq(key, value)
         })
       } else {
-        // Supabase requires a filter for deletes. Use a universal neq for cleanup.
         q = q.neq('id', '00000000-0000-0000-0000-000000000000')
       }
       result = await q
@@ -45,13 +65,16 @@ export async function POST(request: NextRequest) {
       throw new Error("Método no soportado")
     }
 
-    console.log(`Proxy success [${method}] on [${table}]:`, result.data?.length || '1 item')
+    const dataArray = Array.isArray(result.data) ? (result.data as unknown[]) : (result.data ? [result.data] : []);
+    const dataLength = dataArray.length;
+    console.log(`Proxy success [${method}] on [${table}]:`, dataLength, 'items');
 
     if (result.error) throw result.error
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error: any) {
-    console.error('Proxy API error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('Proxy API error:', errorMsg)
+    return NextResponse.json({ error: errorMsg }, { status: 500 })
   }
 }

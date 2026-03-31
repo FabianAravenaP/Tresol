@@ -8,8 +8,8 @@ import {
   DialogTitle, 
   DialogDescription,
   DialogFooter
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/uib/dialog"
+import { Button } from "@/components/uib/button"
 import { cn } from "@/lib/utils"
 import { 
   LayoutDashboard, 

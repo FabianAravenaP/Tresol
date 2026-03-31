@@ -1,14 +1,15 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Label } from "@/components/uib/label"
+import { Switch } from "@/components/uib/switch"
+import { Badge } from "@/components/uib/badge"
 import { 
   Palette, 
   Bell, 

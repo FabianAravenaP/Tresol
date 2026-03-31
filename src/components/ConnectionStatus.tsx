@@ -1,7 +1,7 @@
 "use client"
 
 import { useOfflineSync } from "@/hooks/useOfflineSync"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/uib/badge"
 import { Wifi, WifiOff, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 

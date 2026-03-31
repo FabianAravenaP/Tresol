@@ -129,4 +129,3 @@ export function CalendarMinimalist({ selectedDate, onDateSelect, serviceDays, cl
     </div>
   )
 }
-

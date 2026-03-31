@@ -1,8 +1,9 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/uib/button"
+import { Card, CardContent } from "@/components/uib/card"
 import { 
   Truck, 
   ShieldCheck, 
@@ -29,9 +30,9 @@ import {
   DialogHeader, 
   DialogTitle, 
   DialogDescription 
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/uib/dialog"
+import { Input } from "@/components/uib/input"
+import { Badge } from "@/components/uib/badge"
 
 export default function Home() {
   const router = useRouter()

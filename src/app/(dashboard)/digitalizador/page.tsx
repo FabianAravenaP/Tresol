@@ -1,12 +1,13 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
+import { Badge } from "@/components/uib/badge"
 import { Search, Download, FileSpreadsheet, RefreshCcw, FileText, CheckCircle2, Truck, LogOut } from "lucide-react"
 import { NavigationHeader } from "@/components/NavigationHeader"
 

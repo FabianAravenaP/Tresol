@@ -3,8 +3,8 @@ import "./globals.css";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Tresol - Gestión de Residuos",
-  description: "Sistema ERP para la gestión y valorización de residuos sólidos y líquidos en el sur de Chile.",
+  title: "Tresol",
+  description: "Tresol - Gestión y Valorización de Residuos",
   icons: {
     icon: "https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg",
   }

@@ -1,13 +1,14 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Input } from "@/components/uib/input"
+import { Label } from "@/components/uib/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/uib/select"
+import { Badge } from "@/components/uib/badge"
+import { Button } from "@/components/uib/button"
 import { 
   Table, 
   TableBody, 
@@ -15,7 +16,7 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from "@/components/ui/table"
+} from "@/components/uib/table"
 import { 
   Search, 
   Filter, 

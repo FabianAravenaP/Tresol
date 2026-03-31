@@ -1,12 +1,13 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
 import { Wallet, Calendar, MapPin, TrendingUp, History } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/uib/badge"
 import { NavigationHeader } from "@/components/NavigationHeader"
 
 export default function BilleteraPage() {

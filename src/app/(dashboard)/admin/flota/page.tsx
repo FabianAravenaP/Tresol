@@ -1,40 +1,39 @@
 "use client"
+export const dynamic = 'force-dynamic'
+
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
+import { Badge } from "@/components/uib/badge"
 import { 
   Truck, 
   Plus, 
   Search, 
   Edit2, 
-  Trash2, 
-  Settings2,
-  AlertTriangle,
-  FileText
+  Trash2
 } from "lucide-react"
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
   DialogTitle, 
   DialogFooter,
   DialogDescription
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+} from "@/components/uib/dialog"
+import { Label } from "@/components/uib/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/uib/select"
+import { Vehiculo } from "@/types/database"
 
 export default function FlotaMasterPage() {
-  const [vehiculos, setVehiculos] = useState<any[]>([])
+  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingVehiculo, setEditingVehiculo] = useState<any>(null)
+  const [editingVehiculo, setEditingVehiculo] = useState<Vehiculo | null>(null)
   
   // Form State
   const [formData, setFormData] = useState({
@@ -71,7 +70,7 @@ export default function FlotaMasterPage() {
     setIsDialogOpen(true)
   }
 
-  const handleOpenEdit = (v: any) => {
+  const handleOpenEdit = (v: Vehiculo) => {
     setEditingVehiculo(v)
     setFormData({ 
       patente: v.patente, 
@@ -198,14 +197,14 @@ export default function FlotaMasterPage() {
                        </Badge>
                     </TableCell>
                     <TableCell className="py-6">
-                       <Badge className={cn(
-                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
-                         v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
-                         v.estado === 'FALLA MECÁNICA' ? "bg-red-100 text-red-600" :
-                         "bg-amber-100 text-amber-600"
-                       )}>
-                          {v.estado || 'DESCONOCIDO'}
-                       </Badge>
+                        <Badge className={cn(
+                           "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
+                           v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
+                           v.estado === 'FALLA MECÁNICA' ? "bg-red-100 text-red-600" :
+                           "bg-amber-100 text-amber-600"
+                        )}>
+                           {v.estado || 'DESCONOCIDO'}
+                        </Badge>
                     </TableCell>
                     <TableCell className="px-8 py-6 text-right space-x-2">
                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(v)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">

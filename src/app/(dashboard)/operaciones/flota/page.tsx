@@ -1,9 +1,10 @@
 "use client"
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Badge } from "@/components/uib/badge"
 import { AlertTriangle, CheckCircle2, Truck, Clock, User, Settings, Info, Navigation2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 

@@ -1,13 +1,15 @@
 "use client"
+export const dynamic = 'force-dynamic'
+
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
+import { Button } from "@/components/uib/button"
+import { Input } from "@/components/uib/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
+import { Badge } from "@/components/uib/badge"
 import { 
   Users, 
   Search, 
@@ -21,8 +23,18 @@ import {
   Wallet
 } from "lucide-react"
 
+import { Usuario, ServicioAsignado } from "@/types/database"
+
+interface ConductorDetail extends Usuario {
+  serviciosTotales: number;
+  serviciosCompletados: number;
+  estado: string;
+  gananciaAcumulada: number;
+  ultimoServicio: string;
+}
+
 export default function DriversManagementPage() {
-  const [conductores, setConductores] = useState<any[]>([])
+  const [conductores, setConductores] = useState<ConductorDetail[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState({
@@ -59,8 +71,8 @@ export default function DriversManagementPage() {
       const today = new Date().toISOString().split('T')[0]
       
       // Calculate data per driver
-      const conductoresData = users.map(user => {
-        const userServices = services?.filter(s => s.chofer_id === user.id) || []
+      const conductoresData: ConductorDetail[] = (users || []).map(user => {
+        const userServices = (services || []).filter(s => s.chofer_id === user.id)
         const completados = userServices.filter(s => s.estado === 'completado').length
         const enRuta = userServices.find(s => s.estado !== 'completado' && s.estado !== 'anulado')
         
@@ -74,7 +86,7 @@ export default function DriversManagementPage() {
           if (dest.includes('OSORNO') || orig.includes('OSORNO')) queryRegion = 'TRESOL OSORNO'
           else if (dest.includes('MONTT') || orig.includes('MONTT')) queryRegion = 'TRESOL PUERTO MONTT'
           
-          const match = bonusMapping?.find(b => b.region === queryRegion && b.tipo_vehiculo === (s.bono_tipo_vehiculo || 'CAMION'))
+          const match = (bonusMapping || []).find(b => b.region === queryRegion && b.tipo_vehiculo === (s.bono_tipo_vehiculo || 'CAMION'))
           if (match) totalBonus += Number(match.valor)
         })
 
@@ -92,10 +104,10 @@ export default function DriversManagementPage() {
       
       // Stats
       setStats({
-        total: users.length,
-        activos: conductoresData.filter(c => c.estado === 'En Ruta').length,
-        completadosHoy: services?.filter(s => s.fecha === today && s.estado === 'completado').length || 0,
-        gananciaEstimada: conductoresData.reduce((acc, c) => acc + c.gananciaAcumulada, 0)
+        total: users?.length || 0,
+        activos: conductoresData.filter((c: ConductorDetail) => c.estado === 'En Ruta').length,
+        completadosHoy: services?.filter((s: ServicioAsignado) => s.fecha === today && s.estado === 'completado').length || 0,
+        gananciaEstimada: conductoresData.reduce((acc: number, c: ConductorDetail) => acc + c.gananciaAcumulada, 0)
       })
 
     } catch (error) {
