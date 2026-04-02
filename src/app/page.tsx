@@ -80,13 +80,16 @@ export default function Home() {
       if (personasErr) throw new Error(personasErr)
 
       const cargoMap = (personasData || []).reduce((acc: any, p: any) => {
-        if (p.rut) acc[p.rut] = p.cargo || ''
+        if (p.rut) {
+          acc[p.rut] = { cargo: p.cargo || '', id: p.id }
+        }
         return acc
       }, {})
 
       const usersWithCargo = (usersData || []).map((u: any) => ({
         ...u,
-        displayCargo: cargoMap[u.rut] || u.rol // fallback
+        displayCargo: cargoMap[u.rut]?.cargo || u.rol, // fallback
+        persona_id: cargoMap[u.rut]?.id || null // MAP PRIMARY KEY
       }))
 
       setUsuarios(usersWithCargo)
@@ -116,6 +119,7 @@ export default function Home() {
       setSelectedUser(user)
       setPasswordInput("")
       setPasswordError(false)
+      setSearchTerm("")
       return
     }
 
@@ -440,6 +444,8 @@ export default function Home() {
                <div className="relative">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                  <Input 
+                   autoComplete="off"
+                   name="new-tresol-search"
                    placeholder="Buscar usuario o cargo..." 
                    className="pl-12 h-14 bg-slate-100 border-none rounded-2xl font-bold focus-visible:ring-2 focus-visible:ring-[#116CA2]"
                    value={searchTerm}
@@ -490,6 +496,8 @@ export default function Home() {
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Contraseña de acceso</label>
                       <Input 
                         type="password"
+                        autoComplete="new-password"
+                        name="new-tresol-password"
                         placeholder="••••"
                         autoFocus
                         className={`h-14 bg-slate-100 border-none rounded-2xl font-black text-center text-2xl tracking-[0.5em] focus-visible:ring-2 ${passwordError ? 'ring-2 ring-red-500' : 'focus-visible:ring-[#116CA2]'}`}
