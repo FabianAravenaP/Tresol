@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import { ALL_MODULES } from "@/lib/modules"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
 import { Input } from "@/components/uib/input"
@@ -60,12 +61,14 @@ export default function PersonalManagementPage() {
 
   // Access State
   const [isAccessDialogOpen, setIsAccessDialogOpen] = useState(false)
+  const [isEditingAccess, setIsEditingAccess] = useState(false)
   const [selectedForAccess, setSelectedForAccess] = useState<any>(null)
   const [accessData, setAccessData] = useState({
     rol: "chofer",
-    password: ""
+    password: "",
+    config_sidebar: [] as any[]
   })
-  const [existingUsers, setExistingUsers] = useState<Record<string, boolean>>({})
+  const [existingUsers, setExistingUsers] = useState<Record<string, any>>({})
 
   useEffect(() => {
     fetchPersonal()
@@ -80,7 +83,7 @@ export default function PersonalManagementPage() {
         body: JSON.stringify({
           table: 'usuarios',
           method: 'select',
-          data: 'rut'
+          data: '*'
         })
       })
       if (!res.ok) throw new Error("Proxy error")
@@ -88,7 +91,7 @@ export default function PersonalManagementPage() {
       if (error) throw new Error(error)
       
       const mapped = (data || []).reduce((acc: any, curr: any) => {
-        if (curr.rut) acc[curr.rut] = true
+        if (curr.rut) acc[curr.rut] = curr
         return acc
       }, {})
       setExistingUsers(mapped)
@@ -207,45 +210,111 @@ export default function PersonalManagementPage() {
   }
   const handleOpenAccess = (person: any) => {
     setSelectedForAccess(person)
-    setAccessData({
-        rol: person.cargo?.toLowerCase().includes('chofer') ? 'chofer' : 
-             person.cargo?.toLowerCase().includes('admin') ? 'admin' :
-             person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'chofer',
-        password: person.rut ? person.rut.toString().slice(0, 5) : ""
-    })
+    const existing = existingUsers[person.rut]
+    
+    if (existing) {
+        setIsEditingAccess(true)
+        setAccessData({
+            rol: existing.rol || 'chofer',
+            password: "", // do not show existing hash/password
+            config_sidebar: Array.isArray(existing.config_sidebar) ? existing.config_sidebar : []
+        })
+    } else {
+        setIsEditingAccess(false)
+        setAccessData({
+            rol: person.cargo?.toLowerCase().includes('chofer') ? 'chofer' : 
+                 person.cargo?.toLowerCase().includes('admin') ? 'admin' :
+                 person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'chofer',
+            password: person.rut ? person.rut.toString().slice(0, 5) : "",
+            config_sidebar: []
+        })
+    }
+    
     setIsAccessDialogOpen(true)
   }
 
   const handleGrantAccess = async () => {
-    if (!selectedForAccess || !accessData.password) return
+    if (!selectedForAccess) return
+    if (!isEditingAccess && !accessData.password) {
+        alert("Debes ingresar una contraseña inicial para habilitar.")
+        return
+    }
     
     try {
-        const res = await fetch('/api/proxy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            table: 'usuarios',
-            method: 'insert',
-            data: [{
-                nombre: `${selectedForAccess.nombre} ${selectedForAccess.apellido}`,
-                rut: selectedForAccess.rut,
-                dv: selectedForAccess.dv,
+        if (isEditingAccess) {
+            const updatePayload: any = {
                 rol: accessData.rol,
-                password: accessData.password,
-                config_sidebar: []
-            }]
-          })
-        })
-        const { error } = await res.json()
-        if (error) throw new Error(error)
+                config_sidebar: accessData.config_sidebar
+            }
+            if (accessData.password.trim() !== '') {
+                updatePayload.password = accessData.password
+            }
+            
+            const res = await fetch('/api/proxy', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                table: 'usuarios',
+                method: 'update',
+                data: updatePayload,
+                match: { rut: selectedForAccess.rut }
+              })
+            })
+            const { error } = await res.json()
+            if (error) throw new Error(error)
+            alert("Acceso actualizado correctamente")
+        } else {
+            const res = await fetch('/api/proxy', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                table: 'usuarios',
+                method: 'insert',
+                data: [{
+                    nombre: `${selectedForAccess.nombre} ${selectedForAccess.apellido}`,
+                    rut: selectedForAccess.rut,
+                    dv: selectedForAccess.dv,
+                    rol: accessData.rol,
+                    password: accessData.password,
+                    config_sidebar: accessData.config_sidebar
+                }]
+              })
+            })
+            const { error } = await res.json()
+            if (error) throw new Error(error)
+            alert("Acceso habilitado correctamente")
+        }
         
         setIsAccessDialogOpen(false)
         fetchExistingUsers()
-        alert("Acceso habilitado correctamente")
     } catch (error) {
         console.error("Error granting access:", error)
-        alert("Error al habilitar acceso. Posiblemente el usuario ya existe.")
+        alert("Error al guardar acceso o permisos.")
     }
+  }
+
+  const handleRevokeAccess = async () => {
+      if (!confirm("¿Está seguro de REVOCAR el acceso a la plataforma para este usuario?")) return
+      
+      try {
+        const res = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              table: 'usuarios',
+              method: 'delete',
+              match: { rut: selectedForAccess.rut }
+            })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
+
+        setIsAccessDialogOpen(false)
+        fetchExistingUsers()
+      } catch (e) {
+          console.error("Error revoking access", e)
+          alert("No se pudo revocar el acceso.")
+      }
   }
 
   const handleDelete = async (id: string) => {
@@ -535,11 +604,11 @@ export default function PersonalManagementPage() {
              <div className="bg-white/20 p-3 rounded-2xl w-fit mb-4">
                 <ShieldCheck className="size-8" />
              </div>
-             <DialogTitle className="text-2xl font-black uppercase tracking-tight">Habilitar Acceso</DialogTitle>
-             <DialogDescription className="text-white/60 font-medium">Configura las credenciales para {selectedForAccess?.nombre}.</DialogDescription>
+             <DialogTitle className="text-2xl font-black uppercase tracking-tight">{isEditingAccess ? "Editar Configuración de Acceso" : "Habilitar Acceso"}</DialogTitle>
+             <DialogDescription className="text-white/60 font-medium">Configura las credenciales y permisos para {selectedForAccess?.nombre}.</DialogDescription>
           </div>
           
-          <div className="p-8 space-y-6">
+          <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
              <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Rol en Plataforma</Label>
                 <select 
@@ -558,32 +627,75 @@ export default function PersonalManagementPage() {
              </div>
 
              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contraseña (Default 5 dígitos RUT)</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+                    {isEditingAccess ? "Actualizar Contraseña (Opcional)" : "Contraseña Inicial (Default 5 dígitos RUT)"}
+                </Label>
                 <div className="relative">
                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                    <Input 
                     value={accessData.password}
                     onChange={(e) => setAccessData({...accessData, password: e.target.value})}
                     className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#51872E]"
-                    placeholder="Escribe la contraseña"
+                    placeholder={isEditingAccess ? "Dejar en blanco para mantener actual" : "Escribe la contraseña"}
                   />
                 </div>
-                <p className="text-[9px] text-slate-400 font-medium px-1 italic">
-                    Para este trabajador ({selectedForAccess?.rut}), se sugiere usar "{selectedForAccess?.rut?.toString().slice(0, 5)}".
-                </p>
+                {!isEditingAccess && (
+                    <p className="text-[9px] text-slate-400 font-medium px-1 italic">
+                        Para este trabajador ({selectedForAccess?.rut}), se sugiere usar "{selectedForAccess?.rut?.toString().slice(0, 5)}".
+                    </p>
+                )}
+             </div>
+
+             <div className="space-y-4 pt-4 border-t border-slate-100">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Módulos de Acceso Rápido (Sidebar)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {ALL_MODULES.map(module => {
+                        const isSelected = accessData.config_sidebar.some(m => m.id === module.id);
+                        return (
+                            <div key={module.id} 
+                                onClick={() => {
+                                    if(isSelected) {
+                                        setAccessData(prev => ({...prev, config_sidebar: prev.config_sidebar.filter(m => m.id !== module.id)}))
+                                    } else {
+                                        setAccessData(prev => ({...prev, config_sidebar: [...prev.config_sidebar, module]}))
+                                    }
+                                }}
+                                className={cn(
+                                    "p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all",
+                                    isSelected 
+                                    ? "bg-[#51872E]/10 border-[#51872E]/30 text-[#323232]" 
+                                    : "bg-white border-slate-100 text-slate-500 hover:border-[#116CA2]/30"
+                                )}>
+                                <div className={cn(
+                                    "size-5 rounded flex items-center justify-center transition-colors",
+                                    isSelected ? "bg-[#51872E] text-white" : "border-2 border-slate-300"
+                                )}>
+                                    {isSelected && <Check className="size-3" />}
+                                </div>
+                                <span className="text-xs font-bold whitespace-nowrap overflow-hidden text-ellipsis">{module.name}</span>
+                            </div>
+                        )
+                    })}
+                </div>
              </div>
           </div>
 
           <DialogFooter className="p-8 pt-0 flex gap-3">
-             <Button variant="ghost" className="flex-1 h-12 rounded-xl font-bold text-slate-400" onClick={() => setIsAccessDialogOpen(false)}>
-                CANCELAR
+             {isEditingAccess && (
+                 <Button variant="ghost" className="h-12 rounded-xl font-black text-red-500 hover:bg-red-50 hover:text-red-600 transition-all px-6" onClick={handleRevokeAccess}>
+                    REVOCAR ACCESO
+                 </Button>
+             )}
+             <div className="flex-1"></div>
+             <Button variant="ghost" className="w-24 h-12 rounded-xl font-bold text-slate-400" onClick={() => setIsAccessDialogOpen(false)}>
+                CERRAR
              </Button>
              <Button 
                 onClick={handleGrantAccess} 
-                className="flex-1 h-12 rounded-xl bg-[#51872E] hover:bg-[#406B24] text-white font-black shadow-lg shadow-[#51872E]/20"
-                disabled={!accessData.password}
+                className="px-6 h-12 rounded-xl bg-[#51872E] hover:bg-[#406B24] text-white font-black shadow-lg shadow-[#51872E]/20"
+                disabled={!isEditingAccess && !accessData.password}
              >
-                HABILITAR
+                {isEditingAccess ? "GUARDAR" : "HABILITAR ACCESO"}
              </Button>
           </DialogFooter>
         </DialogContent>
