@@ -51,7 +51,11 @@ export default function PrestamoVehiculos() {
     if (s) {
       const parsed = JSON.parse(s)
       setSessionUser(parsed)
-      fetchMisSolicitudes(parsed.id)
+      if (parsed.persona_id) {
+         fetchMisSolicitudes(parsed.persona_id)
+      } else {
+         console.error("El usuario no tiene un perfil vinculado en Maestro Personas.")
+      }
     }
   }, [])
 
@@ -116,7 +120,7 @@ export default function PrestamoVehiculos() {
           table: 'solicitudes_vehiculos',
           method: 'insert',
           data: {
-            usuario_id: sessionUser.id,
+            usuario_id: sessionUser.persona_id, // Usar el ID del Maestro Personas para que cruce con el Foreign Key
             motivo: formData.motivo,
             fecha_inicio: startDateTime.toISOString(),
             fecha_fin: endDateTime.toISOString(),
@@ -130,7 +134,9 @@ export default function PrestamoVehiculos() {
       if (!success) throw new Error(error)
 
       setIsModalOpen(false)
-      fetchMisSolicitudes(sessionUser.id)
+      if (sessionUser.persona_id) {
+         fetchMisSolicitudes(sessionUser.persona_id)
+      }
       
       // Reset form
       setFormData({
