@@ -73,24 +73,49 @@ export default function PersonalManagementPage() {
   }, [])
 
   const fetchExistingUsers = async () => {
-    const { data } = await supabase.from('usuarios').select('rut')
-    const mapped = (data || []).reduce((acc: any, curr: any) => {
-      if (curr.rut) acc[curr.rut] = true
-      return acc
-    }, {})
-    setExistingUsers(mapped)
+    try {
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'usuarios',
+          method: 'select',
+          data: 'rut'
+        })
+      })
+      if (!res.ok) throw new Error("Proxy error")
+      const { data, error } = await res.json()
+      if (error) throw new Error(error)
+      
+      const mapped = (data || []).reduce((acc: any, curr: any) => {
+        if (curr.rut) acc[curr.rut] = true
+        return acc
+      }, {})
+      setExistingUsers(mapped)
+    } catch (error) {
+      console.error("Error fetching existing users:", error)
+    }
   }
 
   const fetchPersonal = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('maestro_personas')
-        .select('*')
-        .order('apellido', { ascending: true })
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'maestro_personas',
+          method: 'select',
+          data: '*'
+        })
+      })
+      if (!res.ok) throw new Error("Proxy error")
+      const { data, error } = await res.json()
+      if (error) throw new Error(error)
       
-      if (error) throw error
-      setPersonals(data || [])
+      // Order alphabetically locally if needed or rely on data sort
+      const sorted = (data || []).sort((a: any, b: any) => a.apellido?.localeCompare(b.apellido))
+      setPersonals(sorted)
     } catch (error) {
       console.error("Error fetching personal:", error)
     } finally {
@@ -147,16 +172,30 @@ export default function PersonalManagementPage() {
       }
 
       if (editingPerson) {
-        const { error } = await supabase
-          .from('maestro_personas')
-          .update(dbPerson)
-          .eq('id', editingPerson.id)
-        if (error) throw error
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'maestro_personas',
+            method: 'update',
+            data: dbPerson,
+            match: { id: editingPerson.id }
+          })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
       } else {
-        const { error } = await supabase
-          .from('maestro_personas')
-          .insert([dbPerson])
-        if (error) throw error
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'maestro_personas',
+            method: 'insert',
+            data: [dbPerson]
+          })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
       }
       
       setIsDialogOpen(false)
@@ -181,16 +220,24 @@ export default function PersonalManagementPage() {
     if (!selectedForAccess || !accessData.password) return
     
     try {
-        const { error } = await supabase.from('usuarios').insert([{
-            nombre: `${selectedForAccess.nombre} ${selectedForAccess.apellido}`,
-            rut: selectedForAccess.rut,
-            dv: selectedForAccess.dv,
-            rol: accessData.rol,
-            password: accessData.password,
-            config_sidebar: []
-        }])
-
-        if (error) throw error
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'usuarios',
+            method: 'insert',
+            data: [{
+                nombre: `${selectedForAccess.nombre} ${selectedForAccess.apellido}`,
+                rut: selectedForAccess.rut,
+                dv: selectedForAccess.dv,
+                rol: accessData.rol,
+                password: accessData.password,
+                config_sidebar: []
+            }]
+          })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
         
         setIsAccessDialogOpen(false)
         fetchExistingUsers()
@@ -205,9 +252,18 @@ export default function PersonalManagementPage() {
     if (!confirm("¿Está seguro de eliminar este registro? Esto podría afectar los logs históricos.")) return
     
     try {
-      // Note: We might want to handle foreign key constraints if logs reference this
-      const { error } = await supabase.from('maestro_personas').delete().eq('id', id)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'maestro_personas',
+          method: 'delete',
+          match: { id: id }
+        })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
+
       fetchPersonal()
     } catch (error) {
       console.error("Error deleting person:", error)
