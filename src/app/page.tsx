@@ -110,7 +110,7 @@ export default function Home() {
 
   const handleLogin = (user: any) => {
     // Check if user requires password
-    const requiresPassword = user.rol === 'master_admin' || user.rol === 'admin' || user.rol === 'admin_operaciones'
+    const requiresPassword = ['master_admin', 'admin', 'admin_operaciones', 'usuario', 'operaciones'].includes(user.rol)
     
     if (requiresPassword && !selectedUser) {
       setSelectedUser(user)
@@ -135,6 +135,7 @@ export default function Home() {
     switch (user.rol) {
       case 'master_admin':
       case 'admin':
+      case 'usuario':
         router.push('/admin')
         break
       case 'operaciones':

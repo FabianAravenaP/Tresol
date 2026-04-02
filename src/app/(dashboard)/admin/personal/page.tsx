@@ -224,7 +224,7 @@ export default function PersonalManagementPage() {
         setAccessData({
             rol: person.cargo?.toLowerCase().includes('chofer') ? 'chofer' : 
                  person.cargo?.toLowerCase().includes('admin') ? 'admin' :
-                 person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'chofer',
+                 person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'usuario',
             password: person.rut ? person.rut.toString().slice(0, 5) : "",
             config_sidebar: []
         })
@@ -616,13 +616,14 @@ export default function PersonalManagementPage() {
                     onChange={(e) => setAccessData({...accessData, rol: e.target.value})}
                     className="w-full h-12 px-4 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-[#51872E] font-bold text-slate-600 outline-none"
                 >
-                    <option value="chofer">Chofer / Móvil</option>
+                    <option value="usuario">Usuario Dashboard / General</option>
+                    <option value="chofer">App Móvil: Chofer Servicios</option>
                     <option value="peoneta">Auxiliar / Peoneta</option>
                     <option value="portero">Control Portería</option>
                     <option value="digitalizador">Digitalizador</option>
                     <option value="cocina">Cocina / Casino</option>
-                    <option value="admin">Administrador</option>
                     <option value="operaciones">Supervisor Operaciones</option>
+                    <option value="admin">Administrador General</option>
                 </select>
              </div>
 

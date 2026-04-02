@@ -125,18 +125,18 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Gestión Cocina", href: "/cocina", icon: Utensils },
-    { name: "Analíticas", href: "/admin/analiticas", icon: Activity },
+    { name: "Gestión Cocina", href: "/cocina", icon: Utensils, roles: ['master_admin', 'admin', 'cocina'] },
+    { name: "Analíticas", href: "/admin/analiticas", icon: Activity, roles: ['master_admin', 'admin'] },
     { name: "Usuarios", href: "/admin/usuarios", icon: Users, roles: ['master_admin'] },
-    { name: "Flota", href: "/admin/flota", icon: Truck },
-    { name: "Personal", href: "/admin/personal", icon: Users },
-    { name: "Vehículos Menores", href: "/admin/vehiculos_menores", icon: Car },
-    { name: "Clientes", href: "/admin/clientes", icon: MapPin },
+    { name: "Flota", href: "/admin/flota", icon: Truck, roles: ['master_admin', 'admin'] },
+    { name: "Personal", href: "/admin/personal", icon: Users, roles: ['master_admin', 'admin'] },
+    { name: "Vehículos Menores", href: "/admin/vehiculos_menores", icon: Car, roles: ['master_admin', 'admin'] },
+    { name: "Clientes", href: "/admin/clientes", icon: MapPin, roles: ['master_admin', 'admin'] },
     { name: "Configuración", href: "/admin/config", icon: Settings, roles: ['master_admin'] },
   ]
 
-  // Sidebar is only persistent if role is master_admin or admin
-  const showSidebar = user && (user.rol === 'master_admin' || user.rol === 'admin')
+  // Sidebar is persistent for admin-level and general dashboard users
+  const showSidebar = user && ['master_admin', 'admin', 'operaciones', 'usuario'].includes(user.rol)
 
   // If sidebar is shown, filter nav items
   const filteredNavItems = navItems.filter(item => 
