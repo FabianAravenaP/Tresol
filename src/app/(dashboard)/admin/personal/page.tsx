@@ -375,12 +375,12 @@ export default function PersonalManagementPage() {
            <Table>
               <TableHeader>
                 <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Trabajador</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">RUT</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Contacto</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Empresa / Cargo</TableHead>
-                  <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
+                  <TableHead className="px-4 py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Trabajador</TableHead>
+                  <TableHead className="py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">RUT</TableHead>
+                  <TableHead className="py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado</TableHead>
+                  <TableHead className="py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Contacto</TableHead>
+                  <TableHead className="py-4 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Empresa / Cargo</TableHead>
+                  <TableHead className="px-4 py-4 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -394,7 +394,7 @@ export default function PersonalManagementPage() {
                   </TableRow>
                 ) : filteredPersonal.map((person) => (
                   <TableRow key={person.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <TableCell className="px-8 py-6">
+                    <TableCell className="px-4 py-4">
                        <div className="flex items-center gap-3">
                           <div className="size-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-black text-[#116CA2]">
                              {person.nombre?.charAt(0)}
@@ -406,10 +406,10 @@ export default function PersonalManagementPage() {
                           </div>
                        </div>
                     </TableCell>
-                    <TableCell className="py-6 text-sm font-bold text-slate-500">
+                    <TableCell className="py-4 text-sm font-bold text-slate-500">
                         {person.rut ? `${person.rut}-${person.dv}` : "S/R"}
                     </TableCell>
-                    <TableCell className="py-6">
+                    <TableCell className="py-4">
                         {existingUsers[person.rut] ? (
                             <Badge className="bg-[#51872E]/10 text-[#51872E] text-[10px] font-black border-none px-2 py-0.5 rounded-lg flex items-center gap-1 w-fit">
                                 <ShieldCheck className="size-3" />
@@ -422,7 +422,7 @@ export default function PersonalManagementPage() {
                             </Badge>
                         )}
                     </TableCell>
-                    <TableCell className="py-6">
+                    <TableCell className="py-4">
                        <div className="space-y-1">
                           {person.fono && (
                              <div className="flex items-center gap-2 text-xs font-bold text-[#323232]">
@@ -441,7 +441,7 @@ export default function PersonalManagementPage() {
                           )}
                        </div>
                     </TableCell>
-                    <TableCell className="py-6">
+                    <TableCell className="py-4">
                        <div className="space-y-1">
                           <div className="flex items-center gap-2 text-xs font-bold text-[#323232]">
                              <Building2 className="size-3 text-[#116CA2]" />
@@ -453,7 +453,7 @@ export default function PersonalManagementPage() {
                           </div>
                        </div>
                     </TableCell>
-                    <TableCell className="px-8 py-6 text-right space-x-2">
+                    <TableCell className="px-4 py-4 text-right space-x-2 whitespace-nowrap">
                        <Button 
                         variant="ghost" 
                         size="icon" 
