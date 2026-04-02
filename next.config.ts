@@ -5,7 +5,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   transpilePackages: ['recharts'],
-  // Removing custom webpack alias to prevent Vercel worker conflicts
 };
 
 export default nextConfig;
