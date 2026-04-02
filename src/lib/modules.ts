@@ -121,6 +121,16 @@ export const ALL_MODULES: ModuleDef[] = [
     type: "icon" 
   },
   { 
+    id: "prestamos", 
+    name: "Mis Préstamos", 
+    description: "Plataforma de solicitud y control de vehículos menores prestados por la empresa.",
+    href: "/admin/prestamos", 
+    icon: "Car", 
+    category: "Servicios", 
+    color: "bg-teal-500",
+    type: "icon" 
+  },
+  { 
     id: "mobile", 
     name: "App Conductor", 
     description: "Terminal móvil para reportar inicio de ruta, carga y generación de comprobantes.",

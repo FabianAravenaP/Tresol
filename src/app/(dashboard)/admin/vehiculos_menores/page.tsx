@@ -52,17 +52,25 @@ export default function VehiculosMenoresAdmin() {
   const fetchSolicitudes = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('solicitudes_vehiculos')
-        .select(`
-          *,
-          solicitante:usuario_id(nombre, apellido, rut),
-          vehiculo:vehiculo_id(patente, marca, modelo, categoria)
-        `)
-        .order('created_at', { ascending: false })
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'select',
+          data: `
+            *,
+            solicitante:usuario_id(nombre, apellido, rut),
+            vehiculo:vehiculo_id(patente, marca, modelo, categoria)
+          `
+        })
+      })
       
-      if (error) throw error
-      setSolicitudes(data || [])
+      const { data, error, success } = await res.json()
+      if (!success) throw new Error(error)
+      
+      const sorted = (data || []).sort((a:any, b:any) => new Date(b.created_at || new Date()).getTime() - new Date(a.created_at || new Date()).getTime())
+      setSolicitudes(sorted)
     } catch (error) {
       console.error("Error fetching solicitudes:", error)
     } finally {
@@ -75,15 +83,22 @@ export default function VehiculosMenoresAdmin() {
       const sessionStr = localStorage.getItem('tresol_session')
       const user = sessionStr ? JSON.parse(sessionStr) : null
       
-      const { error } = await supabase
-        .from('solicitudes_vehiculos')
-        .update({ 
-          estado_solicitud: action,
-          aprobado_por: user?.id
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'update',
+          data: { 
+            estado_solicitud: action,
+            aprobado_por: user?.id
+          },
+          match: { id }
         })
-        .eq('id', id)
+      })
       
-      if (error) throw error
+      const { error, success } = await res.json()
+      if (!success) throw new Error(error)
       fetchSolicitudes()
     } catch (error) {
       console.error("Error updating solicitud:", error)

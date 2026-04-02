@@ -18,7 +18,9 @@ const ALLOWED_TABLES = [
   'cocina_minutas',
   'cocina_elecciones',
   'cocina_inventario',
-  'maestro_personas'
+  'maestro_personas',
+  'solicitudes_vehiculos',
+  'vehiculos_menores'
 ] as const
 
 

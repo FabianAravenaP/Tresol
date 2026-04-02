@@ -125,6 +125,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+    { name: "Préstamo Vehículo", href: "/admin/prestamos", icon: Car },
     { name: "Gestión Cocina", href: "/cocina", icon: Utensils, roles: ['master_admin', 'admin', 'cocina'] },
     { name: "Analíticas", href: "/admin/analiticas", icon: Activity, roles: ['master_admin', 'admin'] },
     { name: "Usuarios", href: "/admin/usuarios", icon: Users, roles: ['master_admin'] },
