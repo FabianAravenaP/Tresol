@@ -54,13 +54,21 @@ export default function FlotaMasterPage() {
   const fetchVehiculos = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('vehiculos')
-        .select('*')
-        .order('patente')
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'vehiculos',
+          method: 'select',
+          data: '*'
+        })
+      })
+      if (!res.ok) throw new Error("Proxy error")
+      const { data, error } = await res.json()
+      if (error) throw new Error(error)
       
-      if (error) throw error
-      setVehiculos(data || [])
+      const sorted = (data || []).sort((a: any, b: any) => a.patente?.localeCompare(b.patente))
+      setVehiculos(sorted)
     } catch (error) {
       console.error("Error fetching vehicles:", error)
     } finally {
@@ -92,33 +100,41 @@ export default function FlotaMasterPage() {
     if (!formData.patente.trim()) return
     
     try {
+      const dbVehiculo = {
+        patente: formData.patente.toUpperCase(),
+        marca: formData.marca.trim().toUpperCase(),
+        modelo: formData.modelo.trim().toUpperCase(),
+        tipo: formData.tipo,
+        categoria: formData.categoria,
+        estado: formData.estado,
+        id_interno: formData.id_interno.trim()
+      }
+
       if (editingVehiculo) {
-        const { error } = await supabase
-          .from('vehiculos')
-          .update({
-            patente: formData.patente.toUpperCase(),
-            marca: formData.marca.trim().toUpperCase(),
-            modelo: formData.modelo.trim().toUpperCase(),
-            tipo: formData.tipo,
-            categoria: formData.categoria,
-            estado: formData.estado,
-            id_interno: formData.id_interno.trim()
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'vehiculos',
+            method: 'update',
+            data: dbVehiculo,
+            match: { id: editingVehiculo.id }
           })
-          .eq('id', editingVehiculo.id)
-        if (error) throw error
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
       } else {
-        const { error } = await supabase
-          .from('vehiculos')
-          .insert([{
-            patente: formData.patente.toUpperCase(),
-            marca: formData.marca.trim().toUpperCase(),
-            modelo: formData.modelo.trim().toUpperCase(),
-            tipo: formData.tipo,
-            categoria: formData.categoria,
-            estado: formData.estado,
-            id_interno: formData.id_interno.trim()
-          }])
-        if (error) throw error
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'vehiculos',
+            method: 'insert',
+            data: [dbVehiculo]
+          })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
       }
       
       setIsDialogOpen(false)
@@ -133,11 +149,22 @@ export default function FlotaMasterPage() {
     if (!confirm("¿Está seguro de eliminar este vehículo?")) return
     
     try {
-      const { error } = await supabase.from('vehiculos').delete().eq('id', id)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'vehiculos',
+          method: 'delete',
+          match: { id: id }
+        })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
+      
       fetchVehiculos()
     } catch (error) {
       console.error("Error deleting vehicle:", error)
+      alert("Error al eliminar vehículo.")
     }
   }
 
