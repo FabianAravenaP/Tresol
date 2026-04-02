@@ -48,25 +48,48 @@ export default function Home() {
   const fetchUsuarios = async () => {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          table: 'usuarios',
-          method: 'select',
-          data: 'id, nombre, rol, password'
+      const [resUsers, resPersonas] = await Promise.all([
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'usuarios',
+            method: 'select',
+            data: 'id, nombre, rol, password, rut'
+          })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'maestro_personas',
+            method: 'select',
+            data: 'rut, cargo'
+          })
         })
-      })
+      ])
 
-      if (!res.ok) {
-        throw new Error(`Error en el servidor: ${res.status} ${res.statusText}`)
+      if (!resUsers.ok || !resPersonas.ok) {
+        throw new Error('Error al cargar datos desde el proxy')
       }
 
-      const { data, error } = await res.json()
-      if (error) throw new Error(error)
-      setUsuarios(data || [])
+      const { data: usersData, error: usersErr } = await resUsers.json()
+      if (usersErr) throw new Error(usersErr)
+      
+      const { data: personasData, error: personasErr } = await resPersonas.json()
+      if (personasErr) throw new Error(personasErr)
+
+      const cargoMap = (personasData || []).reduce((acc: any, p: any) => {
+        if (p.rut) acc[p.rut] = p.cargo || ''
+        return acc
+      }, {})
+
+      const usersWithCargo = (usersData || []).map((u: any) => ({
+        ...u,
+        displayCargo: cargoMap[u.rut] || u.rol // fallback
+      }))
+
+      setUsuarios(usersWithCargo)
     } catch (error) {
       console.error("Error fetching users:", error)
       toast.error("No se pudo cargar el directorio de usuarios. Revisa tu conexión.")
@@ -442,7 +465,7 @@ export default function Home() {
                              <div>
                                 <p className="font-black text-[#323232] uppercase tracking-tight">{user.nombre}</p>
                                 <Badge variant="outline" className="mt-1 border-none bg-slate-200/50 text-slate-500 font-black text-[9px] uppercase tracking-widest">
-                                   {user.rol}
+                                   {user.displayCargo}
                                 </Badge>
                              </div>
                           </div>
@@ -458,7 +481,7 @@ export default function Home() {
                       </div>
                       <div>
                         <p className="font-black text-[#323232] uppercase truncate">{selectedUser.nombre}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedUser.rol}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedUser.displayCargo}</p>
                       </div>
                     </div>
 
