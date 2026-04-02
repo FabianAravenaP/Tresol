@@ -1,0 +1,50 @@
+{
+  "total": 115,
+  "recent": [
+    {
+      "apellido": "VARGAS TOLEDO",
+      "rut": 12933999,
+      "dv": 3,
+      "fch_ingreso": 42979,
+      "ciudad": "PUERTO MONTT",
+      "email": "jeannettevargastoledo@gmail.com",
+      "fono": 999295288
+    },
+    {
+      "apellido": "VARGAS VARGAS",
+      "rut": 17299306,
+      "dv": 0,
+      "fch_ingreso": 44531,
+      "ciudad": "PUERTO MONTT",
+      "email": "carolavargas.1196@gmail.com",
+      "fono": 968555248
+    },
+    {
+      "apellido": "VARGAS VARGAS",
+      "rut": 15528649,
+      "dv": 0,
+      "fch_ingreso": 41589,
+      "ciudad": "OSORNO",
+      "email": "robinsonchofer3@gmail.com",
+      "fono": 950995882
+    },
+    {
+      "apellido": "VASQUEZ ANTIPAN",
+      "rut": 20611255,
+      "dv": 7,
+      "fch_ingreso": 45316,
+      "ciudad": "PUERTO MONTT",
+      "email": "fvasquez659@gmail.com",
+      "fono": 944908506
+    },
+    {
+      "apellido": "VERA VERA",
+      "rut": 21325734,
+      "dv": "K",
+      "fch_ingreso": 45818,
+      "ciudad": "PUERTO MONTT",
+      "email": "ignacioandres2606@gmail.com",
+      "fono": 940086707
+    }
+  ]
+}

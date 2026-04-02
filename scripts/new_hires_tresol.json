@@ -1,0 +1,55 @@
+{
+  "count": 123,
+  "recent": [
+    {
+      "apellido": "VARGAS BARRIA",
+      "rut": 17299094,
+      "dv": 0
+    },
+    {
+      "apellido": "VARGAS BARRIA ",
+      "rut": 19759028,
+      "dv": 9
+    },
+    {
+      "apellido": "VARGAS CIFUENTES ",
+      "rut": 16893992,
+      "dv": 2
+    },
+    {
+      "apellido": "VARGAS HERNANDEZ",
+      "rut": 12932517,
+      "dv": 8
+    },
+    {
+      "apellido": "VARGAS TOLEDO",
+      "rut": 12933999,
+      "dv": 3
+    },
+    {
+      "apellido": "VARGAS VARGAS",
+      "rut": 17299306,
+      "dv": 0
+    },
+    {
+      "apellido": "VARGAS VARGAS",
+      "rut": 15528649,
+      "dv": 0
+    },
+    {
+      "apellido": "VASQUEZ ANTIPAN",
+      "rut": 20611255,
+      "dv": 7
+    },
+    {
+      "apellido": "VERA VERA",
+      "rut": 21325734,
+      "dv": "K"
+    },
+    {
+      "apellido": "ZENTENO ZENTENO",
+      "rut": 19005543,
+      "dv": 4
+    }
+  ]
+}

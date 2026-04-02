@@ -21,11 +21,15 @@ import {
   FileText,
   Smartphone,
   Plus,
-  Package
+  Package,
+  Utensils,
+  ChefHat,
+  Car
 } from "lucide-react"
 import { UserProfile } from "@/components/UserProfile"
 import { supabase } from "@/lib/supabase"
 import { SidebarCustomizer } from "@/components/SidebarCustomizer"
+import { ALL_MODULES } from "@/lib/modules"
 
 export default function DashboardLayout({
   children,
@@ -40,7 +44,10 @@ export default function DashboardLayout({
   const [isCustomizing, setIsCustomizing] = useState(false)
 
   // Icons mapping for dynamic icons from JSON
-  const IconMap: any = { LayoutDashboard, MapPin, Activity, Users, Truck, Settings, Home, ShieldCheck, Smartphone, FileText }
+  const IconMap: any = { 
+    LayoutDashboard, MapPin, Activity, Users, Truck, Settings, 
+    Home, ShieldCheck, Smartphone, FileText, Utensils, ChefHat, Package, Car 
+  }
 
   useEffect(() => {
     const sessionStr = localStorage.getItem('tresol_session')
@@ -68,13 +75,9 @@ export default function DashboardLayout({
         setQuickAccess(data.config_sidebar)
       } else {
         // Fallback or default
-        setQuickAccess([
-          { id: "operativo", name: "Panel Operativo", href: "/operaciones", type: "status", color: "bg-emerald-500" },
-          { id: "monitoreo", name: "Monitoreo GPS", href: "/operaciones/monitoreo", type: "icon", icon: "MapPin" },
-          { id: "activos", name: "Gestión Activos", href: "/activos", type: "status", color: "bg-indigo-500" },
-          { id: "porteria", name: "Control Portería", href: "/porteria", type: "status", color: "bg-blue-500" },
-          { id: "digitalizador", name: "Digitalizador", href: "/digitalizador", type: "status", color: "bg-amber-500" }
-        ])
+        setQuickAccess(ALL_MODULES.filter(m => 
+          ["operativo", "cocina", "activos", "porteria", "digitalizador"].includes(m.id)
+        ))
       }
     } catch (err) {
       console.error("Error fetching user config", err)
@@ -122,11 +125,12 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Monitoreo GPS", href: "/operaciones/monitoreo", icon: MapPin },
+    { name: "Gestión Cocina", href: "/cocina", icon: Utensils },
     { name: "Analíticas", href: "/admin/analiticas", icon: Activity },
     { name: "Usuarios", href: "/admin/usuarios", icon: Users, roles: ['master_admin'] },
     { name: "Flota", href: "/admin/flota", icon: Truck },
     { name: "Personal", href: "/admin/personal", icon: Users },
+    { name: "Vehículos Menores", href: "/admin/vehiculos_menores", icon: Car },
     { name: "Clientes", href: "/admin/clientes", icon: MapPin },
     { name: "Configuración", href: "/admin/config", icon: Settings, roles: ['master_admin'] },
   ]
@@ -176,7 +180,9 @@ export default function DashboardLayout({
         <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
           <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Gestión General</p>
           {filteredNavItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
+            const isActive = item.href === '/admin' 
+              ? pathname === '/admin' 
+              : (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)))
             const isOperaciones = item.href === '/operaciones' && pathname.startsWith('/operaciones')
             
             return (
@@ -202,7 +208,6 @@ export default function DashboardLayout({
                   <div className="ml-9 pl-4 border-l-2 border-slate-100 dark:border-zinc-800 space-y-1 py-2 animate-in slide-in-from-top-2 duration-300">
                     {[
                       { name: "Planificación", href: "/operaciones" },
-                      { name: "Monitoreo", href: "/operaciones/monitoreo" },
                       { name: "Historial", href: "/operaciones/servicios" },
                       { name: "Flota", href: "/operaciones/flota" },
                       { name: "Pagos", href: "/operaciones/pagos" },

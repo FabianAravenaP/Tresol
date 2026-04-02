@@ -12,18 +12,22 @@ import {
 import { Button } from "@/components/uib/button"
 import { cn } from "@/lib/utils"
 import { 
+  Check,
+  Plus,
+  Settings,
   LayoutDashboard, 
   MapPin, 
   Activity, 
   Users, 
   Truck, 
-  Settings, 
   Home, 
   Smartphone, 
   FileText,
-  Check,
-  Plus
+  ShieldCheck,
+  Package,
+  Utensils
 } from "lucide-react"
+import { ALL_MODULES } from "@/lib/modules"
 
 interface SidebarCustomizerProps {
   isOpen: boolean
@@ -35,19 +39,7 @@ interface SidebarCustomizerProps {
 export function SidebarCustomizer({ isOpen, onClose, currentConfig, onSave }: SidebarCustomizerProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>(currentConfig.map(c => c.id))
 
-  const allAvailableModules = [
-    { id: "operativo", name: "Panel Operativo", href: "/operaciones", type: "status", color: "bg-emerald-500", category: "Operaciones" },
-    { id: "monitoreo", name: "Monitoreo GPS", href: "/operaciones/monitoreo", type: "icon", icon: "MapPin", category: "Operaciones" },
-    { id: "conductores", name: "Gestión Conductores", href: "/admin/conductores", type: "icon", icon: "Truck", category: "Administración" },
-    { id: "porteria", name: "Control Portería", href: "/porteria", type: "status", color: "bg-blue-500", category: "Operaciones" },
-    { id: "digitalizador", name: "Digitalizador", href: "/digitalizador", type: "status", color: "bg-amber-500", category: "Administración" },
-    { id: "analiticas", name: "Analíticas", href: "/admin/analiticas", type: "icon", icon: "Activity", category: "Administración" },
-    { id: "usuarios", name: "Usuarios", href: "/admin/usuarios", type: "icon", icon: "Users", category: "Administración" },
-    { id: "flota", name: "Maestro Flota", href: "/admin/flota", type: "icon", icon: "Truck", category: "Administración" },
-    { id: "personal", name: "Personal", href: "/admin/personal", type: "icon", icon: "Users", category: "Administración" },
-    { id: "clientes", name: "Clientes", href: "/admin/clientes", type: "icon", icon: "MapPin", category: "Administración" },
-    { id: "activos", name: "Gestión Activos", href: "/activos", type: "status", color: "bg-indigo-500", category: "Administración" },
-  ]
+  const allAvailableModules = ALL_MODULES
 
   const toggleModule = (id: string) => {
     if (selectedIds.includes(id)) {
@@ -62,7 +54,10 @@ export function SidebarCustomizer({ isOpen, onClose, currentConfig, onSave }: Si
     onSave(newConfig)
   }
 
-  const IconMap: any = { LayoutDashboard, MapPin, Activity, Users, Truck, Settings, Home, Smartphone, FileText }
+  const IconMap: any = { 
+    LayoutDashboard, MapPin, Activity, Users, Truck, Settings, 
+    Home, Smartphone, FileText, ShieldCheck, Package, Utensils 
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

@@ -10,6 +10,7 @@ import { Button } from "@/components/uib/button"
 import { Input } from "@/components/uib/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/uib/table"
 import { Badge } from "@/components/uib/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/uib/tabs"
 import { 
   Truck, 
   Plus, 
@@ -35,13 +36,16 @@ export default function FlotaMasterPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingVehiculo, setEditingVehiculo] = useState<Vehiculo | null>(null)
   
-  // Form State
   const [formData, setFormData] = useState({
     patente: "",
-    tipo: "CAMION",
+    marca: "",
+    modelo: "",
+    tipo: "recolector",
+    categoria: "CAMION",
     estado: "OPERATIVO",
-    capacidad: ""
+    id_interno: ""
   })
+  const [activeTab, setActiveTab] = useState("CAMION")
 
   useEffect(() => {
     fetchVehiculos()
@@ -66,17 +70,20 @@ export default function FlotaMasterPage() {
 
   const handleOpenCreate = () => {
     setEditingVehiculo(null)
-    setFormData({ patente: "", tipo: "CAMION", estado: "OPERATIVO", capacidad: "" })
+    setFormData({ patente: "", marca: "", modelo: "", tipo: "recolector", categoria: activeTab, estado: "OPERATIVO", id_interno: "" })
     setIsDialogOpen(true)
   }
 
-  const handleOpenEdit = (v: Vehiculo) => {
+  const handleOpenEdit = (v: any) => {
     setEditingVehiculo(v)
     setFormData({ 
       patente: v.patente, 
+      marca: v.marca || "",
+      modelo: v.modelo || "",
       tipo: v.tipo, 
+      categoria: v.categoria || "CAMION",
       estado: v.estado || "OPERATIVO",
-      capacidad: v.capacidad || ""
+      id_interno: v.id_interno || ""
     })
     setIsDialogOpen(true)
   }
@@ -90,9 +97,12 @@ export default function FlotaMasterPage() {
           .from('vehiculos')
           .update({
             patente: formData.patente.toUpperCase(),
+            marca: formData.marca.trim().toUpperCase(),
+            modelo: formData.modelo.trim().toUpperCase(),
             tipo: formData.tipo,
+            categoria: formData.categoria,
             estado: formData.estado,
-            capacidad: formData.capacidad
+            id_interno: formData.id_interno.trim()
           })
           .eq('id', editingVehiculo.id)
         if (error) throw error
@@ -101,9 +111,12 @@ export default function FlotaMasterPage() {
           .from('vehiculos')
           .insert([{
             patente: formData.patente.toUpperCase(),
+            marca: formData.marca.trim().toUpperCase(),
+            modelo: formData.modelo.trim().toUpperCase(),
             tipo: formData.tipo,
+            categoria: formData.categoria,
             estado: formData.estado,
-            capacidad: formData.capacidad
+            id_interno: formData.id_interno.trim()
           }])
         if (error) throw error
       }
@@ -128,10 +141,12 @@ export default function FlotaMasterPage() {
     }
   }
 
-  const filteredVehiculos = vehiculos.filter(v => 
-    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    v.tipo?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredVehiculos = vehiculos.filter(v => {
+    const matchesSearch = v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         v.tipo?.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesTab = v.categoria === activeTab
+    return matchesSearch && matchesTab
+  })
 
   return (
     <div className="space-y-8">
@@ -146,7 +161,33 @@ export default function FlotaMasterPage() {
         </Button>
       </div>
 
-      <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+         <TabsList className="bg-transparent h-fit p-0 gap-2 mb-2">
+            <TabsTrigger 
+                value="CAMION" 
+                className={cn(
+                    "h-12 px-8 rounded-2xl font-black transition-all",
+                    activeTab === "CAMION" 
+                    ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20" 
+                    : "bg-white text-slate-400 hover:text-[#116CA2] border-none shadow-md"
+                )}
+            >
+                CAMIONES
+            </TabsTrigger>
+            <TabsTrigger 
+                value="MENOR" 
+                className={cn(
+                    "h-12 px-8 rounded-2xl font-black transition-all",
+                    activeTab === "MENOR" 
+                    ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20" 
+                    : "bg-white text-slate-400 hover:text-[#116CA2] border-none shadow-md"
+                )}
+            >
+                VEHÍCULOS MENORES
+            </TabsTrigger>
+         </TabsList>
+         
+         <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden mt-4">
         <CardHeader className="p-8 border-b border-slate-50 dark:border-zinc-800">
            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
@@ -187,7 +228,15 @@ export default function FlotaMasterPage() {
                           </div>
                           <div>
                             <p className="font-black text-[#323232] dark:text-white text-lg tracking-tight leading-none mb-1">{v.patente}</p>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{v.capacidad || 'Capacidad N/A'}</p>
+                             <div className="flex items-center gap-2">
+                                <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">ID INVENTARIO: {v.id_interno || 'N/A'}</p>
+                               {(v.marca || v.modelo) && (
+                                  <>
+                                     <span className="text-slate-200">|</span>
+                                     <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">{v.marca} {v.modelo}</p>
+                                  </>
+                               )}
+                            </div>
                           </div>
                        </div>
                     </TableCell>
@@ -218,8 +267,9 @@ export default function FlotaMasterPage() {
                 ))}
               </TableBody>
            </Table>
-        </CardContent>
+         </CardContent>
       </Card>
+    </Tabs>
 
       {/* Fleet Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -243,35 +293,83 @@ export default function FlotaMasterPage() {
                       placeholder="ABCD-12"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Capacidad</Label>
+                 <div className="space-y-2 col-span-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">N° Inventario / Control Interno</Label>
                     <Input 
-                      value={formData.capacidad}
-                      onChange={(e) => setFormData({...formData, capacidad: e.target.value})}
-                      className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]"
-                      placeholder="Ej: 30m3"
+                      value={formData.id_interno}
+                      onChange={(e) => setFormData({...formData, id_interno: e.target.value})}
+                      className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] font-black"
+                      placeholder="Ej: 449"
                     />
                 </div>
              </div>
              
-             <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo de Vehículo</Label>
-                <Select value={formData.tipo} onValueChange={(val) => setFormData({...formData, tipo: val ?? "CAMION"})}>
-                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
-                    <SelectValue placeholder="Seleccionar Tipo" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl shadow-xl border-none p-2">
-                    <SelectItem value="CAMION" className="py-3 font-bold">CAMIÓN SIMPLE</SelectItem>
-                    <SelectItem value="CAMION+CARRO" className="py-3 font-bold">CAMIÓN + CARRO</SelectItem>
-                    <SelectItem value="ROLL-OFF" className="py-3 font-bold">CAMIÓN ROLL-OFF</SelectItem>
-                    <SelectItem value="ESTANQUE" className="py-3 font-bold">CAMIÓN ESTANQUE</SelectItem>
-                  </SelectContent>
-                </Select>
-             </div>
+             <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Marca</Label>
+                    <Input 
+                        value={formData.marca}
+                        onChange={(e) => setFormData({...formData, marca: e.target.value})}
+                        className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] uppercase"
+                        placeholder="PEUGEOT"
+                    />
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Modelo</Label>
+                    <Input 
+                        value={formData.modelo}
+                        onChange={(e) => setFormData({...formData, modelo: e.target.value})}
+                        className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] uppercase"
+                        placeholder="PARTNER"
+                    />
+                 </div>
+              </div>
+
+             <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Categoría</Label>
+                    <Select value={formData.categoria} onValueChange={(val: string) => setFormData({...formData, categoria: val || "CAMION"})}>
+                        <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
+                            <SelectValue placeholder="Categoría" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl shadow-xl border-none p-2">
+                            <SelectItem value="CAMION" className="py-3 font-bold">CAMIONES</SelectItem>
+                            <SelectItem value="MENOR" className="py-3 font-bold">V. MENORES</SelectItem>
+                        </SelectContent>
+                    </Select>
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo Detalle</Label>
+                    <Select value={formData.tipo} onValueChange={(val: string) => setFormData({...formData, tipo: val || "recolector"})}>
+                    <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
+                        <SelectValue placeholder="Seleccionar Tipo" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl shadow-xl border-none p-2">
+                        {formData.categoria === 'CAMION' ? (
+                            <>
+                                <SelectItem value="recolector" className="py-3 font-bold uppercase text-[10px]">RECOLECTOR</SelectItem>
+                                <SelectItem value="ampliroll" className="py-3 font-bold uppercase text-[10px]">AMPLIROLL</SelectItem>
+                                <SelectItem value="tracto" className="py-3 font-bold uppercase text-[10px]">TRACTO</SelectItem>
+                                <SelectItem value="atmosférico" className="py-3 font-bold uppercase text-[10px]">ATMOSFÉRICO</SelectItem>
+                                <SelectItem value="grúa" className="py-3 font-bold uppercase text-[10px]">GRÚA</SelectItem>
+                                <SelectItem value="otro_pesado" className="py-3 font-bold uppercase text-[10px]">OTRO PESADO</SelectItem>
+                            </>
+                        ) : (
+                            <>
+                                <SelectItem value="camioneta" className="py-3 font-bold uppercase text-[10px]">CAMIONETA</SelectItem>
+                                <SelectItem value="furgón" className="py-3 font-bold uppercase text-[10px]">FURGÓN</SelectItem>
+                                <SelectItem value="camion 3/4" className="py-3 font-bold uppercase text-[10px]">CAMIÓN 3/4</SelectItem>
+                                <SelectItem value="auto" className="py-3 font-bold uppercase text-[10px]">AUTOMÓVIL</SelectItem>
+                            </>
+                        )}
+                    </SelectContent>
+                    </Select>
+                 </div>
+              </div>
 
              <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Estado Operativo</Label>
-                <Select value={formData.estado} onValueChange={(val) => setFormData({...formData, estado: val ?? "OPERATIVO"})}>
+                <Select value={formData.estado} onValueChange={(val: string) => setFormData({...formData, estado: val || "OPERATIVO"})}>
                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
                     <SelectValue placeholder="Seleccionar Estado" />
                   </SelectTrigger>

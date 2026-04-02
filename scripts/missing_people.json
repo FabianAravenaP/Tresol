@@ -1,0 +1,225 @@
+{
+  "totalMissing": 22,
+  "missing": [
+    {
+      "nombre": "",
+      "apellido": "ALVARADO TORRES ",
+      "rut": 15847427,
+      "dv": 1,
+      "cargo": "",
+      "fch_ingreso": 46083,
+      "email": "yatorres28@gmail.com",
+      "fono": 934837979
+    },
+    {
+      "nombre": "",
+      "apellido": "ANTILLANCA VIVAR ",
+      "rut": 16320247,
+      "dv": 6,
+      "cargo": "",
+      "fch_ingreso": 46113,
+      "email": "jessicaantillanca80@gmail.com",
+      "fono": 933123347
+    },
+    {
+      "nombre": "",
+      "apellido": "ARZOLA ELGUETA",
+      "rut": 17299196,
+      "dv": 3,
+      "cargo": "",
+      "fch_ingreso": 45929,
+      "email": "carzolaelgueta@gmail.com",
+      "fono": 988087776
+    },
+    {
+      "nombre": "",
+      "apellido": "ARAVENA PAREDES ",
+      "rut": 17630469,
+      "dv": 3,
+      "cargo": "",
+      "fch_ingreso": 46113,
+      "email": "fabian.map1990@gmail.com",
+      "fono": 967467945
+    },
+    {
+      "nombre": "",
+      "apellido": "CASTAÑEDA TORO",
+      "rut": 13340939,
+      "dv": 4,
+      "cargo": "",
+      "fch_ingreso": 45957,
+      "email": "aliwen78@outlook.com",
+      "fono": 950679186
+    },
+    {
+      "nombre": "",
+      "apellido": "CISNERO SOLORZANO ",
+      "rut": 26954526,
+      "dv": 7,
+      "cargo": "",
+      "fch_ingreso": 46099,
+      "email": "cisnerowillys01@gmail.com",
+      "fono": 979682627
+    },
+    {
+      "nombre": "",
+      "apellido": "CORNEJO GONZALEZ ",
+      "rut": 13348828,
+      "dv": 6,
+      "cargo": "",
+      "fch_ingreso": 46013,
+      "email": "hansgtr@gmail.com",
+      "fono": 961855250
+    },
+    {
+      "nombre": "",
+      "apellido": "CUEVAS SANCHEZ ",
+      "rut": 20780240,
+      "dv": 9,
+      "cargo": "",
+      "fch_ingreso": 46027,
+      "email": "tomycuevas@gmail.com",
+      "fono": 965249290
+    },
+    {
+      "nombre": "",
+      "apellido": "FICA LEVIÑANCO",
+      "rut": 18473254,
+      "dv": 8,
+      "cargo": "",
+      "fch_ingreso": 46044,
+      "email": "anaisxdyona@gmail.com",
+      "fono": 964844327
+    },
+    {
+      "nombre": "",
+      "apellido": "GALINDO ESTEFO ",
+      "rut": 22222772,
+      "dv": "",
+      "cargo": "",
+      "fch_ingreso": 45987,
+      "email": "DAVIDBETELGALINDO7Y14@GMAIL.COM",
+      "fono": 920308518
+    },
+    {
+      "nombre": "",
+      "apellido": "GOMEZ REYES",
+      "rut": 20293422,
+      "dv": 6,
+      "cargo": "",
+      "fch_ingreso": 46090,
+      "email": "yoanhg2727@gmail.com",
+      "fono": 926859711
+    },
+    {
+      "nombre": "",
+      "apellido": "HERNANDEZ ROSAS",
+      "rut": 11502407,
+      "dv": 8,
+      "cargo": "",
+      "fch_ingreso": 45922,
+      "email": "fabianpatriciohr@gmail.com",
+      "fono": 929680367
+    },
+    {
+      "nombre": "",
+      "apellido": "MALDONADO CORNEJO",
+      "rut": 18409147,
+      "dv": "K",
+      "cargo": "",
+      "fch_ingreso": 46069,
+      "email": "diegomalgonafo@gmail.com",
+      "fono": 964013950
+    },
+    {
+      "nombre": "",
+      "apellido": "MOLL GARCIA ",
+      "rut": " 19,086,505",
+      "dv": 3,
+      "cargo": "",
+      "fch_ingreso": 46015,
+      "email": "gtchacorta7gmail.com",
+      "fono": 987342864
+    },
+    {
+      "nombre": "",
+      "apellido": "SANTANA AGUILAR ",
+      "rut": 18734171,
+      "dv": "k",
+      "cargo": "",
+      "fch_ingreso": 46056,
+      "email": "yordysantana1994@gmail.com",
+      "fono": 920581418
+    },
+    {
+      "nombre": "",
+      "apellido": "SANTANA VERA",
+      "rut": 18206373,
+      "dv": 8,
+      "cargo": "",
+      "fch_ingreso": 46006,
+      "email": "macarena.santanav@gmail.com",
+      "fono": 957331958
+    },
+    {
+      "nombre": "",
+      "apellido": "SHIELDS VALDEBENITO ",
+      "rut": 17672386,
+      "dv": 6,
+      "cargo": "",
+      "fch_ingreso": 46090,
+      "email": "diego.shields.valdebenito@gmail.com",
+      "fono": 961901133
+    },
+    {
+      "nombre": "",
+      "apellido": "SEPULVEDA HERRERA ",
+      "rut": 11982603,
+      "dv": 9,
+      "cargo": "",
+      "fch_ingreso": 46065,
+      "email": "fernandosepulvedaherrera@gmail.com",
+      "fono": 934835534
+    },
+    {
+      "nombre": "",
+      "apellido": "SOTO RUIZ",
+      "rut": 19200616,
+      "dv": 3,
+      "cargo": "",
+      "fch_ingreso": 45936,
+      "email": "nalejandrasotoruiz@gmail.com",
+      "fono": 922091896
+    },
+    {
+      "nombre": "",
+      "apellido": "TAPIA NAVARRO ",
+      "rut": 21544481,
+      "dv": 3,
+      "cargo": "",
+      "fch_ingreso": 46065,
+      "email": "rodrigoalejandrotapianavarro@gmail.com",
+      "fono": 910123864
+    },
+    {
+      "nombre": "",
+      "apellido": "VARGAS BARRIA ",
+      "rut": 19759028,
+      "dv": 9,
+      "cargo": "",
+      "fch_ingreso": 46093,
+      "email": "jhowilliams 687@gmail.com",
+      "fono": 984710486
+    },
+    {
+      "nombre": "",
+      "apellido": "ZENTENO ZENTENO",
+      "rut": 19005543,
+      "dv": 4,
+      "cargo": "",
+      "fch_ingreso": 46050,
+      "email": "constanzazenteno29@gmail.com",
+      "fono": 990657643
+    }
+  ]
+}

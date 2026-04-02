@@ -1,80 +1,110 @@
-export const dynamic = 'force-dynamic'
-
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { z } from 'zod'
+import { env } from '@/lib/config'
+
+// Whitelist of allowed tables for proxy access to prevent arbitrary DB access
+const ALLOWED_TABLES = [
+  'usuarios',
+  'servicios',
+  'servicios_asignados',
+  'vehiculos',
+  'historial_mecanico',
+  'notificaciones',
+  'activos',
+  'ingresos_porteria',
+  'cocina_recetas',
+  'cocina_ingredientes',
+  'cocina_minutas',
+  'cocina_elecciones',
+  'cocina_inventario'
+] as const
+
+
+const proxySchema = z.object({
+  table: z.enum(ALLOWED_TABLES as unknown as [string, ...string[]]),
+  method: z.enum(['select', 'insert', 'update', 'delete']),
+  data: z.any(),
+  match: z.record(z.string(), z.any()).optional()
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = env.SUPABASE_SERVICE_ROLE_KEY
 
     if (!supabaseUrl || !supabaseServiceKey) {
-       throw new Error('Supabase environment variables are missing in production environment.')
+       return NextResponse.json({ error: 'Faltan variables de entorno de Supabase' }, { status: 500 })
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
+      auth: { autoRefreshToken: false, persistSession: false }
     })
 
-    const rawBody = await request.json();
-    const { table, data, method, match } = rawBody as { 
-      table: string; 
-      data: any; 
-      method: string; 
-      match?: Record<string, string> 
-    };
-
-    const query = supabase.from(table)
-    let result: { data?: unknown; error?: { message: string } | null }
-
-    if (method === 'insert') {
-      if (table === 'servicios_asignados') {
-        const dataArray = Array.isArray(data) ? data : [data];
-        dataArray.forEach((item: { tipo_servicio?: string }) => {
-          if (!item.tipo_servicio) item.tipo_servicio = 'RETIRO';
-        });
-        result = await query.insert(dataArray).select()
-      } else {
-        result = await query.insert(data as Record<string, unknown>).select()
-      }
-    } else if (method === 'update') {
-      if (!match) throw new Error("Update requiere match")
-      result = await query.update(data as Record<string, unknown>).match(match).select()
-    } else if (method === 'select') {
-      let q = query.select((data as string) || '*')
-      if (match) {
-        Object.entries(match).forEach(([key, value]) => {
-          q = q.eq(key, value)
-        })
-      }
-      result = await q
-    } else if (method === 'delete') {
-      let q = query.delete()
-      if (match && Object.keys(match).length > 0) {
-        Object.entries(match).forEach(([key, value]) => {
-          q = q.eq(key, value)
-        })
-      } else {
-        q = q.neq('id', '00000000-0000-0000-0000-000000000000')
-      }
-      result = await q
-    } else {
-      throw new Error("Método no soportado")
+    const body = await request.json()
+    const result_validation = proxySchema.safeParse(body)
+    
+    if (!result_validation.success) {
+      return NextResponse.json({ 
+        error: 'Solicitud inválida o tabla no permitida', 
+        details: result_validation.error.format() 
+      }, { status: 400 })
     }
 
-    const dataArray = Array.isArray(result.data) ? (result.data as unknown[]) : (result.data ? [result.data] : []);
-    const dataLength = dataArray.length;
-    console.log(`Proxy success [${method}] on [${table}]:`, dataLength, 'items');
+    const { table, data, method, match } = result_validation.data
+    const query = supabase.from(table)
+    let result: { data?: any; error?: any }
 
-    if (result.error) throw result.error
+    switch (method) {
+      case 'select':
+        let q = query.select(typeof data === 'string' ? data : '*')
+        if (match) {
+          Object.entries(match).forEach(([key, value]) => {
+            q = q.eq(key, value)
+          })
+        }
+        result = await q
+        break
+
+      case 'insert':
+        // Logic for specific tables if needed
+        const dataToInsert = Array.isArray(data) ? data : [data]
+        if (table === 'servicios_asignados') {
+          dataToInsert.forEach((item: any) => {
+            if (!item.tipo_servicio) item.tipo_servicio = 'RETIRO'
+          })
+        }
+        result = await query.insert(dataToInsert).select()
+        break
+
+      case 'update':
+        if (!match) return NextResponse.json({ error: 'Update requiere match' }, { status: 400 })
+        result = await query.update(data).match(match).select()
+        break
+
+      case 'delete':
+        if (!match || Object.keys(match).length === 0) {
+           return NextResponse.json({ error: 'Delete requiere match de seguridad' }, { status: 400 })
+        }
+        let dq = query.delete()
+        Object.entries(match).forEach(([key, value]) => {
+          dq = dq.eq(key, value)
+        })
+        result = await dq
+        break
+
+      default:
+        return NextResponse.json({ error: 'Método no soportado' }, { status: 405 })
+    }
+
+    if (result.error) {
+       console.error(`Proxy DB Error [${method} on ${table}]:`, result.error)
+       return NextResponse.json({ error: result.error.message }, { status: 400 })
+    }
 
     return NextResponse.json({ success: true, data: result.data })
-  } catch (error: unknown) {
-    const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error('Proxy API error:', errorMsg)
-    return NextResponse.json({ error: errorMsg }, { status: 500 })
+  } catch (error) {
+    console.error('Proxy Fatal Error:', error)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

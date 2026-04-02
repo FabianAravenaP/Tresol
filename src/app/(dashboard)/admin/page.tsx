@@ -6,6 +6,9 @@ import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
+import { useRouter } from "next/navigation"
+import { useOfflineSync } from "@/hooks/useOfflineSync"
+import { ALL_MODULES } from "@/lib/modules"
 import { 
   Users, 
   Truck, 
@@ -18,10 +21,19 @@ import {
   ShieldCheck, 
   Smartphone, 
   FileText,
-  RefreshCw
+  RefreshCw,
+  ChefHat,
+  Package,
+  Utensils,
+  MapPin,
+  Settings,
+  Home
 } from "lucide-react"
-import { useRouter } from "next/navigation"
-import { useOfflineSync } from "@/hooks/useOfflineSync"
+
+const IconMap: any = { 
+  LayoutDashboard, MapPin, Activity, Users, Truck, Settings, 
+  Home, Smartphone, FileText, Utensils, ChefHat, ShieldCheck, Package 
+}
 
 export default function MasterDashboard() {
   const router = useRouter()
@@ -157,28 +169,23 @@ export default function MasterDashboard() {
       </div>
 
       {/* Modules Health */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
-        <ModuleCard 
-          title="Operaciones" 
-          status="Activo" 
-          desc="Planificación y monitoreo de rutas en tiempo real."
-          path="/operaciones"
-          icon={LayoutDashboard}
-        />
-        <ModuleCard 
-          title="Digitalizador" 
-          status="Activo" 
-          desc="Emisión de comprobantes y trazabilidad documental."
-          path="/digitalizador"
-          icon={FileText}
-        />
-        <ModuleCard 
-          title="Consola Móvil" 
-          status="Activo" 
-          desc="Interacción directa con conductores en terreno."
-          path="/mobile"
-          icon={Smartphone}
-        />
+      {/* Modules Health / Quick Access */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
+        {ALL_MODULES.filter(m => 
+          ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos"].includes(m.id)
+        ).sort((a,b) => {
+          const order = ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos"];
+          return order.indexOf(a.id) - order.indexOf(b.id);
+        }).map((mod) => (
+          <ModuleCard 
+            key={mod.id}
+            title={mod.name} 
+            status="Activo" 
+            desc={mod.description}
+            path={mod.href}
+            icon={IconMap[mod.icon] || LayoutDashboard}
+          />
+        ))}
       </div>
 
       {/* Recent Alerts (Placeholder Logic) */}

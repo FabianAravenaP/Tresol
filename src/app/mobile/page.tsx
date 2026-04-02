@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/uib/card"
 import { Badge } from "@/components/uib/badge"
 import { Button } from "@/components/uib/button"
-import { FileText, Truck, Navigation2, AlertTriangle, CalendarDays } from "lucide-react"
+import { FileText, Truck, Navigation2, AlertTriangle, CalendarDays, Car, Plus } from "lucide-react"
 import { NavigationHeader } from "@/components/NavigationHeader"
 import { CalendarMinimalist } from "@/components/CalendarMinimalist"
 import { UserProfile } from "@/components/UserProfile"
@@ -27,8 +27,6 @@ export default function MobilePage() {
   const [servicio, setServicio] = useState<any>(null)
   const [bonoAproximado, setBonoAproximado] = useState<number | null>(null)
   const [tipoVehiculo, setTipoVehiculo] = useState<string | null>(null)
-  const [geoError, setGeoError] = useState<string | null>(null)
-  const [isSimulating, setIsSimulating] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [isFallaModalOpen, setIsFallaModalOpen] = useState(false)
   const [observacionFalla, setObservacionFalla] = useState("")
@@ -82,101 +80,6 @@ export default function MobilePage() {
     }
   }, [])
 
-  // GPS Tracking Logic
-  useEffect(() => {
-    let watchId: number | null = null;
-    let lastPingTime = 0;
-    const PING_INTERVAL = 60000; // 60 seconds
-
-    const isTrackingState = (estado: string) => 
-      ['en_ruta_origen', 'en_ruta_destino'].includes(estado);
-
-    if (servicio && isTrackingState(servicio.estado) && navigator.geolocation && !isSimulating) {
-      watchId = navigator.geolocation.watchPosition(
-        async (position) => {
-          const now = Date.now();
-          if (now - lastPingTime > PING_INTERVAL) {
-            lastPingTime = now;
-            const { latitude, longitude } = position.coords;
-            
-            try {
-              setGeoError(null) // Clear any previous error on success
-              await fetch('/api/proxy', {
-                method: 'POST',
-                body: JSON.stringify({
-                  table: 'registro_viajes',
-                  method: 'insert',
-                  data: {
-                    servicio_id: servicio.id,
-                    hito: 'gps_ping',
-                    latitud: latitude,
-                    longitud: longitude
-                  }
-                })
-              });
-            } catch (err) {
-              console.error("GPS Ping error:", err);
-            }
-          }
-        },
-        (error) => {
-          let msg = ""
-          switch(error.code) {
-            case error.PERMISSION_DENIED: msg = "Permiso de GPS denegado."; break;
-            case error.POSITION_UNAVAILABLE: msg = "Señal de GPS no disponible."; break;
-            case error.TIMEOUT: msg = "Tiempo de espera de GPS agotado."; break;
-            default: msg = "Error de GPS desconocido."; break;
-          }
-          console.error(`Geolocation error [${error.code}]: ${error.message}`);
-          setGeoError(msg)
-        },
-        { 
-          enableHighAccuracy: true, 
-          timeout: 20000, // Increased timeout to 20s
-          maximumAge: 0 
-        }
-      );
-    }
-
-    return () => {
-      if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-    };
-  }, [servicio?.id, servicio?.estado, isSimulating]);
-
-  // Simulation Logic
-  useEffect(() => {
-    if (!isSimulating || !servicio) return;
-
-    const PING_INTERVAL = 60000;
-    console.log("GPS Simulation started.");
-
-    const interval = setInterval(async () => {
-      // Mock coordinates (Santiago center area with slight variance)
-      const latitude = -33.4489 + (Math.random() - 0.5) * 0.01;
-      const longitude = -70.6693 + (Math.random() - 0.5) * 0.01;
-
-      try {
-        console.log("Simulated GPS Ping:", { latitude, longitude });
-        await fetch('/api/proxy', {
-          method: 'POST',
-          body: JSON.stringify({
-            table: 'registro_viajes',
-            method: 'insert',
-            data: {
-              servicio_id: servicio.id,
-              hito: 'gps_ping',
-              latitud: latitude,
-              longitud: longitude
-            }
-          })
-        });
-      } catch (err) {
-        console.error("Simulated GPS Ping error:", err);
-      }
-    }, PING_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [isSimulating, servicio?.id]);
 
   const handleAcceptTrip = async () => {
     if (!servicio) return
@@ -362,34 +265,6 @@ export default function MobilePage() {
       />
 
       <main className="p-4 pb-24 space-y-5 animate-in slide-in-from-bottom-4 duration-500">
-        {geoError && !isSimulating && (
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-3xl flex flex-col gap-3 text-amber-800 animate-in fade-in duration-500">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="size-5 shrink-0" />
-              <div className="space-y-0.5">
-                <p className="text-sm font-bold">Problema de GPS</p>
-                <p className="text-[10px] opacity-80">{geoError} Verifica tus permisos.</p>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              className="w-full h-10 border-amber-200 bg-white hover:bg-amber-100 text-amber-700 text-[10px] font-bold uppercase"
-              onClick={() => {
-                setGeoError(null)
-                setIsSimulating(true)
-              }}
-            >
-              Simular Ubicación (Modo Pruebas)
-            </Button>
-          </div>
-        )}
-
-        {isSimulating && (
-           <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl flex items-center gap-3 text-emerald-800 animate-pulse">
-             <Navigation2 className="size-4 animate-spin-slow" />
-             <p className="text-[10px] font-bold uppercase tracking-widest">Simulación de GPS Activa</p>
-           </div>
-        )}
         <UserProfile variant="dashboard" className="px-1 mb-2" />
 
         <div className="flex justify-between items-end px-1">
@@ -575,6 +450,30 @@ export default function MobilePage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* NEW VEHICLE MANAGEMENT CARD */}
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ delay: 0.2 }}
+        >
+          <Card className="rounded-[2.5rem] border-none shadow-xl bg-white dark:bg-zinc-900 overflow-hidden ring-1 ring-black/5" onClick={() => router.push('/mobile/vehiculos')}>
+            <CardContent className="p-8 flex items-center justify-between group cursor-pointer active:bg-slate-50 transition-colors">
+               <div className="flex items-center gap-5">
+                  <div className="size-14 rounded-2xl bg-[#116CA2]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                     <Car className="size-7 text-[#116CA2]" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#323232] dark:text-white uppercase tracking-tight leading-none mb-1">Vehículos Menores</h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Solicitud de Camionetas y Autos</p>
+                  </div>
+               </div>
+               <div className="size-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-[#116CA2] group-hover:text-white transition-all">
+                  <Plus className="size-5" />
+               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
 
       <Dialog open={isFallaModalOpen} onOpenChange={setIsFallaModalOpen}>

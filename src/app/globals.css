@@ -1,7 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 
 /* Tresol Corporate Fonts - Outfit is the new standard for premium SaaS */
 
@@ -52,74 +50,81 @@
 }
 
 :root {
-  --background: oklch(0.98 0.005 90); /* Very subtle industrial white */
-  --foreground: #1e1e1e; /* Deeper professional charcoal */
+  --background: oklch(0.99 0.002 90); /* Subtle ivory white for premium feel */
+  --foreground: oklch(0.2 0.02 240); /* Deep midnight for typography */
   --card: oklch(1 0 0);
-  --card-foreground: #1e1e1e;
+  --card-foreground: oklch(0.2 0.02 240);
   --popover: oklch(1 0 0);
-  --popover-foreground: #1e1e1e;
-  --primary: #4A7A2A; /* Refined Tresol Green (slightly deeper) */
+  --popover-foreground: oklch(0.2 0.02 240);
+  --primary: oklch(0.55 0.15 142); /* Vibrant Tresol Green (Modern OKLCH) */
   --primary-foreground: #ffffff;
-  --secondary: #0E5A8A; /* Refined Tresol Blue (more professional) */
+  --secondary: oklch(0.45 0.12 245); /* Deep Professional Tresol Blue */
   --secondary-foreground: #ffffff;
-  --muted: oklch(0.95 0.005 90);
-  --muted-foreground: #71717a;
-  --accent: #F9B233; /* More vibrant accent yellow/orange */
-  --accent-foreground: #1e1e1e;
-  --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.92 0.005 90);
-  --input: oklch(0.92 0.005 90);
-  --ring: #4A7A2A;
-  --radius: 1.25rem; /* More rounded "Modern SaaS" appearance */
+  --muted: oklch(0.96 0.005 240);
+  --muted-foreground: oklch(0.5 0.02 240);
+  --accent: oklch(0.85 0.18 85); /* Premium Golden Accent */
+  --accent-foreground: oklch(0.2 0.02 240);
+  --destructive: oklch(0.55 0.22 25);
+  --border: oklch(0.93 0.01 240);
+  --input: oklch(0.93 0.01 240);
+  --ring: oklch(0.55 0.15 142);
+  --radius: 1.5rem; /* Large, modern rounded corners */
   --font-sans: 'Outfit', sans-serif;
   --font-heading: 'Outfit', sans-serif;
   
-  --sidebar: #1e1e1e;
+  --sidebar: oklch(0.18 0.02 240); /* Professional deep dark sidebar */
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #4A7A2A;
+  --sidebar-primary: oklch(0.55 0.15 142);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0E5A8A;
+  --sidebar-accent: oklch(0.45 0.12 245);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255,255,255,0.08);
-  --sidebar-ring: #4A7A2A;
+  --sidebar-ring: oklch(0.55 0.15 142);
 }
 
 .dark {
-  --background: #09090b; /* Zinc-950 */
-  --foreground: #f4f4f5;
-  --card: #18181b; /* Zinc-900 */
-  --card-foreground: #f4f4f5;
-  --popover: #18181b;
-  --popover-foreground: #f4f4f5;
-  --primary: #4A7A2A;
+  --background: oklch(0.12 0.01 240);
+  --foreground: oklch(0.98 0.01 240);
+  --card: oklch(0.16 0.01 240);
+  --card-foreground: oklch(0.98 0.01 240);
+  --popover: oklch(0.16 0.01 240);
+  --popover-foreground: oklch(0.98 0.01 240);
+  --primary: oklch(0.6 0.14 142);
   --primary-foreground: #ffffff;
-  --secondary: #0E5A8A;
+  --secondary: oklch(0.5 0.12 245);
   --secondary-foreground: #ffffff;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #F9B233;
-  --accent-foreground: #09090b;
-  --border: rgba(255,255,255,0.08);
-  --input: rgba(255,255,255,0.08);
-  --ring: #4A7A2A;
-  --sidebar: #09090b;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #4A7A2A;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0E5A8A;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255,255,255,0.08);
-  --sidebar-ring: #4A7A2A;
+  --muted: oklch(0.22 0.02 240);
+  --muted-foreground: oklch(0.7 0.02 240);
+  --accent: oklch(0.85 0.18 85);
+  --accent-foreground: oklch(0.1 0.01 240);
+  --border: rgba(255,255,255,0.1);
+  --input: rgba(255,255,255,0.1);
+  --ring: oklch(0.6 0.14 142);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight;
+    @apply font-heading tracking-tight font-black;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+  .dark .glass {
+    @apply bg-zinc-900/70 backdrop-blur-xl border border-white/5 shadow-2xl;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary;
   }
 }

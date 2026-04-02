@@ -98,8 +98,8 @@ export default function AdminFlotaPage() {
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black tracking-tight text-[#323232]">Monitoreo de Flota</h2>
-          <p className="text-muted-foreground font-medium text-lg">Estatus y disponibilidad de activos en tiempo real.</p>
+          <h2 className="text-3xl font-black tracking-tight text-[#323232]">Estatus de Flota</h2>
+          <p className="text-muted-foreground font-medium text-lg">Disponibilidad y reportes de activos operativos.</p>
         </div>
         
         <div className="flex gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-2xl shadow-sm border border-muted/50 font-black text-[10px] tracking-widest uppercase">
@@ -206,10 +206,10 @@ export default function AdminFlotaPage() {
             <Settings className="size-10 text-white animate-[spin_8s_linear_infinite]" />
          </div>
          <div className="flex-1">
-            <h3 className="text-xl font-black text-[#116CA2] tracking-tight">Sincronización GPS & Mantenimiento</h3>
+            <h3 className="text-xl font-black text-[#116CA2] tracking-tight">Gestión Operativa de Activos</h3>
             <p className="text-sm font-medium text-muted-foreground max-w-2xl">
-               Los estados se actualizan automáticamente cada vez que un conductor reporta una novedad desde su consola móvil. 
-               El botón de "Reportar Falla" genera una alerta inmediata en este tablero.
+               Los estados se actualizan cuando un conductor reporta una novedad desde su aplicación móvil. 
+               El reporte de fallas genera una alerta inmediata en este tablero principal.
             </p>
          </div>
       </div>

@@ -14,6 +14,9 @@ export interface Vehiculo {
   id: string;
   patente: string;
   tipo: string;
+  categoria?: string;
+  marca?: string;
+  modelo?: string;
   capacidad: string | null;
   estado: 'OPERATIVO' | 'MANTENCIÓN' | 'FALLA MECÁNICA';
   created_at?: string;

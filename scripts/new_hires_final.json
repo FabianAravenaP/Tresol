@@ -1,0 +1,32 @@
+[
+  {
+    "nombre": "",
+    "apellido": "ANTILLANCA VIVAR ",
+    "rut": "16320247",
+    "dv": "6",
+    "cargo": "OPERARIO",
+    "empresa": "TRESOL",
+    "email": "jessicaantillanca80@gmail.com",
+    "fono": "933123347",
+    "direccion": "",
+    "ciudad": "PUERTO MONTT",
+    "fecha_ingreso": "2026-04-01",
+    "fecha_nacimiento": "2026-04-30",
+    "tipo": "trabajador"
+  },
+  {
+    "nombre": "",
+    "apellido": "ARAVENA PAREDES ",
+    "rut": "17630469",
+    "dv": "3",
+    "cargo": "OPERARIO",
+    "empresa": "TRESOL",
+    "email": "fabian.map1990@gmail.com",
+    "fono": "967467945",
+    "direccion": "",
+    "ciudad": "PUERTO MONTT",
+    "fecha_ingreso": "2026-04-01",
+    "fecha_nacimiento": "2026-04-30",
+    "tipo": "trabajador"
+  }
+]

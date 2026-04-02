@@ -1,5 +1,4 @@
 "use client"
-export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/uib/button"
@@ -20,10 +19,12 @@ import {
   TrendingDown,
   Target,
   Zap,
-  Package
+  Package,
+  ChefHat
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
+import { toast } from "sonner"
 import { 
   Dialog, 
   DialogContent, 
@@ -33,6 +34,8 @@ import {
 } from "@/components/uib/dialog"
 import { Input } from "@/components/uib/input"
 import { Badge } from "@/components/uib/badge"
+
+export const dynamic = 'force-dynamic'
 
 export default function Home() {
   const router = useRouter()
@@ -66,7 +69,7 @@ export default function Home() {
       setUsuarios(data || [])
     } catch (error) {
       console.error("Error fetching users:", error)
-      // Opcional: podrías mostrar una alerta o mensaje de error en la UI aquí
+      toast.error("No se pudo cargar el directorio de usuarios. Revisa tu conexión.")
     } finally {
       setIsLoading(false)
     }
@@ -122,6 +125,9 @@ export default function Home() {
         break
       case 'portero':
         router.push('/porteria')
+        break
+      case 'cocina':
+        router.push('/cocina')
         break
       // Fallback for old/other roles
       case 'admin_operaciones':
@@ -297,6 +303,13 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                {[
+                 { 
+                   title: "Gestión Cocina", 
+                   desc: "Control de minutas, producción diaria e inventario de casino para el personal.", 
+                   icon: ChefHat,
+                   color: "#FBC15F",
+                   role: "cocina"
+                 },
                  { 
                    title: "Operaciones", 
                    desc: "Planificación de servicios en calendario, asignación de choferes y control de flota.", 

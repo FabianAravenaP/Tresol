@@ -1,0 +1,36 @@
+{
+  "totalMissing": 22,
+  "todayNew": 2,
+  "recent": [
+    {
+      "rut": "16320247",
+      "dv": "6",
+      "nombre": "JESSICA MARGOTH",
+      "apellido": "ANTILLANCA VIVAR",
+      "cargo": "AUXILIAR DE ASEO",
+      "empresa": "TRESOL",
+      "email": "jessicaantillanca80@gmail.com",
+      "fono": "933123347",
+      "direccion": "POBL. MELIHUEN PJE BARITINA N°5887",
+      "ciudad": "PUERTO MONTT",
+      "fecha_ingreso": "2026-04-01",
+      "fecha_nacimiento": "2026-04-30",
+      "tipo": "trabajador"
+    },
+    {
+      "rut": "17630469",
+      "dv": "3",
+      "nombre": "FABIAN MARCELO",
+      "apellido": "ARAVENA PAREDES",
+      "cargo": "GERENTE DE PROCESOS",
+      "empresa": "TRESOL",
+      "email": "fabian.map1990@gmail.com",
+      "fono": "967467945",
+      "direccion": "GRANITICA 5298 CONDOMINIO VILLA TEPUAL CASA 54",
+      "ciudad": "PUERTO MONTT",
+      "fecha_ingreso": "2026-04-01",
+      "fecha_nacimiento": "2026-04-30",
+      "tipo": "trabajador"
+    }
+  ]
+}

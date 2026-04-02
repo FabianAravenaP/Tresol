@@ -20,7 +20,13 @@ import {
   Briefcase,
   Building2,
   Fingerprint,
-  Truck
+  Truck,
+  ShieldCheck,
+  ShieldAlert,
+  Key,
+  Phone,
+  Mail,
+  Smartphone
 } from "lucide-react"
 import { 
   Dialog, 
@@ -47,13 +53,33 @@ export default function PersonalManagementPage() {
     dv: "",
     cargo: "",
     empresa: "",
-    patente_default: "",
+    email: "",
+    fono: "",
     tipo: "trabajador"
   })
 
+  // Access State
+  const [isAccessDialogOpen, setIsAccessDialogOpen] = useState(false)
+  const [selectedForAccess, setSelectedForAccess] = useState<any>(null)
+  const [accessData, setAccessData] = useState({
+    rol: "chofer",
+    password: ""
+  })
+  const [existingUsers, setExistingUsers] = useState<Record<string, boolean>>({})
+
   useEffect(() => {
     fetchPersonal()
+    fetchExistingUsers()
   }, [])
+
+  const fetchExistingUsers = async () => {
+    const { data } = await supabase.from('usuarios').select('rut')
+    const mapped = (data || []).reduce((acc: any, curr: any) => {
+      if (curr.rut) acc[curr.rut] = true
+      return acc
+    }, {})
+    setExistingUsers(mapped)
+  }
 
   const fetchPersonal = async () => {
     setIsLoading(true)
@@ -81,7 +107,8 @@ export default function PersonalManagementPage() {
       dv: "", 
       cargo: "", 
       empresa: "", 
-      patente_default: "",
+      email: "",
+      fono: "",
       tipo: "trabajador"
     })
     setIsDialogOpen(true)
@@ -96,7 +123,8 @@ export default function PersonalManagementPage() {
       dv: person.dv || "", 
       cargo: person.cargo || "", 
       empresa: person.empresa || "", 
-      patente_default: person.patente_default || "",
+      email: person.email || "",
+      fono: person.fono || "",
       tipo: person.tipo || "trabajador"
     })
     setIsDialogOpen(true)
@@ -113,7 +141,8 @@ export default function PersonalManagementPage() {
         dv: formData.dv.trim().toUpperCase(),
         cargo: formData.cargo.trim(),
         empresa: formData.empresa.trim(),
-        patente_default: formData.patente_default.trim().toUpperCase(),
+        email: formData.email.trim(),
+        fono: formData.fono.trim(),
         tipo: formData.tipo
       }
 
@@ -135,6 +164,40 @@ export default function PersonalManagementPage() {
     } catch (error) {
       console.error("Error saving person:", error)
       alert("Error al guardar registro")
+    }
+  }
+  const handleOpenAccess = (person: any) => {
+    setSelectedForAccess(person)
+    setAccessData({
+        rol: person.cargo?.toLowerCase().includes('chofer') ? 'chofer' : 
+             person.cargo?.toLowerCase().includes('admin') ? 'admin' :
+             person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'chofer',
+        password: person.rut ? person.rut.toString().slice(0, 5) : ""
+    })
+    setIsAccessDialogOpen(true)
+  }
+
+  const handleGrantAccess = async () => {
+    if (!selectedForAccess || !accessData.password) return
+    
+    try {
+        const { error } = await supabase.from('usuarios').insert([{
+            nombre: `${selectedForAccess.nombre} ${selectedForAccess.apellido}`,
+            rut: selectedForAccess.rut,
+            dv: selectedForAccess.dv,
+            rol: accessData.rol,
+            password: accessData.password,
+            config_sidebar: []
+        }])
+
+        if (error) throw error
+        
+        setIsAccessDialogOpen(false)
+        fetchExistingUsers()
+        alert("Acceso habilitado correctamente")
+    } catch (error) {
+        console.error("Error granting access:", error)
+        alert("Error al habilitar acceso. Posiblemente el usuario ya existe.")
     }
   }
 
@@ -189,8 +252,9 @@ export default function PersonalManagementPage() {
                 <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
                   <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Trabajador</TableHead>
                   <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">RUT</TableHead>
+                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado</TableHead>
+                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Contacto</TableHead>
                   <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Empresa / Cargo</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Patente</TableHead>
                   <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -211,15 +275,46 @@ export default function PersonalManagementPage() {
                              {person.nombre?.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-bold text-[#323232] dark:text-white uppercase tracking-tight leading-none mb-1">
+                            <p className="font-bold text-[#323232] dark:text-white uppercase tracking-tight leading-none">
                               {person.nombre} {person.apellido}
                             </p>
-                            <span className="text-[9px] font-black text-[#51872E] uppercase tracking-widest">{person.tipo || 'TRABAJADOR'}</span>
                           </div>
                        </div>
                     </TableCell>
                     <TableCell className="py-6 text-sm font-bold text-slate-500">
                         {person.rut ? `${person.rut}-${person.dv}` : "S/R"}
+                    </TableCell>
+                    <TableCell className="py-6">
+                        {existingUsers[person.rut] ? (
+                            <Badge className="bg-[#51872E]/10 text-[#51872E] text-[10px] font-black border-none px-2 py-0.5 rounded-lg flex items-center gap-1 w-fit">
+                                <ShieldCheck className="size-3" />
+                                CON ACCESO
+                            </Badge>
+                        ) : (
+                            <Badge className="bg-slate-100 text-slate-400 text-[10px] font-black border-none px-2 py-0.5 rounded-lg flex items-center gap-1 w-fit">
+                                <ShieldAlert className="size-3" />
+                                SIN ACCESO
+                            </Badge>
+                        )}
+                    </TableCell>
+                    <TableCell className="py-6">
+                       <div className="space-y-1">
+                          {person.fono && (
+                             <div className="flex items-center gap-2 text-xs font-bold text-[#323232]">
+                                <Phone className="size-3 text-[#116CA2]" />
+                                {person.fono}
+                             </div>
+                          )}
+                          {person.email && (
+                             <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
+                                <Mail className="size-3" />
+                                {person.email.toLowerCase()}
+                             </div>
+                          )}
+                          {!person.fono && !person.email && (
+                             <span className="text-slate-300 text-[10px] italic">Sin datos</span>
+                          )}
+                       </div>
                     </TableCell>
                     <TableCell className="py-6">
                        <div className="space-y-1">
@@ -233,16 +328,21 @@ export default function PersonalManagementPage() {
                           </div>
                        </div>
                     </TableCell>
-                    <TableCell className="py-6">
-                        {person.patente_default ? (
-                           <Badge className="bg-slate-100 text-slate-600 font-mono font-black border-none px-3 py-1 rounded-lg">
-                              {person.patente_default}
-                           </Badge>
-                        ) : (
-                           <span className="text-slate-300 text-xs">—</span>
-                        )}
-                    </TableCell>
                     <TableCell className="px-8 py-6 text-right space-x-2">
+                       <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => handleOpenAccess(person)} 
+                        className={cn(
+                            "h-10 w-10 rounded-xl transition-all",
+                            existingUsers[person.rut] 
+                            ? "text-[#51872E] hover:bg-[#51872E]/10" 
+                            : "text-slate-400 hover:text-amber-500 hover:bg-amber-50"
+                        )}
+                        title={existingUsers[person.rut] ? "Acceso Activo" : "Habilitar Acceso"}
+                       >
+                          {existingUsers[person.rut] ? <ShieldCheck className="size-4" /> : <ShieldAlert className="size-4" />}
+                       </Button>
                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(person)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
                           <Edit2 className="size-4" />
                        </Button>
@@ -311,19 +411,6 @@ export default function PersonalManagementPage() {
              </div>
 
              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Patente Default</Label>
-                <div className="relative">
-                   <Truck className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-                   <Input 
-                    value={formData.patente_default}
-                    onChange={(e) => setFormData({...formData, patente_default: e.target.value})}
-                    className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] uppercase"
-                    placeholder="ABCD12"
-                  />
-                </div>
-             </div>
-
-             <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Empresa</Label>
                 <Input 
                   value={formData.empresa}
@@ -342,6 +429,32 @@ export default function PersonalManagementPage() {
                   placeholder="Ej: Chofer"
                 />
              </div>
+
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Celular / Teléfono</Label>
+                <div className="relative">
+                   <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                   <Input 
+                       value={formData.fono}
+                       onChange={(e) => setFormData({...formData, fono: e.target.value})}
+                       className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]"
+                       placeholder="+56 9 1234 5678"
+                   />
+                </div>
+             </div>
+
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Correo Electrónico</Label>
+                <div className="relative">
+                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                   <Input 
+                       value={formData.email}
+                       onChange={(e) => setFormData({...formData, email: e.target.value})}
+                       className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]"
+                       placeholder="ejemplo@tresol.cl"
+                   />
+                </div>
+             </div>
           </div>
 
           <DialogFooter className="p-8 pt-0 flex gap-3">
@@ -354,6 +467,67 @@ export default function PersonalManagementPage() {
                 disabled={!formData.nombre.trim() || !formData.apellido.trim()}
              >
                 {editingPerson ? "ACTUALIZAR" : "GUARDAR"}
+             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Access Dialog */}
+      <Dialog open={isAccessDialogOpen} onOpenChange={setIsAccessDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-zinc-900">
+          <div className="bg-[#51872E] p-8 text-white">
+             <div className="bg-white/20 p-3 rounded-2xl w-fit mb-4">
+                <ShieldCheck className="size-8" />
+             </div>
+             <DialogTitle className="text-2xl font-black uppercase tracking-tight">Habilitar Acceso</DialogTitle>
+             <DialogDescription className="text-white/60 font-medium">Configura las credenciales para {selectedForAccess?.nombre}.</DialogDescription>
+          </div>
+          
+          <div className="p-8 space-y-6">
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Rol en Plataforma</Label>
+                <select 
+                    value={accessData.rol}
+                    onChange={(e) => setAccessData({...accessData, rol: e.target.value})}
+                    className="w-full h-12 px-4 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-[#51872E] font-bold text-slate-600 outline-none"
+                >
+                    <option value="chofer">Chofer / Móvil</option>
+                    <option value="peoneta">Auxiliar / Peoneta</option>
+                    <option value="portero">Control Portería</option>
+                    <option value="digitalizador">Digitalizador</option>
+                    <option value="cocina">Cocina / Casino</option>
+                    <option value="admin">Administrador</option>
+                    <option value="operaciones">Supervisor Operaciones</option>
+                </select>
+             </div>
+
+             <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Contraseña (Default 5 dígitos RUT)</Label>
+                <div className="relative">
+                   <Key className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                   <Input 
+                    value={accessData.password}
+                    onChange={(e) => setAccessData({...accessData, password: e.target.value})}
+                    className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#51872E]"
+                    placeholder="Escribe la contraseña"
+                  />
+                </div>
+                <p className="text-[9px] text-slate-400 font-medium px-1 italic">
+                    Para este trabajador ({selectedForAccess?.rut}), se sugiere usar "{selectedForAccess?.rut?.toString().slice(0, 5)}".
+                </p>
+             </div>
+          </div>
+
+          <DialogFooter className="p-8 pt-0 flex gap-3">
+             <Button variant="ghost" className="flex-1 h-12 rounded-xl font-bold text-slate-400" onClick={() => setIsAccessDialogOpen(false)}>
+                CANCELAR
+             </Button>
+             <Button 
+                onClick={handleGrantAccess} 
+                className="flex-1 h-12 rounded-xl bg-[#51872E] hover:bg-[#406B24] text-white font-black shadow-lg shadow-[#51872E]/20"
+                disabled={!accessData.password}
+             >
+                HABILITAR
              </Button>
           </DialogFooter>
         </DialogContent>

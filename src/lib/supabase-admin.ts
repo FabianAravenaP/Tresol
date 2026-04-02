@@ -8,8 +8,8 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 export const supabaseAdmin = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseServiceKey || 'placeholder-key',
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://jmyhckenewmkobirlgcj.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'no-key-placeholder',
   {
     auth: {
       autoRefreshToken: false,
