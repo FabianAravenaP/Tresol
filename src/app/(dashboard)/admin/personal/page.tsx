@@ -394,7 +394,7 @@ export default function PersonalManagementPage() {
                   </TableRow>
                 ) : filteredPersonal.map((person) => (
                   <TableRow key={person.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <TableCell className="px-4 py-4">
+                    <TableCell className="px-4 py-4 whitespace-normal min-w-[200px]">
                        <div className="flex items-center gap-3">
                           <div className="size-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-black text-[#116CA2]">
                              {person.nombre?.charAt(0)}
@@ -422,18 +422,18 @@ export default function PersonalManagementPage() {
                             </Badge>
                         )}
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-4 whitespace-normal min-w-[150px]">
                        <div className="space-y-1">
                           {person.fono && (
                              <div className="flex items-center gap-2 text-xs font-bold text-[#323232]">
-                                <Phone className="size-3 text-[#116CA2]" />
-                                {person.fono}
+                                <Phone className="size-3 text-[#116CA2] shrink-0" />
+                                <span className="truncate">{person.fono}</span>
                              </div>
                           )}
                           {person.email && (
                              <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
-                                <Mail className="size-3" />
-                                {person.email.toLowerCase()}
+                                <Mail className="size-3 shrink-0" />
+                                <span className="truncate">{person.email.toLowerCase()}</span>
                              </div>
                           )}
                           {!person.fono && !person.email && (
@@ -441,15 +441,15 @@ export default function PersonalManagementPage() {
                           )}
                        </div>
                     </TableCell>
-                    <TableCell className="py-4">
+                    <TableCell className="py-4 whitespace-normal min-w-[150px]">
                        <div className="space-y-1">
                           <div className="flex items-center gap-2 text-xs font-bold text-[#323232]">
-                             <Building2 className="size-3 text-[#116CA2]" />
-                             {person.empresa || "—"}
+                             <Building2 className="size-3 text-[#116CA2] shrink-0" />
+                             <span className="truncate">{person.empresa || "—"}</span>
                           </div>
                           <div className="flex items-center gap-2 text-[10px] font-medium text-slate-400">
-                             <Briefcase className="size-3" />
-                             {person.cargo || "—"}
+                             <Briefcase className="size-3 shrink-0" />
+                             <span className="truncate">{person.cargo || "—"}</span>
                           </div>
                        </div>
                     </TableCell>
