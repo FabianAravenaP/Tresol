@@ -111,6 +111,11 @@ export default function PrestamoVehiculos() {
        return
     }
 
+    if (!sessionUser.persona_id) {
+       alert("Tu sesión es antigua. Por favor, cierra sesión y vuelve a ingresar para poder solicitar un vehículo con tu perfil de trabajador.")
+       return
+    }
+
     setIsSubmitting(true)
     try {
       const res = await fetch('/api/proxy', {
