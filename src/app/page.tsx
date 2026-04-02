@@ -64,7 +64,7 @@ export default function Home() {
           body: JSON.stringify({
             table: 'maestro_personas',
             method: 'select',
-            data: 'rut, cargo'
+            data: 'rut, cargo, id'
           })
         })
       ])
