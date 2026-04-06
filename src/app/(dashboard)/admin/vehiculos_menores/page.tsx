@@ -45,6 +45,10 @@ export default function VehiculosMenoresAdmin() {
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("pendientes")
   const [detailModal, setDetailModal] = useState<{isOpen: boolean, solicitud: any | null}>({isOpen: false, solicitud: null})
+  const [actionModal, setActionModal] = useState<{isOpen: boolean, solicitud: any | null, action: 'APROBADA' | 'RECHAZADA' | null}>({isOpen: false, solicitud: null, action: null})
+  const [approvalVehiculo, setApprovalVehiculo] = useState("")
+  const [rejectionComment, setRejectionComment] = useState("")
+  const [isActioning, setIsActioning] = useState(false)
 
   useEffect(() => {
     fetchSolicitudes()
@@ -98,31 +102,50 @@ export default function VehiculosMenoresAdmin() {
     }
   }
 
-  const handleAction = async (id: string, action: 'APROBADA' | 'RECHAZADA') => {
+  const openActionModal = (solicitud: any, action: 'APROBADA' | 'RECHAZADA') => {
+    setApprovalVehiculo(solicitud.vehiculo_id ?? "")
+    setRejectionComment("")
+    setActionModal({ isOpen: true, solicitud, action })
+  }
+
+  const confirmAction = async () => {
+    if (!actionModal.solicitud || !actionModal.action) return
+    setIsActioning(true)
     try {
       const sessionStr = localStorage.getItem('tresol_session')
       const user = sessionStr ? JSON.parse(sessionStr) : null
-      
+
+      const updateData: any = {
+        estado_solicitud: actionModal.action,
+        aprobado_por: user?.persona_id ?? user?.id
+      }
+      if (actionModal.action === 'APROBADA' && approvalVehiculo) {
+        updateData.vehiculo_id = approvalVehiculo
+      }
+      if (actionModal.action === 'RECHAZADA' && rejectionComment.trim()) {
+        updateData.comentarios_admin = rejectionComment.trim()
+      }
+
       const res = await fetch('/api/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           table: 'solicitudes_vehiculos',
           method: 'update',
-          data: {
-            estado_solicitud: action,
-            aprobado_por: user?.persona_id ?? user?.id
-          },
-          match: { id }
+          data: updateData,
+          match: { id: actionModal.solicitud.id }
         })
       })
-      
+
       const { error, success } = await res.json()
       if (!success) throw new Error(error)
+      setActionModal({ isOpen: false, solicitud: null, action: null })
       fetchSolicitudes()
     } catch (error) {
       console.error("Error updating solicitud:", error)
       alert("Error al procesar la solicitud")
+    } finally {
+      setIsActioning(false)
     }
   }
 
@@ -199,7 +222,8 @@ export default function VehiculosMenoresAdmin() {
           </div>
         </div>
 
-        <TabsContent value={activeTab} className="mt-0">
+        {(['pendientes', 'activas', 'historial'] as const).map((tabValue) => (
+        <TabsContent key={tabValue} value={tabValue} className="mt-0">
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
             <CardContent className="p-0">
               <Table>
@@ -245,7 +269,7 @@ export default function VehiculosMenoresAdmin() {
                                  <Calendar className="size-3 text-[#116CA2]" />
                                  {new Date(s.fecha_inicio).toLocaleDateString()} {new Date(s.fecha_inicio).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                  <span className="text-slate-300 mx-1">→</span>
-                                 {new Date(s.fecha_fin).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                 {new Date(s.fecha_fin).toLocaleDateString()} {new Date(s.fecha_fin).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                               </div>
                               <div className="flex items-center gap-2">
                                  <Badge className={cn(
@@ -322,15 +346,15 @@ export default function VehiculosMenoresAdmin() {
                            <div className="flex items-center justify-end gap-2">
                              {s.estado_solicitud === 'PENDIENTE' ? (
                                <>
-                                 <Button 
-                                   onClick={() => handleAction(s.id, 'APROBADA')}
+                                 <Button
+                                   onClick={() => openActionModal(s, 'APROBADA')}
                                    className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl h-9 px-4 font-black text-[10px] tracking-widest shadow-lg shadow-emerald-500/20"
                                  >
                                     APROBAR
                                  </Button>
-                                 <Button 
+                                 <Button
                                    variant="ghost"
-                                   onClick={() => handleAction(s.id, 'RECHAZADA')}
+                                   onClick={() => openActionModal(s, 'RECHAZADA')}
                                    className="text-red-500 hover:bg-red-50 rounded-xl h-9 px-4 font-black text-[10px] tracking-widest"
                                  >
                                     RECHAZAR
@@ -351,6 +375,7 @@ export default function VehiculosMenoresAdmin() {
             </CardContent>
           </Card>
         </TabsContent>
+        ))}
         <TabsContent value="flota" className="mt-0">
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
             <CardContent className="p-0">
@@ -411,6 +436,70 @@ export default function VehiculosMenoresAdmin() {
         </TabsContent>
       </Tabs>
 
+
+      {/* Action Confirmation Modal */}
+      {actionModal.solicitud && (
+        <Dialog open={actionModal.isOpen} onOpenChange={(open: boolean) => !open && setActionModal({isOpen: false, solicitud: null, action: null})}>
+          <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 border-none shadow-2xl">
+            <DialogHeader className="mb-6">
+              <div className={`size-14 rounded-2xl flex items-center justify-center mb-4 ${actionModal.action === 'APROBADA' ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                {actionModal.action === 'APROBADA'
+                  ? <CheckCircle2 className="size-7 text-emerald-500" />
+                  : <XCircle className="size-7 text-red-500" />}
+              </div>
+              <DialogTitle className="text-xl font-black text-[#323232] uppercase tracking-tight">
+                {actionModal.action === 'APROBADA' ? 'Aprobar Solicitud' : 'Rechazar Solicitud'}
+              </DialogTitle>
+              <DialogDescription className="font-bold text-slate-500">
+                {actionModal.solicitud.solicitante?.nombre} {actionModal.solicitud.solicitante?.apellido}
+                {actionModal.solicitud.motivo ? ` · ${actionModal.solicitud.motivo}` : ''}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {actionModal.action === 'APROBADA' && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Asignar Vehículo</label>
+                  <select
+                    value={approvalVehiculo}
+                    onChange={(e) => setApprovalVehiculo(e.target.value)}
+                    className="w-full h-12 px-4 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-sm outline-none focus:ring-2 focus:ring-[#116CA2]"
+                  >
+                    <option value="">Sin asignar (el usuario ya eligió)</option>
+                    {vehiculos.filter((v: any) => v.categoria === 'MENOR' && v.estado === 'OPERATIVO').map((v: any) => (
+                      <option key={v.id} value={v.id}>{v.patente} — {v.marca} {v.modelo}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {actionModal.action === 'RECHAZADA' && (
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">Motivo de Rechazo</label>
+                  <textarea
+                    value={rejectionComment}
+                    onChange={(e) => setRejectionComment(e.target.value)}
+                    placeholder="Opcional — el solicitante verá este mensaje."
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 font-bold text-sm outline-none resize-none focus:ring-2 focus:ring-red-300"
+                  />
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="mt-6 flex gap-2">
+              <Button variant="ghost" onClick={() => setActionModal({isOpen: false, solicitud: null, action: null})} className="rounded-xl font-black text-slate-400">Cancelar</Button>
+              <Button
+                onClick={confirmAction}
+                disabled={isActioning}
+                className={`rounded-xl font-black px-8 text-white ${actionModal.action === 'APROBADA' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'}`}
+              >
+                {isActioning ? 'Procesando...' : (actionModal.action === 'APROBADA' ? 'Confirmar Aprobación' : 'Confirmar Rechazo')}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Detail Modal */}
       {detailModal.solicitud && (

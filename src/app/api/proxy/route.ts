@@ -77,6 +77,17 @@ export async function POST(request: NextRequest) {
             if (!item.tipo_servicio) item.tipo_servicio = 'RETIRO'
           })
         }
+        if (table === 'solicitudes_vehiculos') {
+          // Users can only insert new PENDING requests — prevent state manipulation
+          dataToInsert.forEach((item: any) => {
+            if (item.estado_solicitud && item.estado_solicitud !== 'PENDIENTE') {
+              item.estado_solicitud = 'PENDIENTE'
+            }
+            // Strip fields that only admins should set
+            delete item.aprobado_por
+            delete item.comentarios_admin
+          })
+        }
         result = await query.insert(dataToInsert).select()
         break
 

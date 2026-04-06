@@ -177,7 +177,7 @@ export default function MobilePrestamosPage() {
     if (!formData.fecha_inicio) return false
     const date = new Date(formData.fecha_inicio)
     const day = date.getDay() // 0 is Sunday, 1 is Monday, ..., 5 is Friday, 6 is Saturday
-    return [0, 5, 6].includes(day)
+    return [0, 6].includes(day)
   }, [formData.fecha_inicio])
 
   const isAuthorized = useMemo(() => {
@@ -227,6 +227,7 @@ export default function MobilePrestamosPage() {
       if (success) {
         setIsRequestModalOpen(false)
         fetchMisSolicitudes(sessionUser.persona_id)
+        fetchVehiculos()
         setFormData({ vehiculo_id: "", motivo: "TRABAJO", fecha_inicio: "", hora_inicio: "08:00", fecha_fin: "", hora_fin: "18:00" })
       } else {
         alert("Error al procesar reserva: " + (error || "Desconocido"))
