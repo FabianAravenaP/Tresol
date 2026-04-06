@@ -142,13 +142,26 @@ export default function DashboardLayout({
     { name: "Configuración", href: "/admin/config", icon: Settings, roles: ['master_admin'] },
   ]
 
+  // Role normalization and keyword detection
+  const roleUpper = (user.rol || "").toUpperCase()
+  const isAdmin = roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE') || user.rol === 'master_admin'
+  const isFabian = user.rut === '17630469'
+
   // Sidebar is persistent for admin-level and general dashboard users
-  const showSidebar = user && ['master_admin', 'admin', 'operaciones', 'usuario'].includes(user.rol)
+  const showSidebar = user && (isAdmin || isFabian || ['operaciones', 'usuario'].includes(user.rol))
 
   // If sidebar is shown, filter nav items
-  const filteredNavItems = navItems.filter(item => 
-    !item.roles || (user && item.roles.includes(user.rol))
-  )
+  const filteredNavItems = navItems.filter(item => {
+    if (!item.roles) return true
+    if (isFabian) return true // Fabian sees everything
+    
+    return item.roles.some((r: string) => {
+      const rUpper = r.toUpperCase()
+      if (rUpper === 'MASTER_ADMIN') return roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE')
+      if (rUpper === 'ADMIN') return roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE')
+      return roleUpper.includes(rUpper) || user.rol === r
+    })
+  })
 
   // Page title based on path
   const currentNavItem = navItems.find(i => pathname.startsWith(i.href))
