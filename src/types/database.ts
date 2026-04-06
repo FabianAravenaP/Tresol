@@ -17,6 +17,7 @@ export interface Vehiculo {
   categoria?: string;
   marca?: string;
   modelo?: string;
+  id_interno?: string;
   capacidad: string | null;
   estado: 'OPERATIVO' | 'MANTENCIÓN' | 'FALLA MECÁNICA';
   created_at?: string;

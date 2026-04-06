@@ -213,8 +213,7 @@ export default function FlotaMasterPage() {
                 VEHÍCULOS MENORES
             </TabsTrigger>
          </TabsList>
-         
-         <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden mt-4">
+           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden mt-4">
         <CardHeader className="p-8 border-b border-slate-50 dark:border-zinc-800">
            <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
@@ -227,74 +226,76 @@ export default function FlotaMasterPage() {
            </div>
         </CardHeader>
         <CardContent className="p-0">
-           <Table>
-              <TableHeader>
-                <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Vehículo</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Configuración</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado Actual</TableHead>
-                  <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">Cargando flota...</TableCell>
-                  </TableRow>
-                ) : filteredVehiculos.length === 0 ? (
-                  <TableRow>
-                     <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No hay vehículos registrados</TableCell>
-                  </TableRow>
-                ) : filteredVehiculos.map((v) => (
-                  <TableRow key={v.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <TableCell className="px-8 py-6">
-                       <div className="flex items-center gap-4">
-                          <div className="size-12 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex flex-col items-center justify-center font-black text-[#116CA2]">
-                             <Truck className="size-5 mb-0.5" />
-                             <span className="text-[8px] tracking-widest uppercase">ID</span>
-                          </div>
-                          <div>
-                            <p className="font-black text-[#323232] dark:text-white text-lg tracking-tight leading-none mb-1">{v.patente}</p>
-                             <div className="flex items-center gap-2">
-                                <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">ID INVENTARIO: {v.id_interno || 'N/A'}</p>
-                               {(v.marca || v.modelo) && (
-                                  <>
-                                     <span className="text-slate-200">|</span>
-                                     <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">{v.marca} {v.modelo}</p>
-                                  </>
-                               )}
-                            </div>
-                          </div>
-                       </div>
-                    </TableCell>
-                    <TableCell className="py-6">
-                       <Badge variant="outline" className="border-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                          {v.tipo}
-                       </Badge>
-                    </TableCell>
-                    <TableCell className="py-6">
-                        <Badge className={cn(
-                           "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
-                           v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
-                           v.estado === 'FALLA MECÁNICA' ? "bg-red-100 text-red-600" :
-                           "bg-amber-100 text-amber-600"
-                        )}>
-                           {v.estado || 'DESCONOCIDO'}
+          <div className="responsive-table-container border-none shadow-none">
+            <Table>
+               <TableHeader>
+                 <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
+                   <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Vehículo</TableHead>
+                   <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Configuración</TableHead>
+                   <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado Actual</TableHead>
+                   <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
+                 </TableRow>
+               </TableHeader>
+               <TableBody>
+                 {isLoading ? (
+                   <TableRow>
+                     <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">Cargando flota...</TableCell>
+                   </TableRow>
+                 ) : filteredVehiculos.length === 0 ? (
+                   <TableRow>
+                      <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No hay vehículos registrados</TableCell>
+                   </TableRow>
+                 ) : filteredVehiculos.map((v) => (
+                   <TableRow key={v.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                     <TableCell className="px-8 py-6">
+                        <div className="flex items-center gap-4">
+                           <div className="size-12 rounded-2xl bg-slate-100 dark:bg-zinc-800 flex flex-col items-center justify-center font-black text-[#116CA2]">
+                              <Truck className="size-5 mb-0.5" />
+                              <span className="text-[8px] tracking-widest uppercase">ID</span>
+                           </div>
+                           <div>
+                             <p className="font-black text-[#323232] dark:text-white text-lg tracking-tight leading-none mb-1">{v.patente}</p>
+                              <div className="flex items-center gap-2">
+                                 <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">ID INVENTARIO: {v.id_interno || 'N/A'}</p>
+                                {(v.marca || v.modelo) && (
+                                   <>
+                                      <span className="text-slate-200">|</span>
+                                      <p className="text-[10px] font-black text-[#116CA2] uppercase tracking-widest">{v.marca} {v.modelo}</p>
+                                   </>
+                                )}
+                             </div>
+                           </div>
+                        </div>
+                     </TableCell>
+                     <TableCell className="py-6">
+                        <Badge variant="outline" className="border-slate-200 text-slate-600 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                           {v.tipo}
                         </Badge>
-                    </TableCell>
-                    <TableCell className="px-8 py-6 text-right space-x-2">
-                       <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(v)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
-                          <Edit2 className="size-4" />
-                       </Button>
-                       <Button variant="ghost" size="icon" onClick={() => handleDelete(v.id)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
-                          <Trash2 className="size-4" />
-                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-           </Table>
-         </CardContent>
+                     </TableCell>
+                     <TableCell className="py-6">
+                         <Badge className={cn(
+                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
+                            v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
+                            v.estado === 'FALLA MECÁNICA' ? "bg-red-100 text-red-600" :
+                            "bg-amber-100 text-amber-600"
+                         )}>
+                            {v.estado || 'DESCONOCIDO'}
+                         </Badge>
+                     </TableCell>
+                     <TableCell className="px-8 py-6 text-right space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(v)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
+                           <Edit2 className="size-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(v.id)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                           <Trash2 className="size-4" />
+                        </Button>
+                     </TableCell>
+                   </TableRow>
+                 ))}
+               </TableBody>
+            </Table>
+          </div>
+        </CardContent>
       </Card>
     </Tabs>
 
