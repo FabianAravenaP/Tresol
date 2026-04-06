@@ -2,7 +2,6 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -44,6 +43,7 @@ export default function VehiculosMenoresAdmin() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("pendientes")
+  const [detailModal, setDetailModal] = useState<{isOpen: boolean, solicitud: any | null}>({isOpen: false, solicitud: null})
 
   useEffect(() => {
     fetchSolicitudes()
@@ -60,7 +60,7 @@ export default function VehiculosMenoresAdmin() {
           method: 'select',
           data: `
             *,
-            solicitante:usuario_id(nombre, apellido, rut),
+            solicitante:usuario_id(nombre, apellido, rut, cargo),
             vehiculo:vehiculo_id(patente, marca, modelo, categoria)
           `
         })
@@ -89,9 +89,9 @@ export default function VehiculosMenoresAdmin() {
         body: JSON.stringify({
           table: 'solicitudes_vehiculos',
           method: 'update',
-          data: { 
+          data: {
             estado_solicitud: action,
-            aprobado_por: user?.id
+            aprobado_por: user?.persona_id ?? user?.id
           },
           match: { id }
         })
@@ -109,8 +109,11 @@ export default function VehiculosMenoresAdmin() {
   const isWeekend = (dateStr: string) => {
     const date = new Date(dateStr)
     const day = date.getDay()
-    return day === 0 || day === 6 // 0 is Sunday, 6 is Saturday
+    return day === 0 || day === 6
   }
+
+  const isOverdue = (s: any) =>
+    s.estado_solicitud === 'EN_USO' && new Date(s.fecha_fin) < new Date()
 
   const filteredSolicitudes = solicitudes.filter(s => {
     const matchesSearch = 
@@ -196,10 +199,13 @@ export default function VehiculosMenoresAdmin() {
                               </div>
                               <div>
                                  <p className="font-black text-[#323232] uppercase tracking-tight leading-none mb-1">
-                                    {s.vehiculo?.patente}
+                                    {s.vehiculo?.patente ?? <span className="text-slate-300 font-medium italic text-xs normal-case">Sin asignar</span>}
                                  </p>
-                                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                                 <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest">
                                     {s.solicitante?.nombre} {s.solicitante?.apellido}
+                                 </p>
+                                 <p className="text-[10px] font-medium text-slate-400 tracking-wide">
+                                    {s.solicitante?.rut}{s.solicitante?.cargo ? ` · ${s.solicitante.cargo}` : ""}
                                  </p>
                               </div>
                            </div>
@@ -231,22 +237,54 @@ export default function VehiculosMenoresAdmin() {
                         </TableCell>
                         <TableCell className="py-6">
                            <div className="space-y-2">
-                              <Badge className={cn(
-                                "text-[9px] font-black border-none px-2 py-1 rounded-lg",
-                                s.estado_solicitud === 'PENDIENTE' ? "bg-amber-100 text-amber-600" :
-                                s.estado_solicitud === 'APROBADA' || s.estado_solicitud === 'EN_USO' ? "bg-emerald-100 text-emerald-600" :
-                                "bg-slate-100 text-slate-400"
-                              )}>
-                                 {s.estado_solicitud}
-                              </Badge>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge className={cn(
+                                  "text-[9px] font-black border-none px-2 py-1 rounded-lg",
+                                  s.estado_solicitud === 'PENDIENTE' ? "bg-amber-100 text-amber-600" :
+                                  s.estado_solicitud === 'APROBADA' || s.estado_solicitud === 'EN_USO' ? "bg-emerald-100 text-emerald-600" :
+                                  s.estado_solicitud === 'FINALIZADA' ? "bg-blue-100 text-blue-600" :
+                                  "bg-slate-100 text-slate-400"
+                                )}>
+                                   {s.estado_solicitud}
+                                </Badge>
+                                {isOverdue(s) && (
+                                  <Badge className="bg-red-100 text-red-600 border-none text-[9px] font-black animate-pulse px-2 py-1 rounded-lg flex items-center gap-1">
+                                    <AlertTriangle className="size-3" /> VENCIDO
+                                  </Badge>
+                                )}
+                              </div>
                               {s.km_salida && (
                                 <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400">
                                    <div className="flex items-center gap-1">
                                       <Gauge className="size-3" /> {s.km_salida} km
                                    </div>
-                                   <div className="flex items-center gap-1">
-                                      <Fuel className="size-3" /> {s.combustible_salida}%
-                                   </div>
+                                   {s.combustible_salida != null && (
+                                     <div className="flex items-center gap-1">
+                                       <Fuel className="size-3" /> {s.combustible_salida}%
+                                     </div>
+                                   )}
+                                </div>
+                              )}
+                              {s.km_retorno && (
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-3 text-[10px] font-bold text-blue-400">
+                                     <div className="flex items-center gap-1">
+                                        <Gauge className="size-3" /> {s.km_retorno} km (ret.)
+                                     </div>
+                                     {s.combustible_retorno != null && (
+                                       <div className="flex items-center gap-1">
+                                         <Fuel className="size-3" /> {s.combustible_retorno}%
+                                       </div>
+                                     )}
+                                  </div>
+                                  {s.limpieza && (
+                                    <Badge className="text-[8px] font-black border-none px-2 py-0.5 rounded-md bg-slate-100 text-slate-500">
+                                      {s.limpieza}
+                                    </Badge>
+                                  )}
+                                  {s.danos_retorno_notas && (
+                                    <p className="text-[9px] text-red-500 font-bold truncate max-w-[160px]">⚠ {s.danos_retorno_notas}</p>
+                                  )}
                                 </div>
                               )}
                            </div>
@@ -270,7 +308,7 @@ export default function VehiculosMenoresAdmin() {
                                  </Button>
                                </>
                              ) : (
-                               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-300 hover:text-[#116CA2] hover:bg-slate-100">
+                               <Button variant="ghost" size="icon" onClick={() => setDetailModal({isOpen: true, solicitud: s})} className="h-9 w-9 rounded-xl text-slate-300 hover:text-[#116CA2] hover:bg-slate-100">
                                   <Eye className="size-4" />
                                </Button>
                              )}
@@ -285,6 +323,85 @@ export default function VehiculosMenoresAdmin() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Detail Modal */}
+      {detailModal.solicitud && (
+        <Dialog open={detailModal.isOpen} onOpenChange={(v) => !v && setDetailModal({isOpen: false, solicitud: null})}>
+          <DialogContent className="sm:max-w-lg rounded-[2.5rem] p-8 border-none shadow-2xl">
+            <DialogHeader className="mb-6">
+              <div className="size-14 rounded-2xl bg-[#116CA2]/10 flex items-center justify-center mb-4">
+                <Car className="size-7 text-[#116CA2]" />
+              </div>
+              <DialogTitle className="text-xl font-black text-[#323232] uppercase tracking-tight">
+                {detailModal.solicitud.vehiculo?.patente ?? "Sin vehículo asignado"}
+              </DialogTitle>
+              <DialogDescription className="font-bold text-slate-500">
+                {detailModal.solicitud.solicitante?.nombre} {detailModal.solicitud.solicitante?.apellido}
+                {detailModal.solicitud.solicitante?.rut ? ` · ${detailModal.solicitud.solicitante.rut}` : ""}
+                {detailModal.solicitud.solicitante?.cargo ? ` · ${detailModal.solicitud.solicitante.cargo}` : ""}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Motivo</p>
+                  <p className="font-black text-[#323232]">{detailModal.solicitud.motivo}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado</p>
+                  <p className="font-black text-[#116CA2]">{detailModal.solicitud.estado_solicitud}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Salida</p>
+                  <p className="font-bold text-[#323232] text-xs">{new Date(detailModal.solicitud.fecha_inicio).toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-50 rounded-2xl p-4">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Retorno Aprox.</p>
+                  <p className="font-bold text-[#323232] text-xs">{new Date(detailModal.solicitud.fecha_fin).toLocaleString()}</p>
+                </div>
+              </div>
+
+              {(detailModal.solicitud.km_salida || detailModal.solicitud.combustible_salida != null) && (
+                <div className="bg-emerald-50 rounded-2xl p-4 space-y-1">
+                  <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-2">Registro de Salida</p>
+                  <div className="flex gap-4 text-xs font-bold text-slate-600">
+                    {detailModal.solicitud.km_salida && <span><Gauge className="size-3 inline mr-1" />{detailModal.solicitud.km_salida} km</span>}
+                    {detailModal.solicitud.combustible_salida != null && <span><Fuel className="size-3 inline mr-1" />{detailModal.solicitud.combustible_salida}%</span>}
+                  </div>
+                  {detailModal.solicitud.foto_tablero_salida && (
+                    <img src={detailModal.solicitud.foto_tablero_salida} alt="Tablero salida" className="w-full h-32 object-cover rounded-xl mt-2" />
+                  )}
+                </div>
+              )}
+
+              {detailModal.solicitud.km_retorno && (
+                <div className="bg-blue-50 rounded-2xl p-4 space-y-1">
+                  <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-2">Registro de Retorno</p>
+                  <div className="flex gap-4 text-xs font-bold text-slate-600">
+                    <span><Gauge className="size-3 inline mr-1" />{detailModal.solicitud.km_retorno} km</span>
+                    {detailModal.solicitud.combustible_retorno != null && <span><Fuel className="size-3 inline mr-1" />{detailModal.solicitud.combustible_retorno}%</span>}
+                    {detailModal.solicitud.limpieza && <span>Limpieza: {detailModal.solicitud.limpieza}</span>}
+                  </div>
+                  {detailModal.solicitud.danos_retorno_notas && (
+                    <p className="text-xs text-red-600 font-bold mt-1">⚠ {detailModal.solicitud.danos_retorno_notas}</p>
+                  )}
+                  {detailModal.solicitud.foto_tablero_retorno && (
+                    <img src={detailModal.solicitud.foto_tablero_retorno} alt="Tablero retorno" className="w-full h-32 object-cover rounded-xl mt-2" />
+                  )}
+                </div>
+              )}
+            </div>
+
+            <DialogFooter className="mt-6">
+              <Button onClick={() => setDetailModal({isOpen: false, solicitud: null})} className="bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-xl font-black px-8">Cerrar</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
