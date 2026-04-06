@@ -223,25 +223,23 @@ export default function DashboardLayout({
             )
           })}
 
-          {quickAccess.length > 0 && (
-            <div className="pt-6 space-y-1">
-              <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Accesos Rápidos</p>
-              {quickAccess.map((item) => {
-                const DynamicIcon = item.icon ? IconMap[item.icon] : null
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="flex items-center gap-3 px-3 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] transition-all text-sm"
-                  >
-                    {DynamicIcon && <DynamicIcon className="size-4 shrink-0" />}
-                    {item.name}
-                  </Link>
-                )
-              })}
-            </div>
-          )}
+          <div className="pt-6 space-y-1">
+            <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Módulos Principales</p>
+            {ALL_MODULES.filter(m => !navItems.some(ni => ni.href === m.href)).map((item) => {
+              const DynamicIcon = item.icon ? IconMap[item.icon] : null
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className="flex items-center gap-3 px-3 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] transition-all text-sm"
+                >
+                  {DynamicIcon && <DynamicIcon className="size-4 shrink-0" />}
+                  {item.name}
+                </Link>
+              )
+            })}
+          </div>
         </nav>
       </aside>
 
@@ -316,74 +314,42 @@ export default function DashboardLayout({
           })}
 
           <div className="pt-8 space-y-2">
-            <div className="flex items-center justify-between px-4 mb-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Accesos Rápidos</p>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="size-6 rounded-lg text-slate-300 hover:text-[#116CA2] hover:bg-[#116CA2]/5 transition-all"
-                onClick={() => setIsCustomizing(true)}
-              >
-                 <Settings className="size-3" />
-              </Button>
-            </div>
-
-            {quickAccess.length === 0 && (
-              <div className="px-4 py-4 border-2 border-dashed border-slate-100 rounded-2xl text-center">
-                <p className="text-[10px] font-bold text-slate-300 uppercase italic">Sin accesos directos</p>
-              </div>
-            )}
-
-            {quickAccess.map((item) => {
+            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Módulos Principales</p>
+            {ALL_MODULES.filter(m => !navItems.some(ni => ni.href === m.href)).map((item) => {
+            const isModuleActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
               const DynamicIcon = item.icon ? IconMap[item.icon] : null
+              
+              const isOperaciones = item.href === '/operaciones' && pathname.startsWith('/operaciones')
+              const isPorteria = item.href === '/porteria' && pathname.startsWith('/porteria')
 
-              if (item.type === 'portal') {
-                return (
-                  <Link key={item.id} href={item.href} className="flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-slate-500 hover:bg-[#116CA2]/5 hover:text-[#116CA2] transition-all text-sm group">
-                    <div className="size-6 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-[#116CA2]/10 transition-colors">
-                      <Home className="size-3.5" />
-                    </div>
-                    {item.name}
-                  </Link>
-                )
-              }
-
-              if (item.type === 'status') {
-                const isGroupActive = pathname.includes(item.href)
-                return (
-                  <Link key={item.id} href={item.href} className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-sm",
-                    isGroupActive ? "bg-emerald-50 text-emerald-700" : "text-slate-500 hover:bg-emerald-50 hover:text-emerald-700"
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-sm group",
+                    (isModuleActive || isOperaciones || isPorteria)
+                      ? "bg-slate-100 text-[#116CA2] dark:bg-zinc-800"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
+                  )}
+                >
+                  <div className={cn(
+                    "size-6 rounded-lg flex items-center justify-center transition-colors",
+                    (isModuleActive || isOperaciones || isPorteria) ? "bg-[#116CA2]/10" : "bg-slate-100"
                   )}>
-                    <div className={cn("size-2 rounded-full", isGroupActive ? "scale-125" : "", item.color || "bg-slate-400")} />
-                    {item.name}
-                  </Link>
-                )
-              }
-
-              if (item.type === 'icon') {
-                const isLinkActive = pathname === item.href
-                return (
-                  <Link key={item.id} href={item.href} className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-sm",
-                    isLinkActive ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-blue-50 hover:text-blue-700"
-                  )}>
-                    {DynamicIcon && <DynamicIcon className="size-4" />}
-                    {item.name}
-                  </Link>
-                )
-              }
-              return null
+                    {DynamicIcon && <DynamicIcon className="size-3.5" />}
+                  </div>
+                  {item.name}
+                </Link>
+              )
             })}
           </div>
         </nav>
 
-        <div className="p-6 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-1">
-           <div className="pt-2 flex flex-col gap-1 opacity-60">
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Desarrollo & Asesoría</p>
-              <p className="text-[10px] font-black text-[#51872E] uppercase tracking-widest">Fabian Aravena</p>
-              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Ing. Civil Industrial</p>
-           </div>
+        <div className="p-8 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-0.5 mt-auto">
+              <p className="text-[11px] font-black text-[#51872E] uppercase tracking-widest">Fabian Aravena</p>
+              <p className="text-[8px] font-black text-[#116CA2] uppercase tracking-[0.05em]">Gerente de procesos</p>
+              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Ingeniero civil industrial</p>
         </div>
       </aside>
 
