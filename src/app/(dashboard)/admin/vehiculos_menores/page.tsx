@@ -63,7 +63,8 @@ export default function VehiculosMenoresAdmin() {
         body: JSON.stringify({
           table: 'vehiculos',
           method: 'select',
-          data: '*'
+          data: '*',
+          match: { categoria: 'MENOR' }
         })
       })
       const { data, success } = await res.json()
@@ -149,6 +150,34 @@ export default function VehiculosMenoresAdmin() {
     }
   }
 
+  const updateVehicleEstado = async (vehiculoId: string, nuevoEstado: string) => {
+    try {
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'vehiculos',
+          method: 'update',
+          data: { estado: nuevoEstado },
+          match: { id: vehiculoId }
+        })
+      })
+      const { success, error } = await res.json()
+      if (!success) throw new Error(error)
+      setVehiculos(prev => prev.map(v => v.id === vehiculoId ? { ...v, estado: nuevoEstado } : v))
+    } catch (e) {
+      console.error("Error actualizando estado:", e)
+      alert("No se pudo actualizar el estado del vehículo")
+    }
+  }
+
+  const setAllMenoresOperativo = async () => {
+    const menores = vehiculos.filter((v: any) => v.categoria === 'MENOR' && v.estado !== 'OPERATIVO')
+    if (menores.length === 0) return alert("Todos los vehículos menores ya están OPERATIVOS.")
+    if (!confirm(`¿Marcar ${menores.length} vehículo(s) como OPERATIVO?`)) return
+    await Promise.all(menores.map((v: any) => updateVehicleEstado(v.id, 'OPERATIVO')))
+  }
+
   const isWeekend = (dateStr: string) => {
     const date = new Date(dateStr)
     const day = date.getDay()
@@ -188,7 +217,7 @@ export default function VehiculosMenoresAdmin() {
             <div className="h-4 w-px bg-slate-200" />
             <div className="flex items-center gap-2 text-[10px] font-black text-[#116CA2] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100">
                <Car className="size-3" />
-               <span>Total Flota: {vehiculos.length}</span>
+               <span>Total Flota Menor: {vehiculos.filter((v: any) => v.categoria === 'MENOR').length}</span>
             </div>
           </div>
         </div>
@@ -377,6 +406,14 @@ export default function VehiculosMenoresAdmin() {
         </TabsContent>
         ))}
         <TabsContent value="flota" className="mt-0">
+          <div className="flex justify-end mb-3">
+            <Button
+              onClick={setAllMenoresOperativo}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl h-9 px-5 font-black text-[10px] tracking-widest shadow-lg shadow-emerald-500/20"
+            >
+              Marcar todos OPERATIVO
+            </Button>
+          </div>
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
             <CardContent className="p-0">
               <Table>
@@ -391,13 +428,13 @@ export default function VehiculosMenoresAdmin() {
                 <TableBody>
                   {vehiculos.length === 0 ? (
                     <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">Cargando flota...</TableCell></TableRow>
-                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR' || !v.categoria || v.categoria === 'INACTIVO').filter((v: any) => 
-                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR').filter((v: any) =>
+                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     v.marca?.toLowerCase().includes(searchTerm.toLowerCase())
                   ).length === 0 ? (
                     <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">No se encontraron vehículos</TableCell></TableRow>
-                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR' || !v.categoria || v.categoria === 'INACTIVO').filter((v: any) => 
-                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR').filter((v: any) =>
+                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     v.marca?.toLowerCase().includes(searchTerm.toLowerCase())
                   ).map((v: any) => (
                     <TableRow key={v.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
@@ -415,14 +452,20 @@ export default function VehiculosMenoresAdmin() {
                         </div>
                       </TableCell>
                       <TableCell className="py-6">
-                        <Badge className={cn(
-                          "text-[9px] font-black border-none px-2 py-1 rounded-lg",
-                          v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
-                          v.estado === 'MANTENCION' ? "bg-amber-100 text-amber-600" :
-                          "bg-red-100 text-red-600"
-                        )}>
-                          {v.estado || 'DESCONOCIDO'}
-                        </Badge>
+                        <select
+                          value={v.estado || ''}
+                          onChange={(e) => updateVehicleEstado(v.id, e.target.value)}
+                          className={cn(
+                            "text-[9px] font-black border-none px-2 py-1 rounded-lg outline-none cursor-pointer",
+                            v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
+                            v.estado === 'MANTENCION' ? "bg-amber-100 text-amber-600" :
+                            "bg-red-100 text-red-600"
+                          )}
+                        >
+                          <option value="OPERATIVO">OPERATIVO</option>
+                          <option value="MANTENCION">MANTENCIÓN</option>
+                          <option value="BAJA">BAJA</option>
+                        </select>
                       </TableCell>
                       <TableCell className="px-8 py-6 text-right font-black text-[#116CA2] text-xs">
                         {v.id_interno || '-'}
