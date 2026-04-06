@@ -20,7 +20,8 @@ import {
   Target,
   Zap,
   Package,
-  ChefHat
+  ChefHat,
+  Car
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
@@ -365,6 +366,13 @@ export default function Home() {
                    icon: Shield,
                    color: "#116CA2",
                    role: "portero"
+                 },
+                 { 
+                   title: "Préstamo Vehículo", 
+                   desc: "Módulo para la solicitud, retiro y entrega de vehículos menores por parte del personal.", 
+                   icon: Car,
+                   color: "#51872E",
+                   role: "admin"
                  },
                  { 
                    title: "Gestión Activos", 
