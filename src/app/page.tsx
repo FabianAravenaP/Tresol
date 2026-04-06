@@ -124,8 +124,8 @@ export default function Home() {
   const [passwordError, setPasswordError] = useState(false)
 
   const handleLogin = (user: any) => {
-    // Check if user requires password
-    const requiresPassword = ['master_admin', 'admin', 'admin_operaciones', 'usuario', 'operaciones'].includes(user.rol)
+    // Check if user requires password based on role or if they have a DB password assigned
+    const requiresPassword = ['master_admin', 'admin', 'admin_operaciones', 'usuario', 'operaciones'].includes(user.rol) || Boolean(user.password)
     
     if (requiresPassword && !selectedUser) {
       setSelectedUser(user)
