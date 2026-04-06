@@ -118,7 +118,7 @@ export default function VehiculosMenoresAdmin() {
 
       const updateData: any = {
         estado_solicitud: actionModal.action,
-        aprobado_por: user?.persona_id ?? user?.id
+        aprobado_por: user?.id
       }
       if (actionModal.action === 'APROBADA' && approvalVehiculo) {
         updateData.vehiculo_id = approvalVehiculo
