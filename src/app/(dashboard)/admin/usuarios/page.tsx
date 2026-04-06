@@ -51,11 +51,16 @@ export default function UsuariosPage() {
     const session = localStorage.getItem('tresol_session')
     if (session) {
       const user = JSON.parse(session)
-      if (user.rol !== 'master_admin') {
+    if (session) {
+      const user = JSON.parse(session)
+      // Restricted access based on identity (RUT) or Name specifically for Fabian Aravena
+      const isMasterAdmin = user.rut === '17630469' || user.nombre?.toLowerCase().includes('fabian aravena')
+      if (!isMasterAdmin) {
         alert("Acceso denegado. Solo el Administrador Maestro puede gestionar usuarios.")
         window.location.href = '/admin'
         return
       }
+    }
     }
     fetchUsuarios()
   }, [])
@@ -220,18 +225,18 @@ export default function UsuariosPage() {
                             </div>
                          </div>
                       </TableCell>
-                      <TableCell className="py-6">
-                         <Badge className={cn(
-                           "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
-                           user.rol === 'master_admin' ? "bg-purple-100 text-purple-600" :
-                           user.rol === 'admin' ? "bg-red-100 text-red-600" :
-                           user.rol === 'digitalizador' ? "bg-blue-100 text-blue-600" :
-                           user.rol === 'operaciones' ? "bg-[#116CA2]/10 text-[#116CA2]" :
-                           "bg-[#51872E]/10 text-[#51872E]"
-                         )}>
-                            {user.rol}
-                         </Badge>
-                      </TableCell>
+                       <TableCell className="py-6">
+                          <Badge className={cn(
+                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none whitespace-nowrap",
+                            (user.rol?.toLowerCase().includes('gerente') || user.rol?.toLowerCase().includes('jefe')) ? "bg-purple-100 text-purple-600" :
+                            (user.rol?.toLowerCase().includes('admin') || user.rut === '17630469') ? "bg-red-100 text-red-600" :
+                            user.rol === 'digitalizador' ? "bg-blue-100 text-blue-600" :
+                            user.rol === 'operaciones' ? "bg-[#116CA2]/10 text-[#116CA2]" :
+                            "bg-slate-100 text-slate-500"
+                          )}>
+                             {user.rol || 'USUARIO'}
+                          </Badge>
+                       </TableCell>
                       <TableCell className="py-6">
                          <div className="flex items-center gap-2">
                             {user.password && user.password.length > 0 ? (
@@ -292,19 +297,16 @@ export default function UsuariosPage() {
              </div>
              
              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Rol de Usuario</Label>
-                <Select value={formData.rol} onValueChange={(val) => setFormData({...formData, rol: val ?? "chofer"})}>
-                  <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
-                    <SelectValue placeholder="Seleccionar Rol" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl shadow-xl border-none p-2">
-                    <SelectItem value="chofer" className="py-3 font-bold">Conductores (App Móvil)</SelectItem>
-                    <SelectItem value="operaciones" className="py-3 font-bold">Jefe de Operaciones</SelectItem>
-                    <SelectItem value="digitalizador" className="py-3 font-bold">Digitalizador (Certificados)</SelectItem>
-                    <SelectItem value="admin" className="py-3 font-bold">Administrador General</SelectItem>
-                    <SelectItem value="master_admin" className="py-3 font-bold">Administrador Maestro</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Cargo / Rol</Label>
+                <div className="relative">
+                   <Shield className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                   <Input 
+                      value={formData.rol}
+                      onChange={(e) => setFormData({...formData, rol: e.target.value})}
+                      className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2] font-bold"
+                      placeholder="Ej: GERENTE DE PROCESOS"
+                   />
+                </div>
              </div>
 
              <div className="space-y-2">

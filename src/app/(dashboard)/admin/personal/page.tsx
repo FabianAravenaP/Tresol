@@ -215,16 +215,14 @@ export default function PersonalManagementPage() {
     if (existing) {
         setIsEditingAccess(true)
         setAccessData({
-            rol: existing.rol || 'chofer',
-            password: "", // do not show existing hash/password
+            rol: existing.rol || person.cargo || 'USUARIO',
+            password: "", 
             config_sidebar: Array.isArray(existing.config_sidebar) ? existing.config_sidebar : []
         })
     } else {
         setIsEditingAccess(false)
         setAccessData({
-            rol: person.cargo?.toLowerCase().includes('chofer') ? 'chofer' : 
-                 person.cargo?.toLowerCase().includes('admin') ? 'admin' :
-                 person.cargo?.toLowerCase().includes('portero') ? 'portero' : 'usuario',
+            rol: person.cargo || 'USUARIO',
             password: person.rut ? person.rut.toString().slice(0, 5) : "",
             config_sidebar: []
         })
@@ -612,21 +610,19 @@ export default function PersonalManagementPage() {
           
           <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto">
              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Rol en Plataforma</Label>
-                <select 
-                    value={accessData.rol}
-                    onChange={(e) => setAccessData({...accessData, rol: e.target.value})}
-                    className="w-full h-12 px-4 rounded-xl bg-slate-50 border-none focus:ring-2 focus:ring-[#51872E] font-bold text-slate-600 outline-none"
-                >
-                    <option value="usuario">Usuario Dashboard / General</option>
-                    <option value="chofer">App Móvil: Chofer Servicios</option>
-                    <option value="peoneta">Auxiliar / Peoneta</option>
-                    <option value="portero">Control Portería</option>
-                    <option value="digitalizador">Digitalizador</option>
-                    <option value="cocina">Cocina / Casino</option>
-                    <option value="operaciones">Supervisor Operaciones</option>
-                    <option value="admin">Administrador General</option>
-                </select>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Cargo / Rol en Plataforma</Label>
+                <div className="relative">
+                   <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                   <Input 
+                      value={accessData.rol}
+                      onChange={(e) => setAccessData({...accessData, rol: e.target.value})}
+                      className="h-12 pl-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#51872E] font-bold"
+                      placeholder="Ej: GERENTE DE PROCESOS"
+                   />
+                </div>
+                <p className="text-[9px] text-slate-400 font-medium px-1 italic">
+                    Este valor determina el título visible del usuario en la plataforma.
+                </p>
              </div>
 
              <div className="space-y-2">
