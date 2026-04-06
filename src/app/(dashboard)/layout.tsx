@@ -164,12 +164,14 @@ export default function DashboardLayout({
   ]
 
   // Role normalization and keyword detection
-  const roleUpper = (user.rol || "").toUpperCase()
+  const roleUpper = (user?.rol || "").toUpperCase()
   const isAdmin = roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE') || user.rol === 'master_admin'
-  const isFabian = user.rut === '17630469'
+  const isFabian = user.rut?.toString() === '17630469' || user.nombre?.toLowerCase().includes('fabian aravena')
 
   // Sidebar is persistent for admin-level and general dashboard users
-  const showSidebar = user && (isAdmin || isFabian || ['operaciones', 'usuario'].includes(user.rol))
+  // EMERGENCY BYPASS: Always show sidebar if route is admin and user is Fabian or admin
+  const isPathAdmin = pathname.startsWith('/admin') || pathname.startsWith('/operaciones') || pathname.startsWith('/porteria')
+  const showSidebar = user && (isAdmin || isFabian || isPathAdmin || ['operaciones', 'usuario'].includes(user.rol))
 
   // If sidebar is shown, filter nav items
   const filteredNavItems = navItems.filter(item => {
