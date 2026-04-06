@@ -40,6 +40,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/uib/tabs"
 
 export default function VehiculosMenoresAdmin() {
   const [solicitudes, setSolicitudes] = useState<any[]>([])
+  const [vehiculos, setVehiculos] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("pendientes")
@@ -47,7 +48,26 @@ export default function VehiculosMenoresAdmin() {
 
   useEffect(() => {
     fetchSolicitudes()
+    fetchVehiculos()
   }, [])
+
+  const fetchVehiculos = async () => {
+    try {
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'vehiculos',
+          method: 'select',
+          data: '*'
+        })
+      })
+      const { data, success } = await res.json()
+      if (success) setVehiculos(data || [])
+    } catch (e) {
+      console.error("Error fetching fleet:", e)
+    }
+  }
 
   const fetchSolicitudes = async () => {
     setIsLoading(true)
@@ -137,9 +157,15 @@ export default function VehiculosMenoresAdmin() {
           <div className="flex items-center gap-4 mt-2">
             <p className="text-slate-500 font-medium">Gestión de camionetas y autos para personal administrativo y operativo.</p>
             <div className="h-4 w-px bg-slate-200" />
+            <div className="h-4 w-px bg-slate-200" />
             <div className="flex items-center gap-2 text-[10px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
                <AlertTriangle className="size-3" />
                <span>Fines de Semana requieren Sandra/Natali</span>
+            </div>
+            <div className="h-4 w-px bg-slate-200" />
+            <div className="flex items-center gap-2 text-[10px] font-black text-[#116CA2] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100">
+               <Car className="size-3" />
+               <span>Total Flota: {vehiculos.length}</span>
             </div>
           </div>
         </div>
@@ -156,6 +182,9 @@ export default function VehiculosMenoresAdmin() {
             </TabsTrigger>
             <TabsTrigger value="historial" className="rounded-xl px-6 py-2.5 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#116CA2] data-[state=active]:shadow-sm">
                Historial
+            </TabsTrigger>
+            <TabsTrigger value="flota" className="rounded-xl px-6 py-2.5 font-black uppercase text-[10px] tracking-widest data-[state=active]:bg-white data-[state=active]:text-[#116CA2] data-[state=active]:shadow-sm">
+               Flota ({vehiculos.filter((v: any) => v.categoria === 'MENOR').length})
             </TabsTrigger>
           </TabsList>
 
@@ -322,11 +351,70 @@ export default function VehiculosMenoresAdmin() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="flota" className="mt-0">
+          <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-slate-50 hover:bg-transparent">
+                    <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Vehículo</TableHead>
+                    <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Categoría / Tipo</TableHead>
+                    <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Estado</TableHead>
+                    <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">N° Interno</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {vehiculos.length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">Cargando flota...</TableCell></TableRow>
+                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR' || !v.categoria || v.categoria === 'INACTIVO').filter((v: any) => 
+                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    v.marca?.toLowerCase().includes(searchTerm.toLowerCase())
+                  ).length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">No se encontraron vehículos</TableCell></TableRow>
+                  ) : vehiculos.filter((v: any) => v.categoria === 'MENOR' || !v.categoria || v.categoria === 'INACTIVO').filter((v: any) => 
+                    v.patente?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    v.marca?.toLowerCase().includes(searchTerm.toLowerCase())
+                  ).map((v: any) => (
+                    <TableRow key={v.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="px-8 py-6 text-sm font-black text-[#323232] uppercase">
+                        {v.patente} <span className="ml-2 font-bold text-slate-400 text-[10px]">{v.marca} {v.modelo}</span>
+                      </TableCell>
+                      <TableCell className="py-6">
+                        <div className="flex gap-2">
+                          <Badge className="bg-slate-100 text-slate-500 border-none text-[9px] font-black px-2 py-0.5 rounded-md">
+                            {v.categoria || 'N/A'}
+                          </Badge>
+                          <Badge className="bg-slate-100 text-slate-500 border-none text-[9px] font-black px-2 py-0.5 rounded-md">
+                            {v.tipo || 'N/A'}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-6">
+                        <Badge className={cn(
+                          "text-[9px] font-black border-none px-2 py-1 rounded-lg",
+                          v.estado === 'OPERATIVO' ? "bg-emerald-100 text-emerald-600" :
+                          v.estado === 'MANTENCION' ? "bg-amber-100 text-amber-600" :
+                          "bg-red-100 text-red-600"
+                        )}>
+                          {v.estado || 'DESCONOCIDO'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-8 py-6 text-right font-black text-[#116CA2] text-xs">
+                        {v.id_interno || '-'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
+
 
       {/* Detail Modal */}
       {detailModal.solicitud && (
-        <Dialog open={detailModal.isOpen} onOpenChange={(v) => !v && setDetailModal({isOpen: false, solicitud: null})}>
+        <Dialog open={detailModal.isOpen} onOpenChange={(open: boolean) => !open && setDetailModal({isOpen: false, solicitud: null})}>
           <DialogContent className="sm:max-w-lg rounded-[2.5rem] p-8 border-none shadow-2xl">
             <DialogHeader className="mb-6">
               <div className="size-14 rounded-2xl bg-[#116CA2]/10 flex items-center justify-center mb-4">

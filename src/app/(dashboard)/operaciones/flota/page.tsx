@@ -49,7 +49,7 @@ export default function AdminFlotaPage() {
         .select(`
           id,
           vehiculo_id,
-          usuarios:chofer_id (nombre),
+          maestro_personas:chofer_id (nombre),
           estado,
           fecha
         `)
@@ -60,7 +60,7 @@ export default function AdminFlotaPage() {
       // Join data in JS to avoid inner join ambiguity errors
       const processed = vehiculosData.map((v: any) => {
         const activeService = serviciosData?.find((s: any) => s.vehiculo_id === v.id && s.estado !== 'completado')
-        const choferData = activeService?.usuarios as any
+        const choferData = activeService?.maestro_personas as any
         const choferNombre = Array.isArray(choferData) 
           ? (choferData[0]?.nombre || 'Sin chofer asignado')
           : (choferData?.nombre || 'Sin chofer asignado')

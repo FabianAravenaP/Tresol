@@ -86,10 +86,13 @@ export default function PrestamoVehiculos() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          table: 'vehiculos_menores',
+          table: 'vehiculos',
           method: 'select',
           data: 'id, patente, marca, modelo, estado',
-          match: { estado: 'OPERACIONAL' }
+          match: { 
+            estado: 'OPERATIVO',
+            categoria: 'MENOR'
+          }
         })
       })
       const { data, success } = await res.json()

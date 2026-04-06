@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/uib/button"
 import { ConnectionStatus } from "@/components/ConnectionStatus"
@@ -49,6 +49,8 @@ export default function DashboardLayout({
     Home, ShieldCheck, Smartphone, FileText, Utensils, ChefHat, Package, Car 
   }
 
+  const router = useRouter()
+
   useEffect(() => {
     const sessionStr = localStorage.getItem('tresol_session')
     if (sessionStr) {
@@ -58,9 +60,13 @@ export default function DashboardLayout({
         fetchUserConfig(sessionUser.id)
       } catch (e) {
         console.error("Error parsing session", e)
+        router.push('/')
       }
+    } else {
+      // Redirect to login if no session
+      router.push('/')
     }
-  }, [])
+  }, [router])
 
   const fetchUserConfig = async (userId: string) => {
     try {
@@ -125,7 +131,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Préstamo Vehículo", href: "/admin/prestamos", icon: Car },
+    { name: "Préstamo Vehículo", href: "/prestamos", icon: Car },
     { name: "Gestión Cocina", href: "/cocina", icon: Utensils, roles: ['master_admin', 'admin', 'cocina'] },
     { name: "Analíticas", href: "/admin/analiticas", icon: Activity, roles: ['master_admin', 'admin'] },
     { name: "Usuarios", href: "/admin/usuarios", icon: Users, roles: ['master_admin'] },

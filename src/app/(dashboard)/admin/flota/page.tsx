@@ -212,6 +212,17 @@ export default function FlotaMasterPage() {
             >
                 VEHÍCULOS MENORES
             </TabsTrigger>
+            <TabsTrigger 
+                value="INACTIVO" 
+                className={cn(
+                    "h-12 px-8 rounded-2xl font-black transition-all",
+                    activeTab === "INACTIVO" 
+                    ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20" 
+                    : "bg-white text-slate-400 hover:text-[#116CA2] border-none shadow-md"
+                )}
+            >
+                INACTIVOS ({vehiculos.filter(v => v.categoria === 'INACTIVO').length})
+            </TabsTrigger>
          </TabsList>
            <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden mt-4">
         <CardHeader className="p-8 border-b border-slate-50 dark:border-zinc-800">

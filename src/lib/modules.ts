@@ -124,7 +124,7 @@ export const ALL_MODULES: ModuleDef[] = [
     id: "prestamos", 
     name: "Mis Préstamos", 
     description: "Plataforma de solicitud y control de vehículos menores prestados por la empresa.",
-    href: "/admin/prestamos", 
+    href: "/prestamos", 
     icon: "Car", 
     category: "Servicios", 
     color: "bg-teal-500",
