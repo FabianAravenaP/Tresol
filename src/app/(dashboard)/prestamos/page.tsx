@@ -98,7 +98,7 @@ export default function MobilePrestamosPage() {
 
   const fetchVehiculos = async () => {
     try {
-      const res = await fetch('/api/proxy', {
+      const resVeh = await fetch('/api/proxy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -111,8 +111,28 @@ export default function MobilePrestamosPage() {
           }
         })
       })
-      const { data, success } = await res.json()
-      if (success && data) setVehiculosDisponibles(data)
+      const { data: vehiculos } = await resVeh.json()
+
+      const resSol = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'select',
+          data: 'vehiculo_id, estado_solicitud'
+        })
+      })
+      const { data: solicitudes } = await resSol.json()
+
+      if (vehiculos) {
+        const authStates = ['PENDIENTE', 'APROBADA', 'EN_USO'];
+        const blockedIds = (solicitudes || [])
+          .filter((s:any) => s.vehiculo_id && authStates.includes(s.estado_solicitud))
+          .map((s:any) => s.vehiculo_id);
+
+        const availablePool = vehiculos.filter((v:any) => !blockedIds.includes(v.id));
+        setVehiculosDisponibles(availablePool);
+      }
     } catch (e) {
       console.error(e)
     }
@@ -352,13 +372,39 @@ export default function MobilePrestamosPage() {
           </div>
         </Card>
       ) : (
-        <Button 
-          onClick={() => setIsRequestModalOpen(true)}
-          className="w-full h-20 bg-[#51872E] hover:bg-[#406B24] text-white rounded-[1.5rem] font-black text-lg uppercase tracking-widest shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-4 border-b-4 border-[#3A6021]"
-        >
-          <Plus className="size-6" />
-          Nueva Solicitud
-        </Button>
+        <div className="space-y-4 animate-in fade-in duration-500">
+           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-2">Vehículos Disponibles ({vehiculosDisponibles.length})</h3>
+           {vehiculosDisponibles.length === 0 ? (
+              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 text-center text-slate-400">
+                 <Car className="size-12 mx-auto mb-3 opacity-20" />
+                 <p className="text-[10px] font-black uppercase tracking-widest">No hay vehículos en el pool</p>
+              </div>
+           ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                 {vehiculosDisponibles.map(v => (
+                    <Card key={v.id} className="border-none shadow-xl shadow-slate-200/50 rounded-[2rem] overflow-hidden group hover:shadow-2xl hover:-translate-y-1 transition-all cursor-pointer" onClick={() => {
+                       setFormData({ ...formData, vehiculo_id: v.id });
+                       setIsRequestModalOpen(true);
+                    }}>
+                       <div className="p-5 flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                             <div className="size-12 rounded-2xl bg-[#116CA2]/10 text-[#116CA2] flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Car className="size-6" />
+                             </div>
+                             <div>
+                                <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest leading-tight">{v.marca} {v.modelo}</p>
+                                <h4 className="text-lg font-black tracking-tight text-[#323232]">{v.patente}</h4>
+                             </div>
+                          </div>
+                          <div className="size-10 rounded-full bg-slate-50 flex items-center justify-center text-[#116CA2] group-hover:bg-[#116CA2] group-hover:text-white transition-colors">
+                             <Plus className="size-5" />
+                          </div>
+                       </div>
+                    </Card>
+                 ))}
+              </div>
+           )}
+        </div>
       )}
 
       {/* History / Recent Activity */}
@@ -413,20 +459,13 @@ export default function MobilePrestamosPage() {
          )}
       </div>
 
-      {/* Floating Request Button (Only if no active/pending items) */}
-      {!activeLoan && !pendingApproval && (
-         <div className="fixed bottom-6 right-6 md:hidden z-30">
-            <Button 
-               onClick={() => setIsRequestModalOpen(true)}
-               className="size-16 rounded-full bg-[#116CA2] shadow-2xl text-white p-0 flex items-center justify-center"
-            >
-               <Plus className="size-8" />
-            </Button>
-         </div>
-      )}
+      {/* Floating Button removed in favor of Grid Cards */}
 
       {/* New Request Modal - Mobile First Design */}
-      <Dialog open={isRequestModalOpen} onOpenChange={setIsRequestModalOpen}>
+      <Dialog open={isRequestModalOpen} onOpenChange={(val: boolean) => {
+         setIsRequestModalOpen(val);
+         if (!val) setFormData({ ...formData, vehiculo_id: "" });
+      }}>
         <DialogContent className="w-[95vw] max-w-lg rounded-[2.5rem] p-6 border-none shadow-2xl bg-white dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
            <DialogHeader className="mb-6">
               <div className="size-12 rounded-2xl bg-[#116CA2]/10 flex items-center justify-center mb-4 text-[#116CA2]">
@@ -439,19 +478,19 @@ export default function MobilePrestamosPage() {
            </DialogHeader>
 
            <div className="space-y-5">
-              <div className="space-y-2">
-                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Patente Sugerida (Opcional)</Label>
-                 <select 
-                    value={formData.vehiculo_id}
-                    onChange={(e) => setFormData({...formData, vehiculo_id: e.target.value})}
-                    className="w-full h-14 px-4 rounded-2xl bg-slate-50 dark:bg-zinc-800 border-none font-bold text-slate-600 focus:ring-2 focus:ring-[#116CA2] text-sm outline-none"
-                 >
-                    <option value="">Selecciona el vehículo...</option>
-                    {vehiculosDisponibles.map((v) => (
-                      <option key={v.id} value={v.id}>{v.patente} - {v.marca}</option>
-                    ))}
-                 </select>
-              </div>
+              {formData.vehiculo_id && vehiculosDisponibles.find(v => v.id === formData.vehiculo_id) && (
+                 <div className="p-4 bg-slate-50 rounded-2xl border-2 border-[#116CA2]/10 flex items-center gap-4 animate-in fade-in slide-in-from-top-4">
+                    <div className="size-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                       <Car className="size-6 text-[#116CA2]" />
+                    </div>
+                    <div>
+                       <p className="text-[9px] font-black uppercase tracking-widest text-[#116CA2]">Vehículo Seleccionado</p>
+                       <h4 className="text-sm font-black text-[#323232]">
+                          {vehiculosDisponibles.find(v => v.id === formData.vehiculo_id)?.patente} - {vehiculosDisponibles.find(v => v.id === formData.vehiculo_id)?.marca}
+                       </h4>
+                    </div>
+                 </div>
+              )}
 
               <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Motivo del Préstamo</Label>
