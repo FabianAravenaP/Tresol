@@ -100,8 +100,9 @@ export default function FlotaMasterPage() {
     if (!formData.patente.trim()) return
     
     try {
+      const cleanPatente = formData.patente.replace(/[\s-]/g, '').toUpperCase()
       const dbVehiculo = {
-        patente: formData.patente.toUpperCase(),
+        patente: cleanPatente,
         marca: formData.marca.trim().toUpperCase(),
         modelo: formData.modelo.trim().toUpperCase(),
         tipo: formData.tipo,
