@@ -162,6 +162,83 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen w-full bg-slate-50 dark:bg-zinc-950 overflow-hidden font-sans">
+
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Mobile Drawer */}
+      <aside className={cn(
+        "fixed top-0 left-0 h-full w-72 bg-white dark:bg-zinc-900 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out md:hidden",
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 dark:border-zinc-800">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#116CA2] p-1.5 rounded-xl text-white">
+              <ShieldCheck className="size-5" />
+            </div>
+            <div>
+              <p className="text-[9px] font-black uppercase text-[#116CA2] tracking-[0.2em] leading-none mb-0.5">Tresol ERP</p>
+              <h2 className="text-xs font-black text-[#323232] dark:text-white uppercase tracking-tighter">
+                {user.rol === 'master_admin' ? 'Admin Maestro' : 'Administrador'}
+              </h2>
+            </div>
+          </div>
+          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => setIsSidebarOpen(false)}>
+            <X className="size-5" />
+          </Button>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Gestión General</p>
+          {filteredNavItems.map((item) => {
+            const isActive = item.href === '/admin'
+              ? pathname === '/admin'
+              : (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)))
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-3 rounded-2xl font-bold transition-all text-sm",
+                  isActive
+                    ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2]"
+                )}
+              >
+                <item.icon className={cn("size-4 shrink-0", isActive ? "text-white" : "text-slate-400")} />
+                {item.name}
+              </Link>
+            )
+          })}
+
+          {quickAccess.length > 0 && (
+            <div className="pt-6 space-y-1">
+              <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Accesos Rápidos</p>
+              {quickAccess.map((item) => {
+                const DynamicIcon = item.icon ? IconMap[item.icon] : null
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="flex items-center gap-3 px-3 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] transition-all text-sm"
+                  >
+                    {DynamicIcon && <DynamicIcon className="size-4 shrink-0" />}
+                    {item.name}
+                  </Link>
+                )
+              })}
+            </div>
+          )}
+        </nav>
+      </aside>
+
       {/* Sidebar - Desktop */}
       <aside className="w-72 border-r bg-white dark:bg-zinc-900 hidden md:flex flex-col flex-shrink-0 shadow-xl z-20">
         <div className="h-20 flex items-center px-8 border-b border-slate-100 dark:border-zinc-800">
@@ -306,23 +383,25 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-20 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-10 bg-white/70 backdrop-blur-md dark:bg-zinc-900/70 z-10">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsSidebarOpen(true)}>
-              <Menu className="size-6" />
+        <header className="h-16 md:h-20 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-4 md:px-10 bg-white/70 backdrop-blur-md dark:bg-zinc-900/70 z-10 shrink-0">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="md:hidden shrink-0" onClick={() => setIsSidebarOpen(true)}>
+              <Menu className="size-5" />
             </Button>
-            <h1 className="font-black text-xl text-[#323232] dark:text-white uppercase tracking-tight">
+            <h1 className="font-black text-sm md:text-xl text-[#323232] dark:text-white uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">
               {pageTitle}
             </h1>
           </div>
-          <div className="flex items-center gap-6">
-            <ConnectionStatus />
-            <div className="h-10 w-[1px] bg-slate-100 dark:bg-zinc-800" />
+          <div className="flex items-center gap-2 md:gap-6">
+            <div className="hidden sm:block">
+              <ConnectionStatus />
+            </div>
+            <div className="hidden md:block h-10 w-[1px] bg-slate-100 dark:bg-zinc-800" />
             <UserProfile variant="header" />
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto bg-[#FFF9F0]/30 dark:bg-black/20">
+        <div className="flex-1 overflow-auto bg-[#FFF9F0]/30 dark:bg-black/20 p-4 md:p-10">
           {children}
         </div>
       </main>

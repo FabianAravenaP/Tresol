@@ -110,27 +110,27 @@ export default function MasterDashboard() {
   const systemHealth = getSystemStatus()
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 md:space-y-10 p-4 md:p-8 max-w-[1600px] mx-auto">
       {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-3xl font-black text-[#323232] dark:text-white tracking-tight">Resumen del Sistema</h2>
-          <p className="text-slate-500 font-medium">Control unificado de todas las operaciones de Tresol.</p>
+          <h2 className="text-2xl md:text-3xl font-black text-[#323232] dark:text-white tracking-tight">Resumen del Sistema</h2>
+          <p className="text-slate-500 font-medium text-sm md:text-base">Control unificado de todas las operaciones de Tresol.</p>
         </div>
-        <div className="flex gap-3">
-           <Button onClick={() => router.push('/admin/usuarios')} className="bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-2xl font-black shadow-lg shadow-[#116CA2]/20">
-              <Users className="size-4 mr-2" />
-              Garantizar Usuarios
+        <div className="flex gap-2 md:gap-3">
+           <Button onClick={() => router.push('/admin/usuarios')} className="bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-2xl font-black shadow-lg shadow-[#116CA2]/20 text-xs md:text-sm h-9 md:h-10">
+              <Users className="size-4 mr-1.5" />
+              <span className="hidden sm:inline">Garantizar </span>Usuarios
            </Button>
-           <Button variant="outline" onClick={() => fetchStats()} className="rounded-2xl border-slate-200 font-bold hover:bg-white shadow-sm">
-              <Activity className="size-4 mr-2" />
+           <Button variant="outline" onClick={() => fetchStats()} className="rounded-2xl border-slate-200 font-bold hover:bg-white shadow-sm text-xs md:text-sm h-9 md:h-10">
+              <Activity className="size-4 mr-1.5" />
               Actualizar
            </Button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <StatCard 
           title="Usuarios Totales" 
           value={stats.totalUsers} 

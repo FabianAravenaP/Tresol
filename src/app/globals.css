@@ -127,4 +127,41 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-primary to-secondary;
   }
+  
+  /* Responsive Data Tables Optimization */
+  .responsive-table-container {
+    overflow-x: auto;
+    width: 100%;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Mobile App Shell - Centering mobile routes on Desktop */
+  .mobile-app-shell {
+    min-height: 100vh;
+    background-color: var(--background);
+    position: relative;
+  }
+  
+  @media (min-width: 768px) {
+    .mobile-app-shell {
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

@@ -188,81 +188,83 @@ export default function UsuariosPage() {
            </div>
         </CardHeader>
         <CardContent className="p-0">
-           <Table>
-              <TableHeader>
-                <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
-                  <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Nombre</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Rol</TableHead>
-                  <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Seguridad</TableHead>
-                  <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">Cargando usuarios...</TableCell>
+           <div className="responsive-table-container border-none shadow-none">
+             <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-slate-50 dark:border-zinc-800 hover:bg-transparent">
+                    <TableHead className="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Nombre</TableHead>
+                    <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Rol</TableHead>
+                    <TableHead className="py-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Seguridad</TableHead>
+                    <TableHead className="px-8 py-6 text-right text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Acciones</TableHead>
                   </TableRow>
-                ) : filteredUsers.length === 0 ? (
-                  <TableRow>
-                     <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No se encontraron usuarios</TableCell>
-                  </TableRow>
-                ) : filteredUsers.map((user) => (
-                  <TableRow key={user.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                    <TableCell className="px-8 py-6">
-                       <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-black text-[#116CA2]">
-                             {user.nombre?.charAt(0)}
-                          </div>
-                          <div>
-                            <span className="font-bold text-[#323232] dark:text-white uppercase tracking-tight block">{user.nombre}</span>
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">ID: {user.id.slice(0, 8)}</span>
-                          </div>
-                       </div>
-                    </TableCell>
-                    <TableCell className="py-6">
-                       <Badge className={cn(
-                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
-                         user.rol === 'master_admin' ? "bg-purple-100 text-purple-600" :
-                         user.rol === 'admin' ? "bg-red-100 text-red-600" :
-                         user.rol === 'digitalizador' ? "bg-blue-100 text-blue-600" :
-                         user.rol === 'operaciones' ? "bg-[#116CA2]/10 text-[#116CA2]" :
-                         "bg-[#51872E]/10 text-[#51872E]"
-                       )}>
-                          {user.rol}
-                       </Badge>
-                    </TableCell>
-                    <TableCell className="py-6">
-                       <div className="flex items-center gap-2">
-                          {user.password && user.password.length > 0 ? (
-                            <Badge className="bg-emerald-100 text-emerald-600 border-none font-black text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1">
-                              <Check className="size-3" />
-                              PROTEGIDO
-                            </Badge>
-                          ) : (
-                            <Badge className={cn(
-                              "border-none font-black text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1",
-                              (user.rol === 'master_admin' || user.rol === 'admin') 
-                                ? "bg-amber-100 text-amber-600 animate-pulse" 
-                                : "bg-slate-100 text-slate-400"
-                            )}>
-                              <X className="size-3" />
-                              SIN CLAVE
-                            </Badge>
-                          )}
-                       </div>
-                    </TableCell>
-                    <TableCell className="px-8 py-6 text-right space-x-2">
-                       <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(user)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
-                          <Edit2 className="size-4" />
-                       </Button>
-                       <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
-                          <Trash2 className="size-4" />
-                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-           </Table>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">Cargando usuarios...</TableCell>
+                    </TableRow>
+                  ) : filteredUsers.length === 0 ? (
+                    <TableRow>
+                       <TableCell colSpan={4} className="py-20 text-center font-bold text-slate-400 italic">No se encontraron usuarios</TableCell>
+                    </TableRow>
+                  ) : filteredUsers.map((user) => (
+                    <TableRow key={user.id} className="border-b border-slate-50 dark:border-zinc-800 hover:bg-slate-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                      <TableCell className="px-8 py-6">
+                         <div className="flex items-center gap-3">
+                            <div className="size-10 rounded-xl bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-black text-[#116CA2]">
+                               {user.nombre?.charAt(0)}
+                            </div>
+                            <div>
+                              <span className="font-bold text-[#323232] dark:text-white uppercase tracking-tight block">{user.nombre}</span>
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">ID: {user.id.slice(0, 8)}</span>
+                            </div>
+                         </div>
+                      </TableCell>
+                      <TableCell className="py-6">
+                         <Badge className={cn(
+                           "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none",
+                           user.rol === 'master_admin' ? "bg-purple-100 text-purple-600" :
+                           user.rol === 'admin' ? "bg-red-100 text-red-600" :
+                           user.rol === 'digitalizador' ? "bg-blue-100 text-blue-600" :
+                           user.rol === 'operaciones' ? "bg-[#116CA2]/10 text-[#116CA2]" :
+                           "bg-[#51872E]/10 text-[#51872E]"
+                         )}>
+                            {user.rol}
+                         </Badge>
+                      </TableCell>
+                      <TableCell className="py-6">
+                         <div className="flex items-center gap-2">
+                            {user.password && user.password.length > 0 ? (
+                              <Badge className="bg-emerald-100 text-emerald-600 border-none font-black text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1">
+                                <Check className="size-3" />
+                                PROTEGIDO
+                              </Badge>
+                            ) : (
+                              <Badge className={cn(
+                                "border-none font-black text-[9px] px-2 py-0.5 rounded-md flex items-center gap-1",
+                                (user.rol === 'master_admin' || user.rol === 'admin') 
+                                  ? "bg-amber-100 text-amber-600 animate-pulse" 
+                                  : "bg-slate-100 text-slate-400"
+                              )}>
+                                <X className="size-3" />
+                                SIN CLAVE
+                              </Badge>
+                            )}
+                         </div>
+                      </TableCell>
+                      <TableCell className="px-8 py-6 text-right space-x-2 text-nowrap">
+                         <Button variant="ghost" size="icon" onClick={() => handleOpenEdit(user)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-[#116CA2] hover:bg-[#116CA2]/10 transition-all">
+                            <Edit2 className="size-4" />
+                         </Button>
+                         <Button variant="ghost" size="icon" onClick={() => handleDelete(user.id)} className="h-10 w-10 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all">
+                            <Trash2 className="size-4" />
+                         </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+             </Table>
+           </div>
         </CardContent>
       </Card>
 
