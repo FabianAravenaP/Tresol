@@ -72,14 +72,16 @@ export default function MobilePrestamosPage() {
   const [checkoutData, setCheckoutData] = useState({
     km: "",
     combustible: 100,
-    fotoBase64: ""
+    fotoBase64: "", // tablero
+    fotoDanoBase64: "" // optional daño
   })
 
   const [returnData, setReturnData] = useState({
     km: "",
     combustible: 100,
-    fotoBase64: "",
+    fotoBase64: "", // tablero
     limpieza: "BUENA",
+    fotoLimpiezaBase64: "", // required limpieza
     danos: ""
   })
 
@@ -231,29 +233,48 @@ export default function MobilePrestamosPage() {
     } finally { setIsSubmitting(false) }
   }
 
-  const handlePhotoCapture = (e: any, type: 'CHECKOUT' | 'RETURN') => {
+  const handlePhotoCapture = (e: any, type: 'CHECKOUT_TABLERO' | 'CHECKOUT_DANO' | 'RETURN_TABLERO' | 'RETURN_LIMPIEZA') => {
     const file = e.target.files[0]
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
         const base64 = reader.result as string
-        if (type === 'CHECKOUT') setCheckoutData(prev => ({ ...prev, fotoBase64: base64 }))
-        else setReturnData(prev => ({ ...prev, fotoBase64: base64 }))
+        if (type === 'CHECKOUT_TABLERO') setCheckoutData(prev => ({ ...prev, fotoBase64: base64 }))
+        else if (type === 'CHECKOUT_DANO') setCheckoutData(prev => ({ ...prev, fotoDanoBase64: base64 }))
+        else if (type === 'RETURN_TABLERO') setReturnData(prev => ({ ...prev, fotoBase64: base64 }))
+        else if (type === 'RETURN_LIMPIEZA') setReturnData(prev => ({ ...prev, fotoLimpiezaBase64: base64 }))
       }
       reader.readAsDataURL(file)
     }
   }
 
   const submitTechnicalLog = async (type: 'CHECKOUT' | 'RETURN') => {
-    const data = type === 'CHECKOUT' ? checkoutData : returnData
-    if (!data.km || !data.fotoBase64) {
-      alert("Kilometraje y foto del tablero son requeridos.")
+    if (type === 'CHECKOUT' && (!checkoutData.km || !checkoutData.fotoBase64)) {
+      alert("Kilometraje y foto del tablero son requeridos para la salida.")
+      return
+    }
+    if (type === 'RETURN' && (!returnData.km || !returnData.fotoBase64 || !returnData.fotoLimpiezaBase64)) {
+      alert("Kilometraje, foto de tablero y foto de limpieza son obligatorios al retornar.")
       return
     }
     const reqId = type === 'CHECKOUT' ? checkoutModal.reqId : returnModal.reqId
     const updateData = type === 'CHECKOUT'
-      ? { km_salida: Number(checkoutData.km), combustible_salida: checkoutData.combustible, foto_tablero_salida: checkoutData.fotoBase64, estado_solicitud: 'EN_USO' }
-      : { km_retorno: Number(returnData.km), combustible_retorno: returnData.combustible, foto_tablero_retorno: returnData.fotoBase64, limpieza: returnData.limpieza, danos_retorno_notas: returnData.danos, estado_solicitud: 'FINALIZADA' }
+      ? { 
+          km_salida: Number(checkoutData.km), 
+          combustible_salida: checkoutData.combustible, 
+          foto_tablero_salida: checkoutData.fotoBase64, 
+          foto_dano_salida: checkoutData.fotoDanoBase64 || null,
+          estado_solicitud: 'EN_USO' 
+        }
+      : { 
+          km_retorno: Number(returnData.km), 
+          combustible_retorno: returnData.combustible, 
+          foto_tablero_retorno: returnData.fotoBase64, 
+          limpieza: returnData.limpieza, 
+          foto_limpieza_retorno: returnData.fotoLimpiezaBase64,
+          danos_retorno_notas: returnData.danos, 
+          estado_solicitud: 'FINALIZADA' 
+        }
 
     setIsSubmitting(true)
     try {
@@ -574,26 +595,42 @@ export default function MobilePrestamosPage() {
                    />
                 </div>
 
-                <div className="space-y-4">
-                   <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 flex items-center justify-between">
-                      <span>Evidencia Tablero</span>
-                   </Label>
-                   <label className="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-slate-200 rounded-3xl hover:bg-slate-50 transition-all cursor-pointer overflow-hidden relative">
-                      {checkoutData.fotoBase64 ? (
-                        <div className="w-full h-full relative">
-                           <img src={checkoutData.fotoBase64} alt="Previa" className="w-full h-full object-cover" />
-                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                              <Camera className="size-8 text-white" />
+                <div className="space-y-2">
+                   <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Combustible Actual</Label>
+                   <select value={checkoutData.combustible} onChange={(e) => setCheckoutData({...checkoutData, combustible: Number(e.target.value)})} className="w-full h-14 px-4 rounded-2xl bg-slate-50 border-none font-black text-sm outline-none">
+                     {[100,75,50,25,10].map(v => <option key={v} value={v}>{v}%</option>)}
+                   </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                   <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-400 tracking-widest text-center block">Evidencia Tablero *</Label>
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#116CA2]/30 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer overflow-hidden relative bg-blue-50/20">
+                         {checkoutData.fotoBase64 ? (
+                           <img src={checkoutData.fotoBase64} alt="Tablero" className="w-full h-full object-cover" />
+                         ) : (
+                           <div className="flex flex-col items-center gap-2 text-[#116CA2]">
+                              <Camera className="size-6" />
+                              <span className="text-[8px] font-black uppercase text-center">FOTO KM/GAS</span>
                            </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-3 text-slate-300">
-                           <Camera className="size-10" />
-                           <span className="text-[10px] font-black uppercase tracking-[0.2em]">Capturar Foto</span>
-                        </div>
-                      )}
-                      <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'CHECKOUT')} />
-                   </label>
+                         )}
+                         <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'CHECKOUT_TABLERO')} />
+                      </label>
+                   </div>
+                   <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-400 tracking-widest text-center block">Evidencia Daños</Label>
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-200 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer overflow-hidden relative">
+                         {checkoutData.fotoDanoBase64 ? (
+                           <img src={checkoutData.fotoDanoBase64} alt="Daños" className="w-full h-full object-cover" />
+                         ) : (
+                           <div className="flex flex-col items-center gap-2 text-slate-400">
+                              <Camera className="size-6 opacity-50" />
+                              <span className="text-[8px] font-black uppercase text-center">FOTO DAÑO<br/>(OPCIONAL)</span>
+                           </div>
+                         )}
+                         <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'CHECKOUT_DANO')} />
+                      </label>
+                   </div>
                 </div>
              </div>
 
@@ -654,23 +691,42 @@ export default function MobilePrestamosPage() {
                    <textarea value={returnData.danos} onChange={(e) => setReturnData({...returnData, danos: e.target.value})} className="w-full h-24 p-4 rounded-2xl bg-slate-50 border-none font-bold text-sm resize-none focus:ring-2 focus:ring-[#116CA2] outline-none" placeholder="Describe cualquier novedad..." />
                 </div>
 
-                <div className="space-y-2">
-                   <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Foto Tablero</Label>
-                   <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/30 cursor-pointer overflow-hidden transition-all text-[#116CA2]">
-                      {returnData.fotoBase64 ? (
-                        <img src={returnData.fotoBase64} alt="Retorno" className="w-full h-full object-cover" />
-                      ) : (
-                        <Camera className="size-8 opacity-40" />
-                      )}
-                      <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'RETURN')} />
-                   </label>
+                <div className="grid grid-cols-2 gap-3">
+                   <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-400 tracking-widest text-center block">Evidencia Tablero *</Label>
+                      <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-[#116CA2]/30 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer overflow-hidden relative bg-blue-50/10 text-[#116CA2]">
+                         {returnData.fotoBase64 ? (
+                           <img src={returnData.fotoBase64} alt="Tablero" className="w-full h-full object-cover" />
+                         ) : (
+                           <div className="flex flex-col items-center gap-1">
+                              <Camera className="size-6" />
+                              <span className="text-[8px] font-black uppercase">FOTO KM/GAS</span>
+                           </div>
+                         )}
+                         <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'RETURN_TABLERO')} />
+                      </label>
+                   </div>
+                   <div className="space-y-2">
+                      <Label className="text-[9px] font-black uppercase text-slate-400 tracking-widest text-center block">Evidencia Limpieza *</Label>
+                      <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-emerald-500/30 rounded-2xl hover:bg-slate-50 transition-all cursor-pointer overflow-hidden relative bg-emerald-50/10 text-emerald-600">
+                         {returnData.fotoLimpiezaBase64 ? (
+                           <img src={returnData.fotoLimpiezaBase64} alt="Limpieza" className="w-full h-full object-cover" />
+                         ) : (
+                           <div className="flex flex-col items-center gap-1">
+                              <Camera className="size-6" />
+                              <span className="text-[8px] font-black uppercase">FOTO LIMPIEZA</span>
+                           </div>
+                         )}
+                         <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoCapture(e, 'RETURN_LIMPIEZA')} />
+                       </label>
+                   </div>
                 </div>
              </div>
 
              <DialogFooter className="flex flex-col gap-2 shrink-0 pt-4">
                 <Button 
                    onClick={() => submitTechnicalLog('RETURN')} 
-                   disabled={isSubmitting || !returnData.km || !returnData.fotoBase64}
+                   disabled={isSubmitting || !returnData.km || !returnData.fotoBase64 || !returnData.fotoLimpiezaBase64}
                    className="h-16 w-full bg-[#116CA2] rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all text-white"
                 >
                    {isSubmitting ? 'Enviando...' : 'Finalizar Entrega'}
