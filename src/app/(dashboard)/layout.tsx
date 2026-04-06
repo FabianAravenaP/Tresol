@@ -57,13 +57,34 @@ export default function DashboardLayout({
       try {
         const sessionUser = JSON.parse(sessionStr)
         setUser(sessionUser)
+        
+        // SYNC: Fetch latest profile to ensure role/rut/name are up to date
+        const syncProfile = async () => {
+          try {
+            const { data, error } = await supabase
+              .from('usuarios')
+              .select('*')
+              .eq('id', sessionUser.id)
+              .single()
+            
+            if (!error && data) {
+              const updatedUser = { ...sessionUser, ...data }
+              setUser(updatedUser)
+              localStorage.setItem('tresol_session', JSON.stringify(updatedUser))
+              console.log("Session synchronized with latest DB state")
+            }
+          } catch (e) {
+            console.error("Sync error", e)
+          }
+        }
+        
+        syncProfile()
         fetchUserConfig(sessionUser.id)
       } catch (e) {
         console.error("Error parsing session", e)
         router.push('/')
       }
     } else {
-      // Redirect to login if no session
       router.push('/')
     }
   }, [router])
@@ -77,12 +98,12 @@ export default function DashboardLayout({
         .single()
       
       if (error) throw error
-      if (data?.config_sidebar && Array.isArray(data.config_sidebar) && data.config_sidebar.length > 0) {
+      if (data?.config_sidebar && Array.isArray(data.config_sidebar)) {
         setQuickAccess(data.config_sidebar)
       } else {
         // Fallback or default
         setQuickAccess(ALL_MODULES.filter(m => 
-          ["operativo", "cocina", "activos", "porteria", "digitalizador", "prestamos"].includes(m.id)
+          ["operativo", "porteria", "digitalizador", "prestamos"].includes(m.id)
         ))
       }
     } catch (err) {
