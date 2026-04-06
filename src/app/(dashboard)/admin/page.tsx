@@ -27,12 +27,13 @@ import {
   Utensils,
   MapPin,
   Settings,
-  Home
+  Home,
+  Car
 } from "lucide-react"
 
 const IconMap: any = { 
   LayoutDashboard, MapPin, Activity, Users, Truck, Settings, 
-  Home, Smartphone, FileText, Utensils, ChefHat, ShieldCheck, Package 
+  Home, Smartphone, FileText, Utensils, ChefHat, ShieldCheck, Package, Car 
 }
 
 export default function MasterDashboard() {
@@ -172,9 +173,9 @@ export default function MasterDashboard() {
       {/* Modules Health / Quick Access */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-6">
         {ALL_MODULES.filter(m => 
-          ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos"].includes(m.id)
+          ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos", "prestamos"].includes(m.id)
         ).sort((a,b) => {
-          const order = ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos"];
+          const order = ["cocina", "operativo", "mobile", "digitalizador", "porteria", "activos", "prestamos"];
           return order.indexOf(a.id) - order.indexOf(b.id);
         }).map((mod) => (
           <ModuleCard 
