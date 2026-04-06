@@ -52,30 +52,55 @@ export default function MasterDashboard() {
     fetchStats()
   }, [])
 
-  const fetchStats = async () => {
+  const proxySelect = async (table: string, match?: Record<string, any>) => {
     try {
-      // Fetch User stats
-      const { count: usersCount } = await supabase.from('usuarios').select('*', { count: 'exact', head: true })
-      const { count: driversCount } = await supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('rol', 'chofer')
-      
-      // Fetch Vehicle stats
-      const { count: vehicleCount } = await supabase.from('vehiculos').select('*', { count: 'exact', head: true })
-      const { count: maintenanceCount } = await supabase.from('vehiculos').select('*', { count: 'exact', head: true }).eq('estado', 'FALLA MECÁNICA')
-      
-      // Fetch Personal stats
-      const { count: personalCount } = await supabase.from('maestro_personas').select('*', { count: 'exact', head: true })
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          table, 
+          method: 'select', 
+          data: 'id', 
+          ...(match ? { match } : {}) 
+        })
+      })
+      const { data, success } = await res.json()
+      if (!success) return 0
+      return (data || []).length
+    } catch (e) {
+      console.error(`Error proxying ${table}:`, e)
+      return 0
+    }
+  }
 
-      // Fetch Service stats
+  const fetchStats = async () => {
+    setIsLoading(true)
+    try {
       const today = new Date().toISOString().split('T')[0]
-      const { count: pendingCount } = await supabase.from('servicios_asignados').select('*', { count: 'exact', head: true }).eq('fecha', today).eq('estado', 'pendiente')
+      
+      const [
+        usersCount, 
+        driversCount, 
+        vehicleCount, 
+        maintenanceCount, 
+        personalCount, 
+        pendingCount
+      ] = await Promise.all([
+        proxySelect('usuarios'),
+        proxySelect('usuarios', { rol: 'chofer' }),
+        proxySelect('vehiculos'),
+        proxySelect('vehiculos', { estado: 'FALLA MECÁNICA' }),
+        proxySelect('maestro_personas'),
+        proxySelect('servicios_asignados', { fecha: today, estado: 'pendiente' }),
+      ])
 
       setStats({
-        totalUsers: usersCount || 0,
-        activeDrivers: driversCount || 0,
-        totalVehicles: vehicleCount || 0,
-        maintenanceVehicles: maintenanceCount || 0,
-        pendingServices: pendingCount || 0,
-        totalPersonal: personalCount || 0
+        totalUsers: usersCount,
+        activeDrivers: driversCount,
+        totalVehicles: vehicleCount,
+        maintenanceVehicles: maintenanceCount,
+        pendingServices: pendingCount,
+        totalPersonal: personalCount
       })
     } catch (error) {
       console.error("Error fetching admin stats:", error)
