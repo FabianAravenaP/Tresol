@@ -203,7 +203,7 @@ export default function DashboardLayout({
             <div>
               <p className="text-[9px] font-black uppercase text-[#116CA2] tracking-[0.2em] leading-none mb-0.5">Tresol ERP</p>
               <h2 className="text-xs font-black text-[#323232] dark:text-white uppercase tracking-tighter">
-                {user.rol === 'master_admin' ? 'Admin Maestro' : 'Administrador'}
+                {(user.rol === 'master_admin' || user.rut === '17630469') ? 'Admin Maestro' : 'Administrador'}
               </h2>
             </div>
           </div>
