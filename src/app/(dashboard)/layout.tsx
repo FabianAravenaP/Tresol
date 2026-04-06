@@ -82,7 +82,7 @@ export default function DashboardLayout({
       } else {
         // Fallback or default
         setQuickAccess(ALL_MODULES.filter(m => 
-          ["operativo", "cocina", "activos", "porteria", "digitalizador"].includes(m.id)
+          ["operativo", "cocina", "activos", "porteria", "digitalizador", "prestamos"].includes(m.id)
         ))
       }
     } catch (err) {
