@@ -43,8 +43,19 @@ export default function Home() {
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterRole, setFilterRole] = useState<string | null>(null)
+  const [filterModule, setFilterModule] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  const AUTHORIZED_PRESTAMOS = [
+    "sandra paillaman", "ramon ampuero", "yohanny alvarado", "jeanette vargas", "macarena santana", "natali soto",
+    "fabian aravena", "martin riquelme", "natalia muñoz", "victoria malizia", "lady irazi", "sebastian torres",
+    "ignacio hueichan", "rocio caceres", "claudio alcaino", "omar paredes", "rodolfo soto", "claudio arzola",
+    "hans cornejo", "fabian hernandez", "marcelo jara"
+  ]
+
+  const normalizeString = (str: string) => {
+    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  }
 
   const fetchUsuarios = async () => {
     setIsLoading(true)
@@ -136,51 +147,85 @@ export default function Home() {
     // Save user to session/localStorage for simulation
     localStorage.setItem('tresol_session', JSON.stringify(user))
     
-    // Redirect based on native DB role
-    switch (user.rol) {
-      case 'master_admin':
-      case 'admin':
-      case 'usuario':
-        router.push('/admin')
-        break
-      case 'operaciones':
-        router.push('/operaciones')
-        break
-      case 'chofer':
-        router.push('/mobile')
-        break
-      case 'digitalizador':
-        router.push('/digitalizador')
-        break
-      case 'portero':
-        router.push('/porteria')
-        break
-      case 'cocina':
-        router.push('/cocina')
-        break
-      // Fallback for old/other roles
-      case 'admin_operaciones':
-        router.push('/admin')
-        break
-      case 'peoneta':
-        router.push('/digitalizador')
-        break
-      default:
-        alert(`Rol "${user.rol}" no reconocido`)
+    // Fallback module routing logic internally
+    let destRoute = '/admin'
+    if (filterModule) {
+      switch(filterModule) {
+         case 'prestamos': destRoute = '/prestamos'; break;
+         case 'activos': destRoute = '/admin'; break;
+         case 'operaciones': destRoute = '/operaciones'; break;
+         case 'conductor': destRoute = '/mobile'; break;
+         case 'digitalizador': destRoute = '/digitalizador'; break;
+         case 'porteria': destRoute = '/porteria'; break;
+         case 'cocina': destRoute = '/cocina'; break;
+      }
+    } else {
+      switch (user.rol) {
+        case 'master_admin':
+        case 'admin':
+        case 'usuario':
+        case 'admin_operaciones':
+          destRoute = '/admin'
+          break
+        case 'operaciones':
+          destRoute = '/operaciones'
+          break
+        case 'chofer':
+          destRoute = '/mobile'
+          break
+        case 'peoneta':
+        case 'digitalizador':
+          destRoute = '/digitalizador'
+          break
+        case 'portero':
+          destRoute = '/porteria'
+          break
+        case 'cocina':
+          destRoute = '/cocina'
+          break
+      }
     }
+    
+    router.push(destRoute)
     setIsLoginOpen(false)
     setSelectedUser(null)
   }
 
   const filteredUsers = usuarios.filter(u => {
     const matchesSearch = u.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         u.displayCargo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          u.rol?.toLowerCase().includes(searchTerm.toLowerCase())
     
-    if (filterRole) {
-      if (filterRole === 'admin') {
-        return matchesSearch && (u.rol === 'admin' || u.rol === 'master_admin')
+    if (filterModule) {
+      let isAllowed = false;
+      switch (filterModule) {
+         case "prestamos":
+            const normalizedU = normalizeString(u.nombre);
+            isAllowed = AUTHORIZED_PRESTAMOS.some(name => {
+              const parts = normalizeString(name).split(" ");
+              return parts.every(part => normalizedU.includes(part));
+            });
+            break;
+         case "cocina":
+            isAllowed = ['cocina'].includes(u.rol)
+            break;
+         case "operaciones":
+            isAllowed = ['operaciones', 'admin_operaciones', 'admin', 'master_admin'].includes(u.rol)
+            break;
+         case "conductor":
+            isAllowed = ['chofer'].includes(u.rol)
+            break;
+         case "digitalizador":
+            isAllowed = ['digitalizador', 'peoneta', 'chofer'].includes(u.rol)
+            break;
+         case "porteria":
+            isAllowed = ['portero'].includes(u.rol)
+            break;
+         case "activos":
+            isAllowed = ['admin', 'master_admin', 'admin_operaciones'].includes(u.rol)
+            break;
       }
-      return matchesSearch && u.rol === filterRole
+      return matchesSearch && isAllowed;
     }
     
     return matchesSearch
@@ -202,7 +247,7 @@ export default function Home() {
             <Button 
                 className="bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-xl font-black px-8 h-12 shadow-lg shadow-[#116CA2]/20 transition-all hover:scale-105 active:scale-95"
                 onClick={() => {
-                  setFilterRole(null)
+                  setFilterModule(null)
                   setIsLoginOpen(true)
                 }}
             >
@@ -337,53 +382,53 @@ export default function Home() {
                    desc: "Control de minutas, producción diaria e inventario de casino para el personal.", 
                    icon: ChefHat,
                    color: "#FBC15F",
-                   role: "cocina"
+                   module: "cocina"
                  },
                  { 
                    title: "Operaciones", 
                    desc: "Planificación de servicios en calendario, asignación de choferes y control de flota.", 
                    icon: LayoutDashboard,
                    color: "#116CA2",
-                   role: "operaciones"
+                   module: "operaciones"
                  },
                  { 
                    title: "App Conductor", 
                    desc: "Terminal móvil para reportar inicio de ruta, carga y generación de comprobantes digitales.", 
                    icon: Smartphone,
                    color: "#51872E",
-                   role: "chofer"
+                   module: "conductor"
                  },
                  { 
                    title: "Digitalizador", 
                    desc: "Estación de visualización y exportación de certificados oficiales y reportes operativos.", 
                    icon: ClipboardCheck,
                    color: "#FBC15F",
-                   role: "digitalizador"
+                   module: "digitalizador"
                  },
                  { 
                    title: "Control Portería", 
                    desc: "Registro de ingresos y salidas para porterías Husamontt y Tresol Antiguo.", 
                    icon: Shield,
                    color: "#116CA2",
-                   role: "portero"
+                   module: "porteria"
                  },
                  { 
                    title: "Préstamo Vehículo", 
                    desc: "Módulo para la solicitud, retiro y entrega de vehículos menores por parte del personal.", 
                    icon: Car,
                    color: "#51872E",
-                   role: "admin"
+                   module: "prestamos"
                  },
                  { 
                    title: "Gestión Activos", 
                    desc: "Control, ubicación y estado de contenedores y otros activos de la empresa.", 
                    icon: Package,
                    color: "#51872E",
-                   role: "admin"
+                   module: "activos"
                  }
                ].map((mod, i) => (
                  <Card key={i} className="group hover:shadow-2xl transition-all duration-500 border-none ring-1 ring-black/5 rounded-[2.5rem] overflow-hidden bg-zinc-50/50 hover:bg-white cursor-pointer" onClick={() => {
-                    setFilterRole(mod.role)
+                    setFilterModule(mod.module)
                     setIsLoginOpen(true)
                   }}>
                    <CardContent className="p-10 space-y-6">
@@ -419,37 +464,13 @@ export default function Home() {
               </div>
                <DialogTitle className="text-3xl font-black uppercase tracking-tight mb-2">Acceso a Tresol</DialogTitle>
                <DialogDescription className="text-white/70 font-bold">
-                 {filterRole 
-                   ? `Mostrando personal de ${
-                       filterRole === 'chofer' ? 'App Conductor' : 
-                       filterRole === 'admin' ? 'Administración' :
-                       filterRole.charAt(0).toUpperCase() + filterRole.slice(1)
-                     }` 
+                 {filterModule 
+                   ? `Mostrando personal autorizado` 
                    : "Selecciona tu perfil de usuario para ingresar."}
                </DialogDescription>
             </div>
             
-            <div className="p-10 space-y-8">
-               {filterRole && (
-                 <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div className="flex items-center gap-2">
-                       <Badge className="bg-[#51872E] hover:bg-[#51872E] text-white font-black px-3 py-1 rounded-lg">
-                          FILTRO ACTIVO
-                       </Badge>
-                       <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">
-                         {filterRole === 'chofer' ? 'CONDUCCIÓN' : filterRole === 'admin' ? 'ADMINISTRACIÓN' : filterRole}
-                       </span>
-                    </div>
-                    <button 
-                      onClick={() => setFilterRole(null)}
-                      className="text-[10px] font-black text-[#116CA2] hover:underline uppercase tracking-widest"
-                    >
-                      Ver todos
-                    </button>
-                 </div>
-               )}
-
-               <div className="relative">
+            <div className="p-10 space-y-8">               <div className="relative">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-5 text-slate-400" />
                  <Input 
                    autoComplete="off"
