@@ -37,14 +37,27 @@ import { cn } from "@/lib/utils"
 
 export default function MobilePrestamosPage() {
   const [sessionUser, setSessionUser] = useState<any>(null)
+  const [isAuthLoaded, setIsAuthLoaded] = useState(false)
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [vehiculosDisponibles, setVehiculosDisponibles] = useState<any[]>([])
 
+  const AUTHORIZED_PERSONNEL = [
+    "sandra paillaman", "ramon ampuero", "yohanny alvarado", "jeanette vargas", "macarena santana", "natali soto",
+    "fabian aravena", "martin riquelme", "natalia muñoz", "victoria malizia", "lady irazi", "sebastian torres",
+    "ignacio hueichan", "rocio caceres", "claudio alcaino", "omar paredes", "rodolfo soto", "claudio arzola",
+    "hans cornejo", "fabian hernandez", "marcelo jara"
+  ]
+
+  const normalizeString = (str: string) => {
+    return str ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() : "";
+  }
+
   const [checkoutModal, setCheckoutModal] = useState<{isOpen: boolean, reqId: string | null}>({isOpen: false, reqId: null})
   const [returnModal, setReturnModal] = useState<{isOpen: boolean, reqId: string | null}>({isOpen: false, reqId: null})
+
 
   // Form State
   const [formData, setFormData] = useState({
@@ -79,6 +92,7 @@ export default function MobilePrestamosPage() {
          fetchMisSolicitudes(parsed.persona_id)
       }
     }
+    setIsAuthLoaded(true)
     fetchVehiculos()
   }, [])
 
@@ -143,6 +157,15 @@ export default function MobilePrestamosPage() {
     const day = date.getDay() // 0 is Sunday, 1 is Monday, ..., 5 is Friday, 6 is Saturday
     return [0, 5, 6].includes(day)
   }, [formData.fecha_inicio])
+
+  const isAuthorized = useMemo(() => {
+    if (!sessionUser?.nombre) return false;
+    const userNormalized = normalizeString(sessionUser.nombre);
+    return AUTHORIZED_PERSONNEL.some(name => {
+      const parts = normalizeString(name).split(" ");
+      return parts.every(part => userNormalized.includes(part));
+    });
+  }, [sessionUser])
 
   const handleSubmit = async () => {
     if (!formData.fecha_inicio || !formData.fecha_fin) {
@@ -230,7 +253,33 @@ export default function MobilePrestamosPage() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-12rem)] space-y-6 pb-20 relative px-2">
       
-      {/* Header Context - Very Mobile Optimized */}
+      {!isAuthLoaded ? (
+        <div className="flex-1 flex flex-col items-center justify-center p-10 animate-pulse">
+           <Car className="size-10 text-slate-300 mx-auto mb-4" />
+           <p className="text-xs font-black text-slate-400 uppercase tracking-widest text-center">Verificando Credenciales...</p>
+        </div>
+      ) : !isAuthorized ? (
+        <div className="flex-1 flex flex-col items-center justify-center pt-20 px-4">
+           <Card className="w-full max-w-sm rounded-[2.5rem] border-none shadow-2xl bg-white overflow-hidden text-center">
+              <div className="bg-red-50 p-6 flex flex-col items-center border-b border-red-100">
+                 <ShieldCheck className="size-16 text-red-500 mb-2" />
+                 <h2 className="text-xl font-black text-red-700 uppercase tracking-tight">Acceso Restringido</h2>
+              </div>
+              <div className="p-8 space-y-4">
+                 <p className="text-sm font-bold text-slate-500 leading-relaxed">
+                   Tu perfil (<span className="text-[#323232]">{sessionUser?.nombre}</span>) no cuenta con los permisos administrativos para solicitar vehículos de la flota menor.
+                 </p>
+                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-loose">
+                      Para solicitar excepciones, comunícate con la Gerencia de Operaciones.
+                    </p>
+                 </div>
+              </div>
+           </Card>
+        </div>
+      ) : (
+        <>
+          {/* Header Context - Very Mobile Optimized */}
       <div className="bg-[#116CA2] rounded-[2rem] p-6 text-white shadow-xl shadow-[#116CA2]/20 mb-2">
         <div className="flex justify-between items-start mb-6">
            <div>
@@ -592,7 +641,8 @@ export default function MobilePrestamosPage() {
           </div>
         </DialogContent>
       </Dialog>
-
+        </>
+      )}
     </div>
   )
 }
