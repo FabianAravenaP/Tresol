@@ -110,7 +110,7 @@ export default function MasterDashboard() {
   const systemHealth = getSystemStatus()
 
   return (
-    <div className="space-y-6 md:space-y-10 p-4 md:p-8 max-w-[1600px] mx-auto">
+    <div className="space-y-6 md:space-y-10 p-6 md:p-8 max-w-[1600px] mx-auto">
       {/* Welcome Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

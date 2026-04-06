@@ -67,7 +67,7 @@ export function UserProfile({ variant = "sidebar", className }: UserProfileProps
           {initials}
         </div>
         
-        <div className="flex-1 min-w-0">
+        <div className={cn("min-w-0", variant === "header" ? "hidden sm:block flex-1" : "flex-1")}>
           <div className="flex items-center justify-between gap-2">
             <p className={cn(
               "font-black text-[#323232] dark:text-white truncate uppercase tracking-tight",

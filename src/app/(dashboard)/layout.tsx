@@ -383,14 +383,16 @@ export default function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-        <header className="h-16 md:h-20 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-4 md:px-10 bg-white/70 backdrop-blur-md dark:bg-zinc-900/70 z-10 shrink-0">
+        <header className="h-16 md:h-20 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-6 md:px-10 bg-white/70 backdrop-blur-md dark:bg-zinc-900/70 z-10 shrink-0">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="md:hidden shrink-0" onClick={() => setIsSidebarOpen(true)}>
               <Menu className="size-5" />
             </Button>
-            <h1 className="font-black text-sm md:text-xl text-[#323232] dark:text-white uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">
-              {pageTitle}
-            </h1>
+            <Link href="/admin" className="hover:opacity-80 transition-opacity">
+              <h1 className="font-black text-sm md:text-xl text-[#116CA2] dark:text-white uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">
+                {pageTitle}
+              </h1>
+            </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-6">
             <div className="hidden sm:block">
@@ -401,7 +403,7 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <div className="flex-1 overflow-auto bg-[#FFF9F0]/30 dark:bg-black/20 p-4 md:p-10">
+        <div className="flex-1 overflow-auto bg-[#FFF9F0]/30 dark:bg-black/20 p-6 md:p-10">
           {children}
         </div>
       </main>
