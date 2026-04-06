@@ -163,21 +163,20 @@ export default function DashboardLayout({
     { name: "Configuración", href: "/admin/config", icon: Settings, roles: ['master_admin'] },
   ]
 
+  if (!user) return <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center font-bold italic text-slate-400">Iniciando sesión segura...</div>
+
   // Role normalization and keyword detection
-  const roleUpper = (user?.rol || "").toUpperCase()
+  const roleUpper = (user.rol || "").toUpperCase()
   const isAdmin = roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE') || user.rol === 'master_admin'
   const isFabian = user.rut?.toString() === '17630469' || user.nombre?.toLowerCase().includes('fabian aravena')
 
-  // Sidebar is persistent for admin-level and general dashboard users
-  // EMERGENCY BYPASS: Always show sidebar if route is admin and user is Fabian or admin
   const isPathAdmin = pathname.startsWith('/admin') || pathname.startsWith('/operaciones') || pathname.startsWith('/porteria')
-  const showSidebar = user && (isAdmin || isFabian || isPathAdmin || ['operaciones', 'usuario'].includes(user.rol))
+  const showSidebar = isAdmin || isFabian || isPathAdmin || ['operaciones', 'usuario'].includes(user.rol)
 
   // If sidebar is shown, filter nav items
   const filteredNavItems = navItems.filter(item => {
     if (!item.roles) return true
-    if (isFabian) return true // Fabian sees everything
-    
+    if (isFabian) return true
     return item.roles.some((r: string) => {
       const rUpper = r.toUpperCase()
       if (rUpper === 'MASTER_ADMIN') return roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE')
@@ -195,9 +194,6 @@ export default function DashboardLayout({
   else if (pathname.includes('/digitalizador')) pageTitle = "Digitalizador"
   else if (currentNavItem) pageTitle = currentNavItem.name
 
-  if (!user) return <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center font-bold italic text-slate-400">Iniciando sesión segura...</div>
-
-  // If the user doesn't have a role that shows the sidebar, just render children directly (full screen)
   if (!showSidebar) {
     return <>{children}</>
   }
