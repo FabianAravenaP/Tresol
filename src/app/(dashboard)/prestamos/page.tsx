@@ -222,14 +222,18 @@ export default function MobilePrestamosPage() {
           }
         })
       })
-      const { success } = await res.json()
+      if (!res.ok) throw new Error('Error de conexión con el servidor: ' + res.status)
+      const { success, error } = await res.json()
       if (success) {
         setIsRequestModalOpen(false)
         fetchMisSolicitudes(sessionUser.persona_id)
         setFormData({ vehiculo_id: "", motivo: "TRABAJO", fecha_inicio: "", hora_inicio: "08:00", fecha_fin: "", hora_fin: "18:00" })
+      } else {
+        alert("Error al procesar reserva: " + (error || "Desconocido"))
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
+      alert("Falla de conectividad: " + err.message)
     } finally { setIsSubmitting(false) }
   }
 
@@ -238,11 +242,32 @@ export default function MobilePrestamosPage() {
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        const base64 = reader.result as string
-        if (type === 'CHECKOUT_TABLERO') setCheckoutData(prev => ({ ...prev, fotoBase64: base64 }))
-        else if (type === 'CHECKOUT_DANO') setCheckoutData(prev => ({ ...prev, fotoDanoBase64: base64 }))
-        else if (type === 'RETURN_TABLERO') setReturnData(prev => ({ ...prev, fotoBase64: base64 }))
-        else if (type === 'RETURN_LIMPIEZA') setReturnData(prev => ({ ...prev, fotoLimpiezaBase64: base64 }))
+        const img = new window.Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 800
+          const MAX_HEIGHT = 800
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH }
+          } else {
+            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT }
+          }
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx?.drawImage(img, 0, 0, width, height)
+          
+          const base64 = canvas.toDataURL('image/jpeg', 0.6)
+          
+          if (type === 'CHECKOUT_TABLERO') setCheckoutData(prev => ({ ...prev, fotoBase64: base64 }))
+          else if (type === 'CHECKOUT_DANO') setCheckoutData(prev => ({ ...prev, fotoDanoBase64: base64 }))
+          else if (type === 'RETURN_TABLERO') setReturnData(prev => ({ ...prev, fotoBase64: base64 }))
+          else if (type === 'RETURN_LIMPIEZA') setReturnData(prev => ({ ...prev, fotoLimpiezaBase64: base64 }))
+        }
+        img.src = reader.result as string
       }
       reader.readAsDataURL(file)
     }
@@ -283,12 +308,19 @@ export default function MobilePrestamosPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ table: 'solicitudes_vehiculos', method: 'update', data: updateData, match: { id: reqId } })
       })
-      if ((await res.json()).success) {
+      if (!res.ok) throw new Error('Carga fallida o muy pesada. Status: ' + res.status)
+      const resJson = await res.json()
+      if (resJson.success) {
         setCheckoutModal({isOpen: false, reqId: null})
         setReturnModal({isOpen: false, reqId: null})
         fetchMisSolicitudes(sessionUser.persona_id)
+      } else {
+        alert("Error en el registro técnico: " + (resJson.error || "Desconocido"))
       }
-    } catch (e) { console.error(e) } finally { setIsSubmitting(false) }
+    } catch (e: any) { 
+      console.error(e)
+      alert("Error de envío: " + e.message)
+    } finally { setIsSubmitting(false) }
   }
 
   return (
