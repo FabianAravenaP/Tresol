@@ -5,7 +5,7 @@ import * as React from "react"
 import { useState, useRef, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import SignatureCanvas from "react-signature-canvas"
-import { supabase } from "@/lib/supabase"
+
 import { Button } from "@/components/uib/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
 import { Input } from "@/components/uib/input"
@@ -69,16 +69,19 @@ function RegistroForm() {
 
     if (servicioId) {
        const fetchServiceData = async (id: string) => {
-         const { data } = await supabase
-           .from('servicios_asignados')
-           .select(`
-              *, 
-              vehiculos:vehiculo_id(patente, resolucion_sanitaria), 
-              usuarios:chofer_id(nombre)
-           `)
-           .eq('id', id)
-           .single()
-         
+         const res = await fetch('/api/proxy', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+             table: 'servicios_asignados',
+             method: 'select',
+             data: '*, vehiculos:vehiculo_id(patente, resolucion_sanitaria), usuarios:chofer_id(nombre)',
+             match: { id }
+           })
+         })
+         const { data: rows } = await res.json()
+         const data = rows?.[0]
+
          if (data) {
             setVehiculoId(data.vehiculo_id)
             setForm(prev => ({
@@ -202,7 +205,7 @@ function RegistroForm() {
             <div className="p-5 space-y-5">
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Categoría de Residuo</Label>
-                <Select value={waste.categoria} onValueChange={(v) => v && setWaste({...waste, categoria: v})}>
+                <Select value={waste.categoria} onValueChange={(v: string) => v && setWaste({...waste, categoria: v})}>
                   <SelectTrigger className="h-12 border-slate-100 dark:border-zinc-800 rounded-xl font-bold">
                     <SelectValue />
                   </SelectTrigger>

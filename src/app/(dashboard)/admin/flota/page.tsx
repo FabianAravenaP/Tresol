@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"

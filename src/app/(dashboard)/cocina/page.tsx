@@ -418,7 +418,7 @@ export default function CocinaAdmin() {
                                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Seleccionar Receta</label>
                                     <Select 
                                         value={newMenu.receta_id} 
-                                        onValueChange={(v) => setNewMenu({...newMenu, receta_id: v})}
+                                        onValueChange={(v: string) => setNewMenu({...newMenu, receta_id: v})}
                                     >
                                         <SelectTrigger className="h-14 bg-slate-50 border-none rounded-2xl font-bold">
                                             <SelectValue placeholder="Elige un plato del catálogo..." />

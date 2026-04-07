@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -51,34 +51,27 @@ export default function DriversManagementPage() {
   const fetchData = async () => {
     setIsLoading(true)
     try {
-      // 1. Fetch Drivers
-      const { data: users, error: usersError } = await supabase
-        .from('usuarios')
-        .select('id, nombre, rol')
-        .eq('rol', 'chofer')
-      
-      if (usersError) throw usersError
-
-      // 2. Fetch Services and Bonuses to calculate stats
-      const { data: services } = await supabase
-        .from('servicios_asignados')
-        .select('*')
-      
-      const { data: bonusMapping } = await supabase
-        .from('bonos_produccion')
-        .select('*')
+      const [usersRes, servicesRes, bonusRes] = await Promise.all([
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'usuarios', method: 'select', data: 'id, nombre, rol', match: { rol: 'chofer' } }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'servicios_asignados', method: 'select', data: '*' }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'bonos_produccion', method: 'select', data: '*' }) })
+      ])
+      const [usersJson, servicesJson, bonusJson] = await Promise.all([usersRes.json(), servicesRes.json(), bonusRes.json()])
+      const users = usersJson.data
+      const services = servicesJson.data
+      const bonusMapping = bonusJson.data
 
       const today = new Date().toISOString().split('T')[0]
       
       // Calculate data per driver
-      const conductoresData: ConductorDetail[] = (users || []).map(user => {
-        const userServices = (services || []).filter(s => s.chofer_id === user.id)
-        const completados = userServices.filter(s => s.estado === 'completado').length
-        const enRuta = userServices.find(s => s.estado !== 'completado' && s.estado !== 'anulado')
+      const conductoresData: ConductorDetail[] = (users || []).map((user: any) => {
+        const userServices = (services || []).filter((s: any) => s.chofer_id === user.id)
+        const completados = userServices.filter((s: any) => s.estado === 'completado').length
+        const enRuta = userServices.find((s: any) => s.estado !== 'completado' && s.estado !== 'anulado')
         
         // Calculate estimated earnings (bonus)
         let totalBonus = 0
-        userServices.filter(s => s.estado === 'completado').forEach(s => {
+        userServices.filter((s: any) => s.estado === 'completado').forEach((s: any) => {
           // Simplified bonus logic (same as /mobile/billetera)
           let queryRegion = 'TRESOL VALDIVIA'
           const dest = (s.destino || "").toUpperCase()
@@ -86,7 +79,7 @@ export default function DriversManagementPage() {
           if (dest.includes('OSORNO') || orig.includes('OSORNO')) queryRegion = 'TRESOL OSORNO'
           else if (dest.includes('MONTT') || orig.includes('MONTT')) queryRegion = 'TRESOL PUERTO MONTT'
           
-          const match = (bonusMapping || []).find(b => b.region === queryRegion && b.tipo_vehiculo === (s.bono_tipo_vehiculo || 'CAMION'))
+          const match = (bonusMapping || []).find((b: any) => b.region === queryRegion && b.tipo_vehiculo === (s.bono_tipo_vehiculo || 'CAMION'))
           if (match) totalBonus += Number(match.valor)
         })
 

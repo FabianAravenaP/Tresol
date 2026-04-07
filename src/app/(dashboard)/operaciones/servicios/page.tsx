@@ -66,45 +66,48 @@ export default function ServiciosHistorialPage() {
   const fetchData = async () => {
     setIsLoading(true)
     try {
-      // Fetch all services
-      const { data: servs, error: sError } = await supabase
-        .from('servicios_asignados')
-        .select(`
-          *,
-          usuarios:chofer_id (id, nombre),
-          vehiculos:vehiculo_id (id, patente, tipo)
-        `)
-        .order('fecha', { ascending: false })
-        .order('created_at', { ascending: false })
+      const [servsRes, usrsRes, vehsRes] = await Promise.all([
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'servicios_asignados',
+            method: 'select',
+            data: '*, usuarios:chofer_id (id, nombre), vehiculos:vehiculo_id (id, patente, tipo)'
+          })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: 'usuarios', method: 'select', data: 'id, nombre', match: { rol: 'chofer' } })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: 'vehiculos', method: 'select', data: 'id, patente, tipo' })
+        })
+      ])
+      const [servs, usrs, vehs] = await Promise.all([servsRes.json(), usrsRes.json(), vehsRes.json()])
 
-      if (sError) throw sError
+      // Sort services client-side (proxy doesn't support order)
+      const sortedServs = (servs.data || []).sort((a: any, b: any) => {
+        const dateCmp = (b.fecha || '').localeCompare(a.fecha || '')
+        return dateCmp !== 0 ? dateCmp : (b.created_at || '').localeCompare(a.created_at || '')
+      })
 
-      // Fetch all drivers
-      const { data: usrs, error: uError } = await supabase
-        .from('usuarios')
-        .select('id, nombre')
-        .eq('rol', 'chofer')
-
-      if (uError) throw uError
-
-      // Fetch all vehicles
-      const { data: vehs, error: vError } = await supabase
-        .from('vehiculos')
-        .select('id, patente, tipo')
-
-      if (vError) throw vError
-
-      // Enhance services with distance
-      if (servs) {
-        const enhanced = await Promise.all(servs.map(async (s) => {
-          const { data: dist } = await supabase.rpc('get_service_distance', { p_servicio_id: s.id })
-          return { ...s, kilometraje: dist || 0 }
+      // Enhance services with distance (rpc not supported via proxy)
+      if (sortedServs.length > 0) {
+        const enhanced = await Promise.all(sortedServs.map(async (s: any) => {
+          try {
+            const { data: dist } = await supabase.rpc('get_service_distance', { p_servicio_id: s.id })
+            return { ...s, kilometraje: dist || 0 }
+          } catch { return { ...s, kilometraje: 0 } }
         }))
         setServicios(enhanced)
       }
-      
-      setUsuarios(usrs || [])
-      setVehiculos(vehs || [])
+
+      setUsuarios(usrs.data || [])
+      setVehiculos(vehs.data || [])
     } catch (err) {
       console.error("Error fetching history data:", err)
     } finally {
@@ -184,7 +187,7 @@ export default function ServiciosHistorialPage() {
 
               <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Estado</Label>
-                 <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || "all")}>
+                 <Select value={statusFilter} onValueChange={(v: string) => setStatusFilter(v || "all")}>
                     <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white shadow-sm font-bold">
                        <SelectValue placeholder="Todos los estados" />
                     </SelectTrigger>
@@ -200,7 +203,7 @@ export default function ServiciosHistorialPage() {
 
               <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Conductor</Label>
-                 <Select value={driverFilter} onValueChange={(v) => setDriverFilter(v || "all")}>
+                 <Select value={driverFilter} onValueChange={(v: string) => setDriverFilter(v || "all")}>
                     <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-white shadow-sm font-bold">
                        <SelectValue placeholder="Todos los choferes" />
                     </SelectTrigger>

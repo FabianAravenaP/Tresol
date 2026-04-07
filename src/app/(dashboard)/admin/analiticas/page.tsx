@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect, useMemo } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -56,16 +56,17 @@ export default function AnaliticasPage() {
   const fetchAllData = async () => {
     setIsLoading(true)
     try {
-      const [{ data: comp }, { data: serv }, { data: veh }] = await Promise.all([
-        supabase.from('comprobantes').select('*'),
-        supabase.from('servicios_asignados').select('*'),
-        supabase.from('vehiculos').select('*')
+      const [compRes, servRes, vehRes] = await Promise.all([
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'comprobantes', method: 'select', data: '*' }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'servicios_asignados', method: 'select', data: '*' }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'vehiculos', method: 'select', data: '*' }) })
       ])
-      
+      const [comp, serv, veh] = await Promise.all([compRes.json(), servRes.json(), vehRes.json()])
+
       setData({
-        comprobantes: comp || [],
-        servicios: serv || [],
-        vehiculos: veh || []
+        comprobantes: comp.data || [],
+        servicios: serv.data || [],
+        vehiculos: veh.data || []
       })
     } catch (error) {
       console.error("Error fetching analytics data:", error)
@@ -165,7 +166,7 @@ export default function AnaliticasPage() {
     // Basic trend mock-up using real dates from DB
     const days: Record<string, number> = {}
     data.comprobantes.forEach((c: Comprobante) => {
-      const date = new Date(c.created_at).toLocaleDateString()
+      const date = new Date(c.created_at || Date.now()).toLocaleDateString()
       days[date] = (days[date] || 0) + 1
     })
     return Object.entries(days).map(([name, value]) => ({ name, value })).slice(-7)

@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -98,15 +98,15 @@ export default function MobileVehiculosPage() {
   const findPersonalRecord = async (rut: string) => {
     if (!rut) return
     try {
-      const { data, error } = await supabase
-        .from('maestro_personas')
-        .select('id')
-        .eq('rut', rut)
-        .single()
-
-      if (error) throw error
-      setPersonalId(data.id)
-      fetchData(data.id)
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'maestro_personas', method: 'select', data: 'id', match: { rut } })
+      })
+      const { data, error } = await res.json()
+      if (error || !data?.length) throw new Error(error || 'Not found')
+      setPersonalId(data[0].id)
+      fetchData(data[0].id)
     } catch (err) {
       console.error("Error finding person:", err)
       toast.error("No se encontró tu perfil de personal. Contacta a administración.")
@@ -117,24 +117,14 @@ export default function MobileVehiculosPage() {
   const fetchData = async (pid: string) => {
     setIsLoading(true)
     try {
-      // Fetch my solicitudes — join alias must match FK to vehiculos_menores
-      const { data: sData, error: sErr } = await supabase
-        .from('solicitudes_vehiculos')
-        .select('*, vehiculo:vehiculo_id(patente, marca, modelo)')
-        .eq('usuario_id', pid)
-        .order('created_at', { ascending: false })
-
-      if (sErr) throw sErr
-      setSolicitudes(sData || [])
-
-      // Fetch available minor vehicles from the correct table
-      const { data: vData, error: vErr } = await supabase
-        .from('vehiculos_menores')
-        .select('*')
-        .eq('estado', 'OPERACIONAL')
-
-      if (vErr) throw vErr
-      setVehiculos(vData || [])
+      const [solRes, vehRes] = await Promise.all([
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'solicitudes_vehiculos', method: 'select', data: '*, vehiculo:vehiculo_id(patente, marca, modelo)', match: { usuario_id: pid } }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'vehiculos_menores', method: 'select', data: '*', match: { estado: 'OPERACIONAL' } }) })
+      ])
+      const [solJson, vehJson] = await Promise.all([solRes.json(), vehRes.json()])
+      const sorted = (solJson.data || []).sort((a: any, b: any) => (b.created_at || '').localeCompare(a.created_at || ''))
+      setSolicitudes(sorted)
+      setVehiculos(vehJson.data || [])
     } catch (err) {
       console.error("Error fetching data:", err)
     } finally {
@@ -158,22 +148,28 @@ export default function MobileVehiculosPage() {
 
     setIsActionLoading(true)
     try {
-      const { error } = await supabase
-        .from('solicitudes_vehiculos')
-        .insert([{
-          usuario_id: personalId,
-          vehiculo_id: formData.vehiculo_id,
-          fecha_inicio: formData.fecha_inicio,
-          fecha_fin: formData.fecha_fin,
-          motivo: formData.motivo,
-          glosa_motivo: formData.glosa_motivo,
-          km_salida: parseFloat(formData.km_salida),
-          combustible_salida: formData.combustible_salida,
-          foto_tablero_salida: formData.foto_tablero_salida,
-          estado_solicitud: 'PENDIENTE'
-        }])
-
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'insert',
+          data: [{
+            usuario_id: personalId,
+            vehiculo_id: formData.vehiculo_id,
+            fecha_inicio: formData.fecha_inicio,
+            fecha_fin: formData.fecha_fin,
+            motivo: formData.motivo,
+            glosa_motivo: formData.glosa_motivo,
+            km_salida: parseFloat(formData.km_salida),
+            combustible_salida: formData.combustible_salida,
+            foto_tablero_salida: formData.foto_tablero_salida,
+            estado_solicitud: 'PENDIENTE'
+          }]
+        })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
 
       toast.success("Solicitud enviada correctamente")
       setIsNewDialogOpen(false)
@@ -203,17 +199,24 @@ export default function MobileVehiculosPage() {
     }
     setIsActionLoading(true)
     try {
-      const { error } = await supabase
-        .from('solicitudes_vehiculos')
-        .update({
-          estado_solicitud: 'EN_USO',
-          km_salida: parseFloat(checkoutData.km_salida),
-          combustible_salida: checkoutData.combustible_salida,
-          foto_tablero_salida: checkoutData.foto_tablero_salida,
-          updated_at: new Date().toISOString()
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'update',
+          data: {
+            estado_solicitud: 'EN_USO',
+            km_salida: parseFloat(checkoutData.km_salida),
+            combustible_salida: checkoutData.combustible_salida,
+            foto_tablero_salida: checkoutData.foto_tablero_salida,
+            updated_at: new Date().toISOString()
+          },
+          match: { id: selectedSolicitud.id }
         })
-        .eq('id', selectedSolicitud.id)
-      if (error) throw error
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
       toast.success("Salida confirmada. ¡Buen viaje!")
       setIsCheckoutDialogOpen(false)
       fetchData(personalId!)
@@ -250,20 +253,26 @@ export default function MobileVehiculosPage() {
 
     setIsActionLoading(true)
      try {
-        const { error } = await supabase
-            .from('solicitudes_vehiculos')
-            .update({ 
-                estado_solicitud: 'FINALIZADA',
-                km_retorno: kmRetorno,
-                combustible_retorno: finishData.combustible_retorno,
-                danos_retorno_notas: finishData.danos_retorno_notas,
-                limpieza: finishData.limpieza,
-                foto_tablero_retorno: finishData.foto_tablero_retorno,
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', selectedSolicitud.id)
-        
-        if (error) throw error
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'solicitudes_vehiculos',
+            method: 'update',
+            data: {
+              estado_solicitud: 'FINALIZADA',
+              km_retorno: kmRetorno,
+              combustible_retorno: finishData.combustible_retorno,
+              danos_retorno_notas: finishData.danos_retorno_notas,
+              limpieza: finishData.limpieza,
+              foto_tablero_retorno: finishData.foto_tablero_retorno,
+              updated_at: new Date().toISOString()
+            },
+            match: { id: selectedSolicitud.id }
+          })
+        })
+        const { error } = await res.json()
+        if (error) throw new Error(error)
         toast.success("Vehículo retornado correctamente")
         setIsFinishDialogOpen(false)
         fetchData(personalId!)

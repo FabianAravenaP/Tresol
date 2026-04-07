@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -58,13 +58,15 @@ export default function ActivosPage() {
   const fetchActivos = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('activos')
-        .select('*')
-        .order('codigo')
-      
-      if (error) throw error
-      setActivos(data || [])
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'activos', method: 'select', data: '*' })
+      })
+      const { data, error } = await res.json()
+      if (error) throw new Error(error)
+      const sorted = (data || []).sort((a: any, b: any) => (a.codigo || '').localeCompare(b.codigo || ''))
+      setActivos(sorted)
     } catch (error) {
       console.error("Error fetching assets:", error)
     } finally {
@@ -90,9 +92,9 @@ export default function ActivosPage() {
     setEditingActivo(a)
     setFormData({ 
       codigo: a.codigo, 
-      tipo: a.tipo, 
+      tipo: a.tipo || "CA",
       categoria: a.categoria,
-      nombre_tipo: a.nombre_tipo,
+      nombre_tipo: a.nombre_tipo || "",
       capacidad: a.capacidad || "",
       estado: a.estado || "OPERATIVO",
       foto_url: a.foto_url || ""
@@ -102,21 +104,19 @@ export default function ActivosPage() {
 
   const handleSave = async () => {
     if (!formData.codigo.trim()) return
-    
+
     try {
-      if (editingActivo) {
-        const { error } = await supabase
-          .from('activos')
-          .update(formData)
-          .eq('id', editingActivo.id)
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('activos')
-          .insert([formData])
-        if (error) throw error
-      }
-      
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingActivo
+          ? { table: 'activos', method: 'update', data: formData, match: { id: editingActivo.id } }
+          : { table: 'activos', method: 'insert', data: [formData] }
+        )
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
+
       setIsDialogOpen(false)
       fetchActivos()
     } catch (error) {
@@ -127,10 +127,15 @@ export default function ActivosPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Está seguro de eliminar este activo?")) return
-    
+
     try {
-      const { error } = await supabase.from('activos').delete().eq('id', id)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'activos', method: 'delete', match: { id } })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
       fetchActivos()
     } catch (error) {
       console.error("Error deleting asset:", error)
@@ -172,7 +177,7 @@ export default function ActivosPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                </div>
-               <Select value={filterType} onValueChange={(val) => setFilterType(val || "TODOS")}>
+               <Select value={filterType} onValueChange={(val: string) => setFilterType(val || "TODOS")}>
                   <SelectTrigger className="w-[200px] h-14 bg-slate-50 border-none rounded-2xl text-slate-600 focus-visible:ring-2 focus-visible:ring-[#116CA2]">
                     <div className="flex items-center gap-2">
                        <Filter className="size-4 text-slate-400" />
@@ -336,7 +341,7 @@ export default function ActivosPage() {
              
              <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tipo de Contenedor</Label>
-                <Select value={formData.tipo} onValueChange={(val) => setFormData({...formData, tipo: val || "CA"})}>
+                <Select value={formData.tipo} onValueChange={(val: string) => setFormData({...formData, tipo: val || "CA"})}>
                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
                     <SelectValue placeholder="Seleccionar Tipo" />
                   </SelectTrigger>
@@ -354,7 +359,7 @@ export default function ActivosPage() {
 
              <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Estado Operativo</Label>
-                <Select value={formData.estado} onValueChange={(val) => setFormData({...formData, estado: val || "OPERATIVO"})}>
+                <Select value={formData.estado} onValueChange={(val: string) => setFormData({...formData, estado: val || "OPERATIVO"})}>
                   <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-[#116CA2]">
                     <SelectValue placeholder="Seleccionar Estado" />
                   </SelectTrigger>

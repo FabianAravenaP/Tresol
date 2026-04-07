@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
@@ -77,20 +77,21 @@ export default function ConfiguracionMasterPage() {
   const fetchDbStats = async () => {
     setIsLoading(true)
     try {
-      const [usr, cli, veh, srv, cmp] = await Promise.all([
-        supabase.from('usuarios').select('*', { count: 'exact', head: true }),
-        supabase.from('clientes').select('*', { count: 'exact', head: true }),
-        supabase.from('vehiculos').select('*', { count: 'exact', head: true }),
-        supabase.from('servicios_asignados').select('*', { count: 'exact', head: true }),
-        supabase.from('comprobantes').select('*', { count: 'exact', head: true })
-      ])
-      
+      const tables = ['usuarios', 'clientes', 'vehiculos', 'servicios_asignados', 'comprobantes'] as const
+      const results = await Promise.all(
+        tables.map(t => fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ table: t, method: 'select', data: 'id' })
+        }).then(r => r.json()))
+      )
+
       setDbStats({
-        usuarios: usr.count || 0,
-        clientes: cli.count || 0,
-        vehiculos: veh.count || 0,
-        servicios: srv.count || 0,
-        comprobantes: cmp.count || 0
+        usuarios: results[0].data?.length || 0,
+        clientes: results[1].data?.length || 0,
+        vehiculos: results[2].data?.length || 0,
+        servicios: results[3].data?.length || 0,
+        comprobantes: results[4].data?.length || 0
       })
     } catch (err) {
       console.error("Error fetching DB stats", err)
@@ -102,8 +103,13 @@ export default function ConfiguracionMasterPage() {
   const exportFullDatabaseBackup = async () => {
     setIsLoading(true)
     try {
-      const { data: allData, error } = await supabase.from('clientes').select('*')
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'clientes', method: 'select', data: '*' })
+      })
+      const { data: allData, error } = await res.json()
+      if (error) throw new Error(error)
       
       // Simple JSON export for demonstration (can be expanded to pull multiple tables)
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allData, null, 2))

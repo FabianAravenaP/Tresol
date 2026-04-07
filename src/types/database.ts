@@ -964,3 +964,7 @@ export type Usuario = TableRow<"usuarios">
 export type Persona = TableRow<"maestro_personas">
 export type SolicitudVehiculo = TableRow<"solicitudes_vehiculos">
 export type BonoProduccion = TableRow<"bonos_produccion">
+export type Activo = TableRow<"activos">
+export type Comprobante = TableRow<"comprobantes">
+export type ServicioAsignado = TableRow<"servicios_asignados">
+export type Cliente = TableRow<"clientes">

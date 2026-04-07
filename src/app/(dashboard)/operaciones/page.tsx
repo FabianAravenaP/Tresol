@@ -57,48 +57,47 @@ export default function AdminPage() {
   const fetchData = async () => {
     setIsLoading(true)
     try {
-      const resServs = await fetch('/api/proxy', {
-        method: 'POST',
-        body: JSON.stringify({
-          table: 'servicios_asignados',
-          method: 'select',
-          data: '*, usuarios:chofer_id (id, nombre), vehiculos:vehiculo_id (id, patente, tipo)'
+      const [resServs, resUsrs, resVehs, resClis] = await Promise.all([
+        fetch('/api/proxy', {
+          method: 'POST',
+          body: JSON.stringify({
+            table: 'servicios_asignados',
+            method: 'select',
+            data: '*, usuarios:chofer_id (id, nombre), vehiculos:vehiculo_id (id, patente, tipo)'
+          })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          body: JSON.stringify({
+            table: 'usuarios',
+            method: 'select',
+            match: { rol: 'chofer' }
+          })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          body: JSON.stringify({
+            table: 'vehiculos',
+            method: 'select'
+          })
+        }),
+        fetch('/api/proxy', {
+          method: 'POST',
+          body: JSON.stringify({
+            table: 'clientes',
+            method: 'select'
+          })
         })
-      })
-      const { data: servs } = await resServs.json()
-      
-      const resUsrs = await fetch('/api/proxy', {
-        method: 'POST',
-        body: JSON.stringify({
-          table: 'usuarios',
-          method: 'select',
-          match: { rol: 'chofer' }
-        })
-      })
-      const { data: usrs } = await resUsrs.json()
-      
-      const resVehs = await fetch('/api/proxy', {
-        method: 'POST',
-        body: JSON.stringify({
-          table: 'vehiculos',
-          method: 'select'
-        })
-      })
-      const { data: vehs } = await resVehs.json()
-      
-      const resClis = await fetch('/api/proxy', {
-        method: 'POST',
-        body: JSON.stringify({
-          table: 'clientes',
-          method: 'select'
-        })
-      })
-      const { data: clis } = await resClis.json()
+      ])
 
-      if (servs) setServicios(servs)
-      if (usrs) setUsuarios(usrs)
-      if (vehs) setVehiculos(vehs)
-      if (clis) setClientes(clis)
+      const [servs, usrs, vehs, clis] = await Promise.all([
+        resServs.json(), resUsrs.json(), resVehs.json(), resClis.json()
+      ])
+
+      if (servs.data) setServicios(servs.data)
+      if (usrs.data) setUsuarios(usrs.data)
+      if (vehs.data) setVehiculos(vehs.data)
+      if (clis.data) setClientes(clis.data)
     } catch (err) {
       console.error("Error fetching data:", err)
     } finally {

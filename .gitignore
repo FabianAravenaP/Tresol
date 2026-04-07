@@ -42,3 +42,12 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# project artifacts
+/documentos/
+/tmp/
+/data/
+/scripts/
+build_log*
+lint_json.txt
+vercel_project*.json

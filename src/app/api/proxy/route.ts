@@ -13,6 +13,10 @@ const ALLOWED_TABLES = [
   'notificaciones',
   'activos',
   'ingresos_porteria',
+  'logs_porteria',
+  'clientes',
+  'comprobantes',
+  'bonos_produccion',
   'cocina_recetas',
   'cocina_ingredientes',
   'cocina_minutas',
@@ -23,6 +27,19 @@ const ALLOWED_TABLES = [
   'vehiculos_menores'
 ] as const
 
+
+// Tables where DELETE is allowed — audit trails and critical data are excluded
+const DELETE_ALLOWED_TABLES = [
+  'activos',
+  'clientes',
+  'maestro_personas',
+  'usuarios',
+  'cocina_recetas',
+  'cocina_minutas',
+  'cocina_inventario',
+  'cocina_ingredientes',
+  'vehiculos_menores'
+] as const
 
 const proxySchema = z.object({
   table: z.enum(ALLOWED_TABLES as unknown as [string, ...string[]]),
@@ -99,6 +116,9 @@ export async function POST(request: NextRequest) {
       case 'delete':
         if (!match || Object.keys(match).length === 0) {
            return NextResponse.json({ error: 'Delete requiere match de seguridad' }, { status: 400 })
+        }
+        if (!(DELETE_ALLOWED_TABLES as readonly string[]).includes(table)) {
+           return NextResponse.json({ error: `Delete no permitido en tabla '${table}'` }, { status: 403 })
         }
         let dq = query.delete()
         Object.entries(match).forEach(([key, value]) => {

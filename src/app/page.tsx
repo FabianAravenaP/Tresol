@@ -24,7 +24,7 @@ import {
   Car
 } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+
 import { toast } from "sonner"
 import { 
   Dialog, 

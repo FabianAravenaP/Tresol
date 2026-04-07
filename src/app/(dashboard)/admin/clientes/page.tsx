@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 
 import { useState, useEffect } from "react"
-import { supabase } from "@/lib/supabase"
+
 import { Card, CardContent, CardHeader } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
 import { Input } from "@/components/uib/input"
@@ -53,13 +53,15 @@ export default function ClientesMasterPage() {
   const fetchRutas = async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('clientes')
-        .select('*')
-        .order('nombre')
-      
-      if (error) throw error
-      setRutas(data || [])
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'clientes', method: 'select', data: '*' })
+      })
+      const { data, error } = await res.json()
+      if (error) throw new Error(error)
+      const sorted = (data || []).sort((a: any, b: any) => (a.nombre || '').localeCompare(b.nombre || ''))
+      setRutas(sorted)
     } catch (error) {
       console.error("Error fetching clients/destinations:", error)
     } finally {
@@ -87,11 +89,13 @@ export default function ClientesMasterPage() {
   const handleSaveEditName = async () => {
     if (!editNameData.newName.trim()) return
     try {
-      const { error } = await supabase
-        .from('clientes')
-        .update({ nombre: editNameData.newName })
-        .eq('nombre', editNameData.oldName)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'clientes', method: 'update', data: { nombre: editNameData.newName }, match: { nombre: editNameData.oldName } })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
       setIsEditNameDialogOpen(false)
       fetchRutas()
     } catch (error) {
@@ -102,27 +106,19 @@ export default function ClientesMasterPage() {
 
   const handleSave = async () => {
     if (!formData.cliente.trim() || !formData.disposicion_final.trim()) return
-    
+
     try {
-      if (editingRuta) {
-        const { error } = await supabase
-          .from('clientes')
-          .update({
-            nombre: formData.cliente,
-            disposicion_final: formData.disposicion_final
-          })
-          .eq('id', editingRuta.id)
-        if (error) throw error
-      } else {
-        const { error } = await supabase
-          .from('clientes')
-          .insert([{
-            nombre: formData.cliente,
-            disposicion_final: formData.disposicion_final
-          }])
-        if (error) throw error
-      }
-      
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingRuta
+          ? { table: 'clientes', method: 'update', data: { nombre: formData.cliente, disposicion_final: formData.disposicion_final }, match: { id: editingRuta.id } }
+          : { table: 'clientes', method: 'insert', data: [{ nombre: formData.cliente, disposicion_final: formData.disposicion_final }] }
+        )
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
+
       setIsDialogOpen(false)
       fetchRutas()
     } catch (error) {
@@ -133,10 +129,15 @@ export default function ClientesMasterPage() {
 
   const handleDelete = async (id: string, destinoName: string) => {
     if (!confirm(`¿Está seguro de eliminar el destino ${destinoName}?`)) return
-    
+
     try {
-      const { error } = await supabase.from('clientes').delete().eq('id', id)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'clientes', method: 'delete', match: { id } })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
       fetchRutas()
     } catch (error) {
       console.error("Error deleting client/destination:", error)
@@ -145,10 +146,15 @@ export default function ClientesMasterPage() {
 
   const handleDeleteClient = async (nombre: string) => {
     if (!confirm(`¿Está seguro de eliminar TODOS los destinos para el cliente ${nombre}?`)) return
-    
+
     try {
-      const { error } = await supabase.from('clientes').delete().eq('nombre', nombre)
-      if (error) throw error
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ table: 'clientes', method: 'delete', match: { nombre } })
+      })
+      const { error } = await res.json()
+      if (error) throw new Error(error)
       fetchRutas()
     } catch (error) {
       console.error("Error deleting client:", error)

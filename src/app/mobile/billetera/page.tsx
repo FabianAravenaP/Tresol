@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { supabase } from "@/lib/supabase"
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
 import { Wallet, Calendar, MapPin, TrendingUp, History } from "lucide-react"
@@ -45,30 +45,20 @@ export default function BilleteraPage() {
     setIsLoading(true)
     try {
       // 1. Fetch ALL completed services for this chofer
-      const { data: servicios, error } = await supabase
-        .from('servicios_asignados')
-        .select(`
-          id,
-          fecha,
-          origen,
-          destino,
-          estado,
-          bono_tipo_vehiculo
-        `)
-        .eq('chofer_id', choferId)
-        .eq('estado', 'completado')
-        .order('fecha', { ascending: false })
-
-      if (error) throw error
+      const [servRes, bonusRes] = await Promise.all([
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'servicios_asignados', method: 'select', data: 'id, fecha, origen, destino, estado, bono_tipo_vehiculo', match: { chofer_id: choferId, estado: 'completado' } }) }),
+        fetch('/api/proxy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ table: 'bonos_produccion', method: 'select', data: '*' }) })
+      ])
+      const [servJson, bonusJson] = await Promise.all([servRes.json(), bonusRes.json()])
+      const servicios = (servJson.data || []).sort((a: any, b: any) => (b.fecha || '').localeCompare(a.fecha || ''))
+      if (servJson.error) throw new Error(servJson.error)
 
       if (servicios && servicios.length > 0) {
         // 2. Fetch ALL bonus mapping to calculate locally
-        const { data: bonosMapping } = await supabase
-          .from('bonos_produccion')
-          .select('*')
+        const bonosMapping = bonusJson.data
 
         // 3. Process each service to calculate its individual bonus
-        const processedHistorial = servicios.map(s => {
+        const processedHistorial = servicios.map((s: any) => {
           let bonus = 0
           
           // Inference logic (Same as in mobile home page)
@@ -84,7 +74,7 @@ export default function BilleteraPage() {
 
           const vehicleTypeForBonus = s.bono_tipo_vehiculo || 'CAMION'
           
-          const match = bonosMapping?.find(b => 
+          const match = bonosMapping?.find((b: any) =>
             b.region === queryRegion && 
             b.tipo_vehiculo === vehicleTypeForBonus
           )
@@ -100,7 +90,7 @@ export default function BilleteraPage() {
         })
 
         setHistorial(processedHistorial)
-        const total = processedHistorial.reduce((sum, item) => sum + item.bono_calculado, 0)
+        const total = processedHistorial.reduce((sum: number, item: any) => sum + item.bono_calculado, 0)
         setTotalGanado(total)
       }
     } catch (error) {

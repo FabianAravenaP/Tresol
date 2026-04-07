@@ -390,7 +390,7 @@ export default function PorteriaPage() {
                                <p className="text-[9px] font-bold text-slate-400">{log.empresa} • SALIDA: {new Date(log.hora_salida).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
                          </div>
-                         <Badge variant="ghost" className="text-[9px] font-black">{log.patente || 'S/P'}</Badge>
+                         <Badge variant="outline" className="text-[9px] font-black">{log.patente || 'S/P'}</Badge>
                       </div>
                    ))}
                 </CardContent>
