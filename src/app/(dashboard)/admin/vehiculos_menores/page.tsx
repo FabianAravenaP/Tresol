@@ -25,7 +25,8 @@ import {
   XCircle,
   MoreVertical,
   History,
-  Eye
+  Eye,
+  ZoomIn
 } from "lucide-react"
 import { 
   Dialog, 
@@ -49,6 +50,7 @@ export default function VehiculosMenoresAdmin() {
   const [approvalVehiculo, setApprovalVehiculo] = useState("")
   const [rejectionComment, setRejectionComment] = useState("")
   const [isActioning, setIsActioning] = useState(false)
+  const [zoomImage, setZoomImage] = useState<{isOpen: boolean, src: string}>({isOpen: false, src: ""})
 
   useEffect(() => {
     fetchSolicitudes()
@@ -547,7 +549,7 @@ export default function VehiculosMenoresAdmin() {
       {/* Detail Modal */}
       {detailModal.solicitud && (
         <Dialog open={detailModal.isOpen} onOpenChange={(open: boolean) => !open && setDetailModal({isOpen: false, solicitud: null})}>
-          <DialogContent className="sm:max-w-lg rounded-[2.5rem] p-8 border-none shadow-2xl">
+          <DialogContent className="sm:max-w-xl rounded-[2.5rem] p-8 border-none shadow-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader className="mb-6">
               <div className="size-14 rounded-2xl bg-[#116CA2]/10 flex items-center justify-center mb-4">
                 <Car className="size-7 text-[#116CA2]" />
@@ -592,10 +594,22 @@ export default function VehiculosMenoresAdmin() {
                     {detailModal.solicitud.km_salida && <span><Gauge className="size-3 inline mr-1" />{detailModal.solicitud.km_salida} km</span>}
                     {detailModal.solicitud.combustible_salida != null && <span><Fuel className="size-3 inline mr-1" />{detailModal.solicitud.combustible_salida}%</span>}
                   </div>
-                  {detailModal.solicitud.foto_tablero_salida && (
-                    <img src={detailModal.solicitud.foto_tablero_salida} alt="Tablero salida" className="w-full h-32 object-cover rounded-xl mt-2" />
-                  )}
-                </div>
+                    {detailModal.solicitud.foto_tablero_salida && (
+                      <div 
+                        className="group relative cursor-zoom-in overflow-hidden rounded-xl mt-2" 
+                        onClick={() => setZoomImage({ isOpen: true, src: detailModal.solicitud.foto_tablero_salida })}
+                      >
+                        <img 
+                          src={detailModal.solicitud.foto_tablero_salida} 
+                          alt="Tablero salida" 
+                          className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <ZoomIn className="size-8 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
               )}
 
               {detailModal.solicitud.km_retorno && (
@@ -609,10 +623,22 @@ export default function VehiculosMenoresAdmin() {
                   {detailModal.solicitud.danos_retorno_notas && (
                     <p className="text-xs text-red-600 font-bold mt-1">⚠ {detailModal.solicitud.danos_retorno_notas}</p>
                   )}
-                  {detailModal.solicitud.foto_tablero_retorno && (
-                    <img src={detailModal.solicitud.foto_tablero_retorno} alt="Tablero retorno" className="w-full h-32 object-cover rounded-xl mt-2" />
-                  )}
-                </div>
+                    {detailModal.solicitud.foto_tablero_retorno && (
+                      <div 
+                        className="group relative cursor-zoom-in overflow-hidden rounded-xl mt-2" 
+                        onClick={() => setZoomImage({ isOpen: true, src: detailModal.solicitud.foto_tablero_retorno })}
+                      >
+                        <img 
+                          src={detailModal.solicitud.foto_tablero_retorno} 
+                          alt="Tablero retorno" 
+                          className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <ZoomIn className="size-8 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
               )}
             </div>
 
@@ -622,6 +648,27 @@ export default function VehiculosMenoresAdmin() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Image Zoom Modal */}
+      <Dialog open={zoomImage.isOpen} onOpenChange={(open: boolean) => !open && setZoomImage({isOpen: false, src: ""})}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-1 border-none bg-transparent shadow-none flex items-center justify-center">
+          <div className="relative w-full h-full flex items-center justify-center">
+             <img 
+               src={zoomImage.src} 
+               alt="Vista ampliada" 
+               className="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-2xl border-4 border-white/10"
+             />
+             <Button 
+               variant="ghost" 
+               size="icon" 
+               onClick={() => setZoomImage({isOpen: false, src: ""})}
+               className="absolute top-4 right-4 bg-black/40 hover:bg-black/60 text-white rounded-full size-12 backdrop-blur-md"
+             >
+               <X className="size-6" />
+             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
