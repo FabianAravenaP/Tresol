@@ -42,6 +42,7 @@ export default function DashboardLayout({
 
   const [quickAccess, setQuickAccess] = useState<any[]>([])
   const [isCustomizing, setIsCustomizing] = useState(false)
+  const [pendingPrestamos, setPendingPrestamos] = useState(0)
 
   // Icons mapping for dynamic icons from JSON
   const IconMap: any = { 
@@ -88,6 +89,25 @@ export default function DashboardLayout({
       router.push('/')
     }
   }, [router])
+
+  const fetchPendingPrestamos = async () => {
+    try {
+      const res = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          table: 'solicitudes_vehiculos',
+          method: 'select',
+          data: 'id',
+          match: { estado_solicitud: 'PENDIENTE' }
+        })
+      })
+      const { data } = await res.json()
+      setPendingPrestamos(Array.isArray(data) ? data.length : 0)
+    } catch {
+      // silencioso — no interrumpir la UI
+    }
+  }
 
   const fetchUserConfig = async (userId: string) => {
     try {
@@ -149,6 +169,18 @@ export default function DashboardLayout({
       alert("Error al guardar configuración. Revisa la consola.")
     }
   }
+
+  // Poll pending prestamos count — only for admin users
+  useEffect(() => {
+    if (!user) return
+    const roleUp = (user.rol || "").toUpperCase()
+    const adminUser = roleUp.includes('ADMIN') || roleUp.includes('GERENTE') || roleUp.includes('JEFE') || user.rut?.toString() === '17630469'
+    if (!adminUser) return
+
+    fetchPendingPrestamos()
+    const interval = setInterval(fetchPendingPrestamos, 60_000)
+    return () => clearInterval(interval)
+  }, [user])
 
   const navItems = [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -250,7 +282,12 @@ export default function DashboardLayout({
                 )}
               >
                 <item.icon className={cn("size-4 shrink-0", isActive ? "text-white" : "text-slate-400")} />
-                {item.name}
+                <span className="flex-1">{item.name}</span>
+                {item.href === '/admin/vehiculos_menores' && pendingPrestamos > 0 && (
+                  <span className="size-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
+                    {pendingPrestamos > 9 ? '9+' : pendingPrestamos}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -310,11 +347,16 @@ export default function DashboardLayout({
                       : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <item.icon className={cn("size-5 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-[#116CA2]")} />
-                    {item.name}
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <item.icon className={cn("size-5 transition-colors shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#116CA2]")} />
+                    <span className="truncate">{item.name}</span>
+                    {item.href === '/admin/vehiculos_menores' && pendingPrestamos > 0 && (
+                      <span className="ml-auto size-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
+                        {pendingPrestamos > 9 ? '9+' : pendingPrestamos}
+                      </span>
+                    )}
                   </div>
-                  {isActive && <ChevronRight className="size-4 animate-in slide-in-from-left-2" />}
+                  {isActive && <ChevronRight className="size-4 shrink-0 animate-in slide-in-from-left-2" />}
                 </Link>
 
                 {/* Sub-menu for Operaciones */}

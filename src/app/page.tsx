@@ -202,11 +202,7 @@ export default function Home() {
       let isAllowed = false;
       switch (filterModule) {
          case "prestamos":
-            const normalizedU = normalizeString(u.nombre);
-            isAllowed = AUTHORIZED_PRESTAMOS.some(name => {
-              const parts = normalizeString(name).split(" ");
-              return parts.every(part => normalizedU.includes(part));
-            });
+            isAllowed = true;
             break;
          case "cocina":
             isAllowed = ['cocina'].includes(u.rol)

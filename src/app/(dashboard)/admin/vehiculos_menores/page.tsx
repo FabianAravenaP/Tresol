@@ -39,12 +39,15 @@ import {
 } from "@/components/uib/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/uib/tabs"
 
+const HISTORY_PAGE_SIZE = 15
+
 export default function VehiculosMenoresAdmin() {
   const [solicitudes, setSolicitudes] = useState<any[]>([])
   const [vehiculos, setVehiculos] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("pendientes")
+  const [historyPage, setHistoryPage] = useState(0)
   const [detailModal, setDetailModal] = useState<{isOpen: boolean, solicitud: any | null}>({isOpen: false, solicitud: null})
   const [actionModal, setActionModal] = useState<{isOpen: boolean, solicitud: any | null, action: 'APROBADA' | 'RECHAZADA' | null}>({isOpen: false, solicitud: null, action: null})
   const [approvalVehiculo, setApprovalVehiculo] = useState("")
@@ -190,15 +193,24 @@ export default function VehiculosMenoresAdmin() {
     s.estado_solicitud === 'EN_USO' && new Date(s.fecha_fin) < new Date()
 
   const filteredSolicitudes = solicitudes.filter(s => {
-    const matchesSearch = 
+    const matchesSearch =
       `${s.solicitante?.nombre} ${s.solicitante?.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.vehiculo?.patente.toLowerCase().includes(searchTerm.toLowerCase())
-    
+      s.vehiculo?.patente?.toLowerCase().includes(searchTerm.toLowerCase())
+
     if (activeTab === 'pendientes') return matchesSearch && s.estado_solicitud === 'PENDIENTE'
     if (activeTab === 'activas') return matchesSearch && (s.estado_solicitud === 'APROBADA' || s.estado_solicitud === 'EN_USO')
     if (activeTab === 'historial') return matchesSearch && (s.estado_solicitud === 'FINALIZADA' || s.estado_solicitud === 'RECHAZADA')
     return matchesSearch
   })
+
+  // Reset history page when search or tab changes
+  useEffect(() => { setHistoryPage(0) }, [searchTerm, activeTab])
+
+  const historialCount = solicitudes.filter(s => {
+    const matchesSearch = `${s.solicitante?.nombre} ${s.solicitante?.apellido}`.toLowerCase().includes(searchTerm.toLowerCase()) || s.vehiculo?.patente?.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesSearch && (s.estado_solicitud === 'FINALIZADA' || s.estado_solicitud === 'RECHAZADA')
+  }).length
+  const historialTotalPages = Math.max(1, Math.ceil(historialCount / HISTORY_PAGE_SIZE))
 
   return (
     <div className="p-8 space-y-8 max-w-7xl mx-auto">
@@ -214,7 +226,7 @@ export default function VehiculosMenoresAdmin() {
             <div className="h-4 w-px bg-slate-200" />
             <div className="flex items-center gap-2 text-[10px] font-black text-amber-500 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-100">
                <AlertTriangle className="size-3" />
-               <span>Fines de Semana requieren Sandra/Natali</span>
+               <span>Fines de semana requieren autorización admin</span>
             </div>
             <div className="h-4 w-px bg-slate-200" />
             <div className="flex items-center gap-2 text-[10px] font-black text-[#116CA2] uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-100">
@@ -253,8 +265,12 @@ export default function VehiculosMenoresAdmin() {
           </div>
         </div>
 
-        {(['pendientes', 'activas', 'historial'] as const).map((tabValue) => (
-        <TabsContent key={tabValue} value={tabValue} className="mt-0">
+        {(['pendientes', 'activas', 'historial'] as const).map((tabValue) => {
+          const displayRows = tabValue === 'historial'
+            ? filteredSolicitudes.slice(historyPage * HISTORY_PAGE_SIZE, (historyPage + 1) * HISTORY_PAGE_SIZE)
+            : filteredSolicitudes
+          return (
+          <TabsContent key={tabValue} value={tabValue} className="mt-0">
           <Card className="border-none shadow-2xl rounded-[2.5rem] bg-white dark:bg-zinc-900 overflow-hidden">
             <CardContent className="p-0">
               <Table>
@@ -271,7 +287,7 @@ export default function VehiculosMenoresAdmin() {
                     <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">Cargando solicitudes...</TableCell></TableRow>
                   ) : filteredSolicitudes.length === 0 ? (
                     <TableRow><TableCell colSpan={4} className="py-20 text-center font-bold text-slate-300 italic">No hay solicitudes en esta categoría</TableCell></TableRow>
-                  ) : filteredSolicitudes.map((s) => {
+                  ) : displayRows.map((s) => {
                     const needsSpecialAuth = isWeekend(s.fecha_inicio) || isWeekend(s.fecha_fin)
                     
                     return (
@@ -313,7 +329,7 @@ export default function VehiculosMenoresAdmin() {
                                  {needsSpecialAuth && (
                                     <Badge className="bg-amber-100 text-amber-600 border-none text-[9px] font-black animate-pulse px-2 py-0.5 rounded-md flex items-center gap-1">
                                        <AlertTriangle className="size-3" />
-                                       SANDRA/NATALI
+                                       FIN DE SEMANA
                                     </Badge>
                                  )}
                               </div>
@@ -405,8 +421,34 @@ export default function VehiculosMenoresAdmin() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Paginación — solo historial */}
+          {tabValue === 'historial' && historialTotalPages > 1 && (
+            <div className="flex items-center justify-between px-2 pt-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Página {historyPage + 1} de {historialTotalPages} · {historialCount} registros
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setHistoryPage(p => Math.max(0, p - 1))}
+                  disabled={historyPage === 0}
+                  className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-[#116CA2] hover:text-[#116CA2] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  ← Anterior
+                </button>
+                <button
+                  onClick={() => setHistoryPage(p => Math.min(historialTotalPages - 1, p + 1))}
+                  disabled={historyPage >= historialTotalPages - 1}
+                  className="h-9 px-4 rounded-xl bg-white border border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-[#116CA2] hover:text-[#116CA2] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  Siguiente →
+                </button>
+              </div>
+            </div>
+          )}
         </TabsContent>
-        ))}
+          )
+        })}
         <TabsContent value="flota" className="mt-0">
           <div className="flex justify-end mb-3">
             <Button

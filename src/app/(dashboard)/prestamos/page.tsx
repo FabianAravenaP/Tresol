@@ -60,9 +60,12 @@ export default function MobilePrestamosPage() {
 
 
   // Form State
+  const [showAllHistory, setShowAllHistory] = useState(false)
+
   const [formData, setFormData] = useState({
     vehiculo_id: "",
     motivo: "TRABAJO",
+    glosa_motivo: "",
     fecha_inicio: "",
     hora_inicio: "08:00",
     fecha_fin: "",
@@ -181,17 +184,16 @@ export default function MobilePrestamosPage() {
   }, [formData.fecha_inicio])
 
   const isAuthorized = useMemo(() => {
-    if (!sessionUser?.nombre) return false;
-    const userNormalized = normalizeString(sessionUser.nombre);
-    return AUTHORIZED_PERSONNEL.some(name => {
-      const parts = normalizeString(name).split(" ");
-      return parts.every(part => userNormalized.includes(part));
-    });
+    return Boolean(sessionUser?.nombre);
   }, [sessionUser])
 
   const handleSubmit = async () => {
     if (!formData.fecha_inicio || !formData.fecha_fin) {
        alert("Ambas fechas son obligatorias")
+       return
+    }
+    if (formData.motivo === 'PERSONAL' && !formData.glosa_motivo.trim()) {
+       alert("Debes describir el motivo personal del préstamo")
        return
     }
     const startDateTime = new Date(`${formData.fecha_inicio}T${formData.hora_inicio}:00`)
@@ -204,6 +206,37 @@ export default function MobilePrestamosPage() {
        alert("Cierre sesión e inicie nuevamente.")
        return
     }
+
+    // Validar solapamiento si hay vehículo seleccionado
+    if (formData.vehiculo_id) {
+      try {
+        const resCheck = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'solicitudes_vehiculos',
+            method: 'select',
+            data: 'fecha_inicio, fecha_fin, estado_solicitud',
+            match: { vehiculo_id: formData.vehiculo_id }
+          })
+        })
+        const { data: existentes } = await resCheck.json()
+        const activos = ['PENDIENTE', 'APROBADA', 'EN_USO']
+        const solapa = (existentes || []).some((s: any) => {
+          if (!activos.includes(s.estado_solicitud)) return false
+          const eInicio = new Date(s.fecha_inicio)
+          const eFin = new Date(s.fecha_fin)
+          return startDateTime < eFin && endDateTime > eInicio
+        })
+        if (solapa) {
+          alert("El vehículo seleccionado ya tiene una reserva que se cruza con las fechas solicitadas. Elige otro vehículo o cambia el período.")
+          return
+        }
+      } catch {
+        // Si falla la verificación, continúa igual — el admin revisa al aprobar
+      }
+    }
+
     setIsSubmitting(true)
     try {
       const res = await fetch('/api/proxy', {
@@ -215,6 +248,7 @@ export default function MobilePrestamosPage() {
           data: {
             usuario_id: sessionUser.persona_id,
             motivo: formData.motivo,
+            glosa_motivo: formData.glosa_motivo.trim() || null,
             vehiculo_id: formData.vehiculo_id || null,
             fecha_inicio: startDateTime.toISOString(),
             fecha_fin: endDateTime.toISOString(),
@@ -228,7 +262,22 @@ export default function MobilePrestamosPage() {
         setIsRequestModalOpen(false)
         fetchMisSolicitudes(sessionUser.persona_id)
         fetchVehiculos()
-        setFormData({ vehiculo_id: "", motivo: "TRABAJO", fecha_inicio: "", hora_inicio: "08:00", fecha_fin: "", hora_fin: "18:00" })
+        setFormData({ vehiculo_id: "", motivo: "TRABAJO", glosa_motivo: "", fecha_inicio: "", hora_inicio: "08:00", fecha_fin: "", hora_fin: "18:00" })
+
+        // Notificar al admin — silencioso, no bloquea el flujo
+        const vehiculoSeleccionado = vehiculosDisponibles.find(v => v.id === formData.vehiculo_id) || null
+        fetch('/api/notify-prestamo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            solicitante: sessionUser.nombre,
+            vehiculo: vehiculoSeleccionado ? { patente: vehiculoSeleccionado.patente, marca: vehiculoSeleccionado.marca, modelo: vehiculoSeleccionado.modelo } : null,
+            motivo: formData.motivo,
+            glosa: formData.glosa_motivo || null,
+            fecha_inicio: `${formData.fecha_inicio} ${formData.hora_inicio}`,
+            fecha_fin: `${formData.fecha_fin} ${formData.hora_fin}`,
+          })
+        }).catch(() => {}) // nunca interrumpe al usuario
       } else {
         alert("Error al procesar reserva: " + (error || "Desconocido"))
       }
@@ -427,7 +476,20 @@ export default function MobilePrestamosPage() {
         </Card>
       ) : (
         <div className="space-y-4 animate-in fade-in duration-500">
-           <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 pl-2">Vehículos Disponibles ({vehiculosDisponibles.length})</h3>
+           <div className="flex items-center justify-between px-1">
+             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">Vehículos Disponibles ({vehiculosDisponibles.length})</h3>
+             <Button
+               variant="ghost"
+               size="sm"
+               className="text-[10px] font-black uppercase tracking-widest text-[#116CA2] hover:bg-[#116CA2]/10 rounded-xl px-3 h-8"
+               onClick={() => {
+                 setFormData({ ...formData, vehiculo_id: "" });
+                 setIsRequestModalOpen(true);
+               }}
+             >
+               <Plus className="size-3 mr-1" /> Sin preferencia
+             </Button>
+           </div>
            {vehiculosDisponibles.length === 0 ? (
               <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2rem] p-8 text-center text-slate-400">
                  <Car className="size-12 mx-auto mb-3 opacity-20" />
@@ -466,8 +528,16 @@ export default function MobilePrestamosPage() {
          <div className="flex items-center justify-between px-2">
             <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
                <History className="size-4" />
-               Historial Reciente
+               Historial
             </h5>
+            {solicitudes.filter(s => s.estado_solicitud !== 'EN_USO' && s.estado_solicitud !== 'APROBADA').length > 5 && (
+              <button
+                onClick={() => setShowAllHistory(v => !v)}
+                className="text-[10px] font-black uppercase tracking-widest text-[#116CA2] hover:underline"
+              >
+                {showAllHistory ? 'Ver menos' : `Ver todo (${solicitudes.filter(s => s.estado_solicitud !== 'EN_USO' && s.estado_solicitud !== 'APROBADA').length})`}
+              </button>
+            )}
          </div>
 
          {isLoading ? (
@@ -479,7 +549,10 @@ export default function MobilePrestamosPage() {
            </div>
          ) : (
            <div className="space-y-4 pb-10">
-              {solicitudes.filter(s => s.estado_solicitud !== 'EN_USO' && s.estado_solicitud !== 'APROBADA').slice(0, 5).map((req) => (
+              {(showAllHistory
+                ? solicitudes.filter(s => s.estado_solicitud !== 'EN_USO' && s.estado_solicitud !== 'APROBADA')
+                : solicitudes.filter(s => s.estado_solicitud !== 'EN_USO' && s.estado_solicitud !== 'APROBADA').slice(0, 5)
+              ).map((req) => (
                 <div key={req.id} className="bg-white dark:bg-zinc-900 p-5 rounded-[1.5rem] shadow-md border border-slate-50 dark:border-zinc-800 flex items-center justify-between group active:scale-[0.98] transition-all">
                    <div className="flex items-center gap-4">
                       <div className={cn(
@@ -548,12 +621,12 @@ export default function MobilePrestamosPage() {
 
               <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Motivo del Préstamo</Label>
-                 <div className="grid grid-cols-2 gap-2">
+                 <div className="grid grid-cols-3 gap-2">
                     {['TRABAJO', 'PERSONAL', 'URGENCIA'].map((m) => (
-                      <button 
+                      <button
                         key={m}
                         type="button"
-                        onClick={() => setFormData({...formData, motivo: m})}
+                        onClick={() => setFormData({...formData, motivo: m, glosa_motivo: ""})}
                         className={cn(
                           "h-12 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                           formData.motivo === m ? "bg-[#116CA2] text-white shadow-lg" : "bg-slate-50 text-slate-400"
@@ -563,6 +636,16 @@ export default function MobilePrestamosPage() {
                       </button>
                     ))}
                  </div>
+                 {formData.motivo === 'PERSONAL' && (
+                   <div className="pt-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                     <textarea
+                       value={formData.glosa_motivo}
+                       onChange={(e) => setFormData({...formData, glosa_motivo: e.target.value})}
+                       placeholder="Describe brevemente el motivo personal... *"
+                       className="w-full h-20 p-4 rounded-2xl bg-slate-50 border-2 border-[#116CA2]/20 font-bold text-sm resize-none focus:ring-2 focus:ring-[#116CA2] outline-none text-[#323232]"
+                     />
+                   </div>
+                 )}
               </div>
 
               <div className="grid grid-cols-1 gap-4">
@@ -583,12 +666,12 @@ export default function MobilePrestamosPage() {
               </div>
 
               {isWeekendRequest && (
-                <div className="p-4 bg-red-50 rounded-2xl border-2 border-red-100 flex gap-3 text-red-800 animate-in zoom-in-95">
-                   <ShieldCheck className="size-6 shrink-0" />
+                <div className="p-4 bg-amber-50 rounded-2xl border-2 border-amber-100 flex gap-3 text-amber-800 animate-in zoom-in-95">
+                   <ShieldCheck className="size-6 shrink-0 mt-0.5" />
                    <div>
                       <p className="text-[10px] font-black uppercase tracking-wider mb-1">Requiere Autorización</p>
                       <p className="text-[11px] font-bold leading-relaxed">
-                        Las solicitudes de fin de semana deben ser aprobadas por **Sandra Paillaman** o **Natali Soto** (Adm. Osorno).
+                        Las solicitudes de fin de semana requieren aprobación por parte de la Administración antes de retirar el vehículo.
                       </p>
                    </div>
                 </div>
@@ -597,7 +680,11 @@ export default function MobilePrestamosPage() {
 
            <DialogFooter className="mt-8 flex flex-col-reverse gap-2">
               <Button variant="ghost" className="h-14 rounded-2xl font-black text-slate-400 uppercase tracking-widest text-xs" onClick={() => setIsRequestModalOpen(false)}>Cancelar</Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting} className="h-14 bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg">
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting || (formData.motivo === 'PERSONAL' && !formData.glosa_motivo.trim())}
+                className="h-14 bg-[#116CA2] hover:bg-[#0d5985] text-white rounded-2xl font-black uppercase tracking-widest shadow-lg disabled:opacity-50"
+              >
                  {isSubmitting ? "Procesando..." : "Enviar Solicitud"}
               </Button>
            </DialogFooter>
