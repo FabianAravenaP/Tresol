@@ -364,6 +364,23 @@ export default function MobilePrestamosPage() {
         setCheckoutModal({isOpen: false, reqId: null})
         setReturnModal({isOpen: false, reqId: null})
         fetchMisSolicitudes(sessionUser.persona_id)
+
+        // Notificar retorno al admin
+        if (type === 'RETURN') {
+          fetch('/api/notify-prestamo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'retorno',
+              solicitante: sessionUser.nombre,
+              vehiculo: activeLoan?.vehiculo ?? null,
+              km_retorno: returnData.km,
+              combustible_retorno: returnData.combustible,
+              limpieza: returnData.limpieza,
+              danos: returnData.danos || null,
+            })
+          }).catch(() => {})
+        }
       } else {
         alert("Error en el registro técnico: " + (resJson.error || "Desconocido"))
       }
