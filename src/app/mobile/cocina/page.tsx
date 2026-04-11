@@ -6,12 +6,10 @@ import { Card, CardContent } from "@/components/uib/card"
 import { Button } from "@/components/uib/button"
 import { Badge } from "@/components/uib/badge"
 import { 
-  Utensils, 
-  ChevronLeft, 
-  CheckCircle2, 
-  XCircle, 
-  Clock,
-  CalendarDays,
+  Utensils,
+  ChevronLeft,
+  CheckCircle2,
+  XCircle,
   Clock,
   CalendarDays,
   Info,
@@ -231,7 +229,6 @@ export default function CocinaMobile() {
                             <CheckCircle2 className="size-6 text-[#51872E]" />
                         )}
                       </div>
-                    </div>
 
                     {expandedRecipe === m.id && (
                         <div className="mb-4 bg-white/50 rounded-2xl p-4 border border-slate-200/50 animate-in slide-in-from-top-2 duration-300">

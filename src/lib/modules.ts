@@ -9,6 +9,41 @@ export interface ModuleDef {
   type: "status" | "icon" | "portal";
 }
 
+/** Per-user module assignment entry stored in config_sidebar */
+export type SidebarEntry = { id: string; view: "user" | "admin" }
+
+/** Modules that expose distinct URLs for user vs admin role */
+export const MODULE_DUAL_VIEWS: Record<string, { user: string; admin: string }> = {
+  cocina:   { user: '/mobile/cocina',          admin: '/cocina' },
+  prestamos: { user: '/prestamos',             admin: '/admin/vehiculos_menores' },
+}
+
+/** Whether a module has a user/admin view toggle */
+export function hasDualView(id: string): boolean {
+  return id in MODULE_DUAL_VIEWS
+}
+
+/** Resolve the effective route for a module given its assigned view */
+export function getModuleHref(id: string, view: "user" | "admin" = "user"): string {
+  const dual = MODULE_DUAL_VIEWS[id]
+  if (dual) return view === 'admin' ? dual.admin : dual.user
+  const mod = ALL_MODULES.find(m => m.id === id)
+  return mod?.href ?? '/dashboard'
+}
+
+/** Normalise whatever is stored in config_sidebar to SidebarEntry[] */
+export function parseSidebarConfig(raw: unknown): SidebarEntry[] {
+  if (!Array.isArray(raw) || raw.length === 0) return []
+  const first = raw[0]
+  // New format: { id, view }[]
+  if (typeof first === 'object' && first !== null && 'view' in first) return raw as SidebarEntry[]
+  // Old format: string[] or ModuleDef objects
+  return (raw as any[]).map((item) => ({
+    id: typeof item === 'string' ? item : (item as any).id,
+    view: 'user' as const,
+  })).filter(e => e.id)
+}
+
 export const ALL_MODULES: ModuleDef[] = [
   { 
     id: "operativo", 

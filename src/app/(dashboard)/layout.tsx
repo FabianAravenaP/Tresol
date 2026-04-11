@@ -6,12 +6,12 @@ import { usePathname, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/uib/button"
 import { ConnectionStatus } from "@/components/ConnectionStatus"
-import { 
-  Users, 
-  Truck, 
-  Settings, 
-  LayoutDashboard, 
-  MapPin, 
+import {
+  Users,
+  Truck,
+  Settings,
+  LayoutDashboard,
+  MapPin,
   ShieldCheck,
   ChevronRight,
   Activity,
@@ -20,220 +20,267 @@ import {
   X,
   FileText,
   Smartphone,
-  Plus,
   Package,
   Utensils,
-  ChefHat,
   Car
 } from "lucide-react"
 import { UserProfile } from "@/components/UserProfile"
 import { supabase } from "@/lib/supabase"
-import { SidebarCustomizer } from "@/components/SidebarCustomizer"
-import { ALL_MODULES } from "@/lib/modules"
+import { ALL_MODULES, parseSidebarConfig, getModuleHref, type SidebarEntry } from "@/lib/modules"
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+const IconMap: Record<string, React.ElementType> = {
+  LayoutDashboard, MapPin, Activity, Users, Truck, Settings,
+  Home, ShieldCheck, Smartphone, FileText, Utensils, Package, Car
+}
+
+// Admin nav items — only shown to master_admin
+const ADMIN_NAV = [
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Préstamo Vehículo", href: "/prestamos", icon: Car },
+  { name: "Gestión Cocina", href: "/cocina", icon: Utensils },
+  { name: "Analíticas", href: "/admin/analiticas", icon: Activity },
+  { name: "Usuarios", href: "/admin/usuarios", icon: Users },
+  { name: "Flota", href: "/admin/flota", icon: Truck },
+  { name: "Personal", href: "/admin/personal", icon: Users },
+  { name: "Vehículos Menores", href: "/admin/vehiculos_menores", icon: Car },
+  { name: "Clientes", href: "/admin/clientes", icon: MapPin },
+  { name: "Configuración", href: "/admin/config", icon: Settings },
+]
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
-  const [quickAccess, setQuickAccess] = useState<any[]>([])
-  const [isCustomizing, setIsCustomizing] = useState(false)
-  const [pendingPrestamos, setPendingPrestamos] = useState(0)
-
-  // Icons mapping for dynamic icons from JSON
-  const IconMap: any = { 
-    LayoutDashboard, MapPin, Activity, Users, Truck, Settings, 
-    Home, ShieldCheck, Smartphone, FileText, Utensils, ChefHat, Package, Car 
-  }
-
   const router = useRouter()
 
+  const [user, setUser] = useState<any>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [pendingPrestamos, setPendingPrestamos] = useState(0)
+
+  // ── Load session + sync with DB ────────────────────────────────────────────
   useEffect(() => {
     const sessionStr = localStorage.getItem('tresol_session')
-    if (sessionStr) {
+    if (!sessionStr) { router.push('/'); return }
+
+    const sessionUser = JSON.parse(sessionStr)
+    setUser(sessionUser)
+
+    const syncProfile = async () => {
       try {
-        const sessionUser = JSON.parse(sessionStr)
-        setUser(sessionUser)
-        
-        // SYNC: Fetch latest profile to ensure role/rut/name are up to date
-        const syncProfile = async () => {
-          try {
-            const { data, error } = await supabase
-              .from('usuarios')
-              .select('*')
-              .eq('id', sessionUser.id)
-              .single()
-            
-            if (!error && data) {
-              const updatedUser = { ...sessionUser, ...data }
-              setUser(updatedUser)
-              localStorage.setItem('tresol_session', JSON.stringify(updatedUser))
-              console.log("Session synchronized with latest DB state")
-            }
-          } catch (e) {
-            console.error("Sync error", e)
-          }
+        const { data, error } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('id', sessionUser.id)
+          .single()
+
+        if (!error && data) {
+          const updated = { ...sessionUser, ...data }
+          setUser(updated)
+          localStorage.setItem('tresol_session', JSON.stringify(updated))
         }
-        
-        syncProfile()
-        fetchUserConfig(sessionUser.id)
-      } catch (e) {
-        console.error("Error parsing session", e)
-        router.push('/')
-      }
-    } else {
-      router.push('/')
+      } catch { /* silent */ }
     }
+
+    syncProfile()
   }, [router])
 
-  const fetchPendingPrestamos = async () => {
-    try {
-      const res = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          table: 'solicitudes_vehiculos',
-          method: 'select',
-          data: 'id',
-          match: { estado_solicitud: 'PENDIENTE' }
-        })
-      })
-      const { data } = await res.json()
-      setPendingPrestamos(Array.isArray(data) ? data.length : 0)
-    } catch {
-      // silencioso — no interrumpir la UI
-    }
-  }
-
-  const fetchUserConfig = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('usuarios')
-        .select('config_sidebar')
-        .eq('id', userId)
-        .single()
-      
-      if (error) throw error
-      if (data?.config_sidebar && Array.isArray(data.config_sidebar)) {
-        setQuickAccess(data.config_sidebar)
-      } else {
-        // Fallback or default
-        setQuickAccess(ALL_MODULES.filter(m => 
-          ["operativo", "porteria", "digitalizador", "prestamos"].includes(m.id)
-        ))
-      }
-    } catch (err) {
-      console.error("Error fetching user config", err)
-    }
-  }
-
-  const handleSaveConfig = async (newConfig: any[]) => {
-    if (!user) {
-      console.error("No user found for saving config")
-      return
-    }
-    console.log("Saving new config for user:", user.id, newConfig)
-    try {
-      const res = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          table: 'usuarios',
-          method: 'update',
-          data: { config_sidebar: newConfig },
-          match: { id: user.id }
-        })
-      })
-      const { success, error } = await res.json()
-      
-      if (error) {
-        console.error("Proxy update error:", error)
-        throw new Error(error)
-      }
-      
-      console.log("Update success via proxy")
-      setQuickAccess(newConfig)
-      
-      // Update local session to persist changes immediately
-      const newSession = { ...user, config_sidebar: newConfig }
-      localStorage.setItem('tresol_session', JSON.stringify(newSession))
-      setUser(newSession)
-      
-      setIsCustomizing(false)
-    } catch (err) {
-      console.error("Error updating config detail:", err)
-      alert("Error al guardar configuración. Revisa la consola.")
-    }
-  }
-
-  // Poll pending prestamos count — only for admin users
+  // ── Route protection ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
-    const roleUp = (user.rol || "").toUpperCase()
-    const adminUser = roleUp.includes('ADMIN') || roleUp.includes('GERENTE') || roleUp.includes('JEFE') || user.rut?.toString() === '17630469'
-    if (!adminUser) return
+    if (user.rol === 'master_admin') return // full access
 
-    fetchPendingPrestamos()
-    const interval = setInterval(fetchPendingPrestamos, 60_000)
+    const config: SidebarEntry[] = parseSidebarConfig(user.config_sidebar)
+
+    // Build the set of allowed path prefixes for this user
+    const allowed = ['/dashboard', ...config.map(e => getModuleHref(e.id, e.view))]
+
+    const isAllowed = allowed.some(h => pathname === h || pathname.startsWith(h + '/'))
+    if (!isAllowed) {
+      router.replace('/dashboard')
+    }
+  }, [user, pathname, router])
+
+  // ── Pending prestamos badge (master_admin only) ────────────────────────────
+  useEffect(() => {
+    if (!user || user.rol !== 'master_admin') return
+
+    const fetchPending = async () => {
+      try {
+        const res = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            table: 'solicitudes_vehiculos',
+            method: 'select',
+            data: 'id',
+            match: { estado_solicitud: 'PENDIENTE' }
+          })
+        })
+        const { data } = await res.json()
+        setPendingPrestamos(Array.isArray(data) ? data.length : 0)
+      } catch { /* silent */ }
+    }
+
+    fetchPending()
+    const interval = setInterval(fetchPending, 60_000)
     return () => clearInterval(interval)
   }, [user])
 
-  const navItems = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-    { name: "Préstamo Vehículo", href: "/prestamos", icon: Car },
-    { name: "Gestión Cocina", href: "/cocina", icon: Utensils, roles: ['master_admin', 'admin', 'cocina'] },
-    { name: "Analíticas", href: "/admin/analiticas", icon: Activity, roles: ['master_admin', 'admin'] },
-    { name: "Usuarios", href: "/admin/usuarios", icon: Users, roles: ['master_admin'] },
-    { name: "Flota", href: "/admin/flota", icon: Truck, roles: ['master_admin', 'admin'] },
-    { name: "Personal", href: "/admin/personal", icon: Users, roles: ['master_admin', 'admin'] },
-    { name: "Vehículos Menores", href: "/admin/vehiculos_menores", icon: Car, roles: ['master_admin', 'admin'] },
-    { name: "Clientes", href: "/admin/clientes", icon: MapPin, roles: ['master_admin', 'admin'] },
-    { name: "Configuración", href: "/admin/config", icon: Settings, roles: ['master_admin'] },
-  ]
-
-  if (!user) return <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center font-bold italic text-slate-400">Iniciando sesión segura...</div>
-
-  // Role normalization and keyword detection
-  const roleUpper = (user.rol || "").toUpperCase()
-  const isAdmin = roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE') || user.rol === 'master_admin'
-  const isFabian = user.rut?.toString() === '17630469' || user.nombre?.toLowerCase().includes('fabian aravena')
-
-  const isPathAdmin = pathname.startsWith('/admin') || pathname.startsWith('/operaciones') || pathname.startsWith('/porteria')
-  const showSidebar = isAdmin || isFabian || isPathAdmin || ['operaciones', 'usuario'].includes(user.rol)
-
-  // If sidebar is shown, filter nav items
-  const filteredNavItems = navItems.filter(item => {
-    if (!item.roles) return true
-    if (isFabian) return true
-    return item.roles.some((r: string) => {
-      const rUpper = r.toUpperCase()
-      if (rUpper === 'MASTER_ADMIN') return roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE')
-      if (rUpper === 'ADMIN') return roleUpper.includes('ADMIN') || roleUpper.includes('GERENTE') || roleUpper.includes('JEFE')
-      return roleUpper.includes(rUpper) || user.rol === r
-    })
-  })
-
-  // Page title based on path
-  const currentNavItem = navItems.find(i => pathname.startsWith(i.href))
-  let pageTitle = "Dashboard"
-  if (pathname.includes('/operaciones')) pageTitle = "Operaciones"
-  else if (pathname.includes('/porteria')) pageTitle = "Portería"
-  else if (pathname.includes('/activos')) pageTitle = "Gestión de Activos"
-  else if (pathname.includes('/digitalizador')) pageTitle = "Digitalizador"
-  else if (currentNavItem) pageTitle = currentNavItem.name
-
-  if (!showSidebar) {
-    return <>{children}</>
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center font-bold italic text-slate-400">
+        Iniciando sesión segura...
+      </div>
+    )
   }
+
+  const isMasterAdmin = user.rol === 'master_admin'
+
+  // Resolve sidebar modules for non-admin users
+  const config: SidebarEntry[] = parseSidebarConfig(user.config_sidebar)
+  const userSidebarModules = config
+    .map(entry => {
+      const mod = ALL_MODULES.find(m => m.id === entry.id)
+      if (!mod) return null
+      return { ...mod, href: getModuleHref(entry.id, entry.view), view: entry.view }
+    })
+    .filter(Boolean) as Array<typeof ALL_MODULES[0] & { view: string }>
+
+  // Page title
+  let pageTitle = "Mi Panel"
+  if (pathname === '/dashboard') pageTitle = "Mi Panel"
+  else if (pathname.startsWith('/admin/usuarios')) pageTitle = "Usuarios"
+  else if (pathname.startsWith('/admin/analiticas')) pageTitle = "Analíticas"
+  else if (pathname.startsWith('/admin/flota')) pageTitle = "Flota"
+  else if (pathname.startsWith('/admin/personal')) pageTitle = "Personal"
+  else if (pathname.startsWith('/admin/vehiculos_menores')) pageTitle = "Vehículos Menores"
+  else if (pathname.startsWith('/admin/clientes')) pageTitle = "Clientes"
+  else if (pathname.startsWith('/admin/config')) pageTitle = "Configuración"
+  else if (pathname.startsWith('/admin')) pageTitle = "Dashboard"
+  else if (pathname.startsWith('/operaciones')) pageTitle = "Operaciones"
+  else if (pathname.startsWith('/porteria')) pageTitle = "Portería"
+  else if (pathname.startsWith('/activos')) pageTitle = "Gestión de Activos"
+  else if (pathname.startsWith('/digitalizador')) pageTitle = "Digitalizador"
+  else if (pathname.startsWith('/cocina')) pageTitle = "Gestión Cocina"
+  else if (pathname.startsWith('/prestamos')) pageTitle = "Mis Préstamos"
+
+  // ── Shared nav link renderer ───────────────────────────────────────────────
+  const NavLink = ({ href, name, icon: Icon, badge }: {
+    href: string; name: string; icon: React.ElementType; badge?: number
+  }) => {
+    const isActive = href === '/admin'
+      ? pathname === '/admin'
+      : pathname === href || (href !== '/' && pathname.startsWith(href + '/'))
+    return (
+      <Link
+        href={href}
+        onClick={() => setIsSidebarOpen(false)}
+        className={cn(
+          "flex items-center justify-between px-4 py-3 rounded-2xl font-bold transition-all text-sm group",
+          isActive
+            ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20"
+            : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
+        )}
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Icon className={cn("size-4 shrink-0 transition-colors", isActive ? "text-white" : "text-slate-400 group-hover:text-[#116CA2]")} />
+          <span className="truncate">{name}</span>
+          {badge && badge > 0 && (
+            <span className="ml-auto size-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
+              {badge > 9 ? '9+' : badge}
+            </span>
+          )}
+        </div>
+        {isActive && <ChevronRight className="size-4 shrink-0" />}
+      </Link>
+    )
+  }
+
+  const SidebarContent = () => (
+    <nav className="flex-1 p-6 space-y-1 overflow-y-auto">
+      {/* Personal dashboard link — always visible */}
+      <NavLink href="/dashboard" name="Mi Panel" icon={Home} />
+
+      {isMasterAdmin ? (
+        <>
+          {/* Admin full navigation */}
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-6 mb-3">Gestión General</p>
+          {ADMIN_NAV.map(item => (
+            <div key={item.href}>
+              <NavLink
+                href={item.href}
+                name={item.name}
+                icon={item.icon}
+                badge={item.href === '/admin/vehiculos_menores' ? pendingPrestamos : undefined}
+              />
+              {/* Operaciones sub-menu */}
+              {item.href === '/operaciones' && pathname.startsWith('/operaciones') && (
+                <div className="ml-9 pl-4 border-l-2 border-slate-100 dark:border-zinc-800 space-y-1 py-2">
+                  {[
+                    { name: "Planificación", href: "/operaciones" },
+                    { name: "Historial", href: "/operaciones/servicios" },
+                    { name: "Flota", href: "/operaciones/flota" },
+                    { name: "Pagos", href: "/operaciones/pagos" },
+                  ].map(sub => (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      className={cn(
+                        "block py-2 text-[11px] font-black uppercase tracking-widest transition-colors",
+                        pathname === sub.href ? "text-[#116CA2]" : "text-slate-400 hover:text-[#116CA2]"
+                      )}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+
+          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-6 mb-3">Módulos Principales</p>
+          {ALL_MODULES.filter(m => !ADMIN_NAV.some(n => n.href === m.href)).map(item => {
+            const DynIcon = IconMap[item.icon] ?? Package
+            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'))
+            return (
+              <Link
+                key={item.id}
+                href={item.href}
+                onClick={() => setIsSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-sm group",
+                  isActive ? "bg-slate-100 text-[#116CA2] dark:bg-zinc-800" : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
+                )}
+              >
+                <div className={cn("size-6 rounded-lg flex items-center justify-center transition-colors", isActive ? "bg-[#116CA2]/10" : "bg-slate-100 dark:bg-zinc-800")}>
+                  <DynIcon className="size-3.5" />
+                </div>
+                {item.name}
+              </Link>
+            )
+          })}
+        </>
+      ) : (
+        <>
+          {/* Regular user — only assigned modules */}
+          {userSidebarModules.length > 0 && (
+            <>
+              <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-6 mb-3">Mis Módulos</p>
+              {userSidebarModules.map(item => {
+                const DynIcon = IconMap[item.icon] ?? Package
+                return (
+                  <NavLink key={item.id} href={item.href} name={item.name} icon={DynIcon} />
+                )
+              })}
+            </>
+          )}
+        </>
+      )}
+    </nav>
+  )
 
   return (
     <div className="flex h-screen w-full bg-slate-50 dark:bg-zinc-950 overflow-hidden font-sans">
 
-      {/* Mobile Sidebar Overlay */}
+      {/* Mobile overlay */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
@@ -241,7 +288,7 @@ export default function DashboardLayout({
         />
       )}
 
-      {/* Sidebar - Mobile Drawer */}
+      {/* Sidebar — mobile drawer */}
       <aside className={cn(
         "fixed top-0 left-0 h-full w-72 bg-white dark:bg-zinc-900 shadow-2xl z-50 flex flex-col transition-transform duration-300 ease-in-out md:hidden",
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -254,7 +301,7 @@ export default function DashboardLayout({
             <div>
               <p className="text-[9px] font-black uppercase text-[#116CA2] tracking-[0.2em] leading-none mb-0.5">Tresol ERP</p>
               <h2 className="text-xs font-black text-[#323232] dark:text-white uppercase tracking-tighter">
-                {(user.rol === 'master_admin' || user.rut === '17630469') ? 'Admin Maestro' : 'Administrador'}
+                {isMasterAdmin ? 'Admin Maestro' : 'Panel Personal'}
               </h2>
             </div>
           </div>
@@ -262,179 +309,40 @@ export default function DashboardLayout({
             <X className="size-5" />
           </Button>
         </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Gestión General</p>
-          {filteredNavItems.map((item) => {
-            const isActive = item.href === '/admin'
-              ? pathname === '/admin'
-              : (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)))
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-3 rounded-2xl font-bold transition-all text-sm",
-                  isActive
-                    ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2]"
-                )}
-              >
-                <item.icon className={cn("size-4 shrink-0", isActive ? "text-white" : "text-slate-400")} />
-                <span className="flex-1">{item.name}</span>
-                {item.href === '/admin/vehiculos_menores' && pendingPrestamos > 0 && (
-                  <span className="size-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
-                    {pendingPrestamos > 9 ? '9+' : pendingPrestamos}
-                  </span>
-                )}
-              </Link>
-            )
-          })}
-
-          <div className="pt-6 space-y-1">
-            <p className="px-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Módulos Principales</p>
-            {ALL_MODULES.filter(m => !navItems.some(ni => ni.href === m.href)).map((item) => {
-              const DynamicIcon = item.icon ? IconMap[item.icon] : null
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3 rounded-2xl font-bold text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] transition-all text-sm"
-                >
-                  {DynamicIcon && <DynamicIcon className="size-4 shrink-0" />}
-                  {item.name}
-                </Link>
-              )
-            })}
-          </div>
-        </nav>
+        <SidebarContent />
       </aside>
 
-      {/* Sidebar - Desktop */}
+      {/* Sidebar — desktop */}
       <aside className="w-72 border-r bg-white dark:bg-zinc-900 hidden md:flex flex-col flex-shrink-0 shadow-xl z-20">
         <div className="h-20 flex items-center px-8 border-b border-slate-100 dark:border-zinc-800">
-           <div className="flex items-center gap-3">
-              <div className="bg-[#116CA2] p-2 rounded-xl text-white shadow-lg shadow-[#116CA2]/20">
-                <ShieldCheck className="size-6" />
-              </div>
-              <div>
-                <p className="text-[10px] font-black uppercase text-[#116CA2] tracking-[0.2em] leading-none mb-1">Tresol ERP</p>
-                <h2 className="text-sm font-black text-[#323232] dark:text-white uppercase tracking-tighter">
-                  {user.rol === 'master_admin' ? 'Admin Maestro' : 'Administrador'}
-                </h2>
-              </div>
-           </div>
-        </div>
-
-        <nav className="flex-1 p-6 space-y-2 overflow-y-auto">
-          <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Gestión General</p>
-          {filteredNavItems.map((item) => {
-            const isActive = item.href === '/admin' 
-              ? pathname === '/admin' 
-              : (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)))
-            const isOperaciones = item.href === '/operaciones' && pathname.startsWith('/operaciones')
-            
-            return (
-              <div key={item.href} className="space-y-1">
-                <Link 
-                  href={item.href} 
-                  className={cn(
-                    "flex items-center justify-between px-4 py-3.5 rounded-2xl font-bold transition-all text-sm group",
-                    isActive 
-                      ? "bg-[#116CA2] text-white shadow-lg shadow-[#116CA2]/20" 
-                      : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
-                  )}
-                >
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <item.icon className={cn("size-5 transition-colors shrink-0", isActive ? "text-white" : "text-slate-400 group-hover:text-[#116CA2]")} />
-                    <span className="truncate">{item.name}</span>
-                    {item.href === '/admin/vehiculos_menores' && pendingPrestamos > 0 && (
-                      <span className="ml-auto size-5 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center shrink-0">
-                        {pendingPrestamos > 9 ? '9+' : pendingPrestamos}
-                      </span>
-                    )}
-                  </div>
-                  {isActive && <ChevronRight className="size-4 shrink-0 animate-in slide-in-from-left-2" />}
-                </Link>
-
-                {/* Sub-menu for Operaciones */}
-                {isOperaciones && (
-                  <div className="ml-9 pl-4 border-l-2 border-slate-100 dark:border-zinc-800 space-y-1 py-2 animate-in slide-in-from-top-2 duration-300">
-                    {[
-                      { name: "Planificación", href: "/operaciones" },
-                      { name: "Historial", href: "/operaciones/servicios" },
-                      { name: "Flota", href: "/operaciones/flota" },
-                      { name: "Pagos", href: "/operaciones/pagos" },
-                    ].map((subItem) => (
-                      <Link
-                        key={subItem.href}
-                        href={subItem.href}
-                        className={cn(
-                          "block py-2 text-[11px] font-black uppercase tracking-widest transition-colors",
-                          pathname === subItem.href 
-                            ? "text-[#116CA2] dark:text-blue-400" 
-                            : "text-slate-400 hover:text-[#116CA2]"
-                        )}
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-
-          <div className="pt-8 space-y-2">
-            <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Módulos Principales</p>
-            {ALL_MODULES.filter(m => !navItems.some(ni => ni.href === m.href)).map((item) => {
-            const isModuleActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
-              const DynamicIcon = item.icon ? IconMap[item.icon] : null
-              
-              const isOperaciones = item.href === '/operaciones' && pathname.startsWith('/operaciones')
-              const isPorteria = item.href === '/porteria' && pathname.startsWith('/porteria')
-
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-2xl font-bold transition-all text-sm group",
-                    (isModuleActive || isOperaciones || isPorteria)
-                      ? "bg-slate-100 text-[#116CA2] dark:bg-zinc-800"
-                      : "text-slate-500 hover:bg-slate-50 hover:text-[#116CA2] dark:hover:bg-zinc-800"
-                  )}
-                >
-                  <div className={cn(
-                    "size-6 rounded-lg flex items-center justify-center transition-colors",
-                    (isModuleActive || isOperaciones || isPorteria) ? "bg-[#116CA2]/10" : "bg-slate-100"
-                  )}>
-                    {DynamicIcon && <DynamicIcon className="size-3.5" />}
-                  </div>
-                  {item.name}
-                </Link>
-              )
-            })}
+          <div className="flex items-center gap-3">
+            <div className="bg-[#116CA2] p-2 rounded-xl text-white shadow-lg shadow-[#116CA2]/20">
+              <ShieldCheck className="size-6" />
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase text-[#116CA2] tracking-[0.2em] leading-none mb-1">Tresol ERP</p>
+              <h2 className="text-sm font-black text-[#323232] dark:text-white uppercase tracking-tighter">
+                {isMasterAdmin ? 'Admin Maestro' : 'Panel Personal'}
+              </h2>
+            </div>
           </div>
-        </nav>
-
-        <div className="p-8 border-t border-slate-100 dark:border-zinc-800 flex flex-col gap-0.5 mt-auto">
-              <p className="text-[11px] font-black text-[#51872E] uppercase tracking-widest">Fabian Aravena</p>
-              <p className="text-[8px] font-black text-[#116CA2] uppercase tracking-[0.05em]">Gerente de procesos</p>
-              <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Ingeniero civil industrial</p>
+        </div>
+        <SidebarContent />
+        <div className="p-8 border-t border-slate-100 dark:border-zinc-800 mt-auto">
+          <p className="text-[11px] font-black text-[#51872E] uppercase tracking-widest">Fabian Aravena</p>
+          <p className="text-[8px] font-black text-[#116CA2] uppercase tracking-[0.05em]">Gerente de procesos</p>
+          <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Ingeniero civil industrial</p>
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <header className="h-16 md:h-20 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-6 md:px-10 bg-white/70 backdrop-blur-md dark:bg-zinc-900/70 z-10 shrink-0">
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="md:hidden shrink-0" onClick={() => setIsSidebarOpen(true)}>
               <Menu className="size-5" />
             </Button>
-            <Link href="/admin" className="hover:opacity-80 transition-opacity">
+            <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
               <h1 className="font-black text-sm md:text-xl text-[#116CA2] dark:text-white uppercase tracking-tight truncate max-w-[120px] sm:max-w-none">
                 {pageTitle}
               </h1>
@@ -453,13 +361,6 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
-
-      <SidebarCustomizer 
-        isOpen={isCustomizing} 
-        onClose={() => setIsCustomizing(false)} 
-        currentConfig={quickAccess}
-        onSave={handleSaveConfig}
-      />
     </div>
   )
 }
