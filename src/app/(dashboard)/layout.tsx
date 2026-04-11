@@ -33,7 +33,17 @@ const IconMap: Record<string, React.ElementType> = {
   Home, ShieldCheck, Smartphone, FileText, Utensils, Package, Car
 }
 
-// Admin nav items — only shown to master_admin
+/** Full admin access: master_admin role OR legacy keyword/RUT detection */
+function isSuperUser(user: any): boolean {
+  if (!user) return false
+  if (user.rol === 'master_admin') return true
+  const roleUp = (user.rol || '').toUpperCase()
+  if (roleUp.includes('ADMIN') || roleUp.includes('GERENTE') || roleUp.includes('JEFE')) return true
+  if (user.rut?.toString() === '17630469') return true
+  return false
+}
+
+// Admin nav items — only shown to master_admin / super users
 const ADMIN_NAV = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Préstamo Vehículo", href: "/prestamos", icon: Car },
@@ -85,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // ── Route protection ───────────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
-    if (user.rol === 'master_admin') return // full access
+    if (isSuperUser(user)) return // full access
 
     const config: SidebarEntry[] = parseSidebarConfig(user.config_sidebar)
 
@@ -98,9 +108,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [user, pathname, router])
 
-  // ── Pending prestamos badge (master_admin only) ────────────────────────────
+  // ── Pending prestamos badge (admins only) ─────────────────────────────────
   useEffect(() => {
-    if (!user || user.rol !== 'master_admin') return
+    if (!user || !isSuperUser(user)) return
 
     const fetchPending = async () => {
       try {
@@ -132,7 +142,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     )
   }
 
-  const isMasterAdmin = user.rol === 'master_admin'
+  const isMasterAdmin = isSuperUser(user)
 
   // Resolve sidebar modules for non-admin users
   const config: SidebarEntry[] = parseSidebarConfig(user.config_sidebar)
