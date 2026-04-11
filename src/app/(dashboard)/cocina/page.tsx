@@ -74,7 +74,7 @@ export default function CocinaAdmin() {
     setIsLoading(true)
     try {
       const endpoints = [
-        { table: 'cocina_recetas', method: 'select', data: '*' },
+        { table: 'cocina_recetas', method: 'select', data: '*, cocina_ingredientes(*)' },
         { table: 'cocina_minutas', method: 'select', data: '*, receta:cocina_recetas(*)', order: { column: 'fecha', ascending: false } },
         { table: 'cocina_elecciones', method: 'select', data: '*, usuario:usuarios(*), minuta:cocina_minutas(*)' },
         { table: 'cocina_inventario', method: 'select', data: '*' }
@@ -206,8 +206,23 @@ export default function CocinaAdmin() {
   const minutasHoy = minutas.filter(m => m.fecha === today)
   const countsHoy = minutasHoy.map(m => {
     const total = elecciones.filter(e => e.minuta_id === m.id && e.confirmo_asistencia).length
-    return { nombre: m.receta?.nombre, id: m.id, total }
+    return { nombre: m.receta?.nombre, id: m.id, total, ingredientes: m.receta?.cocina_ingredientes || [] }
   })
+
+  const totalIngredientesNecesarios = countsHoy.length > 0 ? (
+    countsHoy.reduce((acc: any, curr: any) => {
+        curr.ingredientes.forEach((ing: any) => {
+            if (!acc[ing.nombre]) {
+                acc[ing.nombre] = { unidad: ing.unidad, total: 0 }
+            }
+            // Parse common values like "10 KG" or "5 UN"
+            // For now, since we initialized with 0 for manual tracking in Excel, 
+            // we'll just list them. If we had quantities per person, we'd multiply.
+            acc[ing.nombre].total += 1 // Placeholder for presence
+        })
+        return acc
+    }, {})
+  ) : {}
 
   const totalComensalesHoy = elecciones.filter(e => 
     minutasHoy.some(m => m.id === e.minuta_id) && (e.confirmo_asistencia || e.no_asistira)
@@ -359,9 +374,27 @@ export default function CocinaAdmin() {
                               ))}
                           </div>
                           <div className="space-y-4">
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Movimientos Recientes</h4>
-                              <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
-                                  {elecciones.filter(e => minutasHoy.some(m => m.id === e.minuta_id)).slice(0, 15).map((e, i) => (
+                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Insumos Críticos para hoy</h4>
+                              <div className="bg-[#323232] rounded-[2rem] p-8 text-white space-y-4">
+                                  {Object.keys(totalIngredientesNecesarios).length === 0 ? (
+                                      <p className="text-slate-500 text-xs font-bold uppercase tracking-widest text-center py-4">Sin requerimientos de ingredientes.</p>
+                                  ) : (
+                                      <div className="grid grid-cols-1 gap-3">
+                                          {Object.keys(totalIngredientesNecesarios).slice(0, 10).map((name, i) => (
+                                              <div key={i} className="flex justify-between items-center border-b border-white/10 pb-2 last:border-0 last:pb-0">
+                                                  <span className="text-[10px] font-black uppercase tracking-tight">{name}</span>
+                                                  <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 text-[9px] font-bold">REQUERIDO</Badge>
+                                              </div>
+                                          ))}
+                                          {Object.keys(totalIngredientesNecesarios).length > 10 && (
+                                              <p className="text-[9px] text-slate-500 text-center font-bold italic pt-2">... y {Object.keys(totalIngredientesNecesarios).length - 10} ingredientes más</p>
+                                          )}
+                                      </div>
+                                  )}
+                              </div>
+                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 mt-6">Movimientos Recientes</h4>
+                              <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
+                                  {elecciones.filter(e => minutasHoy.some(m => m.id === e.minuta_id)).slice(0, 10).map((e, i) => (
                                       <div key={i} className="flex items-center justify-between p-3 px-5 bg-white border border-slate-100 rounded-2xl">
                                           <div className="flex items-center gap-3">
                                               <div className="size-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-[10px] font-black text-[#116CA2]">
@@ -498,12 +531,44 @@ export default function CocinaAdmin() {
                         </CardHeader>
                         <CardContent className="p-8 pt-0 space-y-4">
                             <h4 className="text-2xl font-black text-[#323232] uppercase tracking-tighter leading-none">{r.nombre}</h4>
+                            <div className="flex flex-wrap gap-1 mt-2">
+                                {(r.cocina_ingredientes || []).slice(0, 3).map((ing: any, idx: number) => (
+                                    <Badge key={idx} variant="outline" className="text-[8px] font-bold uppercase border-slate-100 text-slate-400">
+                                        {ing.nombre}
+                                    </Badge>
+                                ))}
+                                {r.cocina_ingredientes?.length > 3 && (
+                                    <Badge variant="outline" className="text-[8px] font-bold uppercase border-slate-100 text-slate-400">
+                                        +{r.cocina_ingredientes.length - 3}
+                                    </Badge>
+                                )}
+                            </div>
                             <p className="text-sm text-slate-400 font-medium line-clamp-2">
-                                {r.descripcion || "Sin detalles adicionales registrados para esta receta."}
+                                {r.descripcion || "Sin detalles adicionales registrados."}
                             </p>
                             <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
                                 <Badge className="bg-slate-50 text-slate-400 border-none font-bold">ID: {r.id.slice(0,8)}</Badge>
-                                <Button variant="ghost" className="text-[10px] font-black text-amber-600 group-hover:bg-amber-50 rounded-xl uppercase tracking-widest transition-all">Editar</Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" className="text-[10px] font-black text-amber-600 group-hover:bg-amber-50 rounded-xl uppercase tracking-widest transition-all">Ver Más</Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="rounded-3xl">
+                                        <DialogHeader>
+                                            <DialogTitle className="uppercase font-black">{r.nombre}</DialogTitle>
+                                            <DialogDescription className="font-bold text-xs uppercase tracking-widest text-[#51872E]">Ingredientes y Preparación</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 pt-4">
+                                            <div className="grid grid-cols-1 gap-2">
+                                                {r.cocina_ingredientes?.map((ing: any, idx: number) => (
+                                                    <div key={idx} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
+                                                        <span className="text-xs font-black uppercase text-[#323232]">{ing.nombre}</span>
+                                                        <span className="text-[10px] font-bold text-[#51872E] uppercase">{ing.unidad}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                         </CardContent>
                     </Card>

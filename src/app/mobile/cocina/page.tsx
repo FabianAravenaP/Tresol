@@ -12,7 +12,11 @@ import {
   XCircle, 
   Clock,
   CalendarDays,
-  Info
+  Clock,
+  CalendarDays,
+  Info,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -23,6 +27,7 @@ export default function CocinaMobile() {
   const [user, setUser] = useState<any>(null)
   const [minutas, setMinutas] = useState<any[]>([])
   const [eleccion, setEleccion] = useState<any>(null)
+  const [expandedRecipe, setExpandedRecipe] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -48,7 +53,7 @@ export default function CocinaMobile() {
         body: JSON.stringify({
           table: 'cocina_minutas',
           method: 'select',
-          data: '*, receta:cocina_recetas(*)',
+          data: '*, receta:cocina_recetas(*, cocina_ingredientes(*))',
           match: { fecha: today }
         })
       })
@@ -205,15 +210,45 @@ export default function CocinaMobile() {
                       : 'border-slate-100 bg-slate-50'
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-lg font-black text-[#323232] leading-tight">{m.receta?.nombre}</h3>
-                        <p className="text-xs text-slate-500 font-medium mt-1">{m.descripcion || m.receta?.descripcion}</p>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-[9px] font-black uppercase text-[#51872E] border-[#51872E]/20 bg-[#51872E]/5">
+                                {m.descripcion || "GENERAL"}
+                            </Badge>
+                        </div>
+                        <h3 className="text-lg font-black text-[#323232] leading-tight mt-1">{m.receta?.nombre}</h3>
                       </div>
-                      {eleccion?.minuta_id === m.id && eleccion.confirmo_asistencia && (
-                        <CheckCircle2 className="size-6 text-[#51872E]" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="size-8 rounded-full text-slate-300 pointer-events-auto"
+                            onClick={() => setExpandedRecipe(expandedRecipe === m.id ? null : m.id)}
+                        >
+                            {expandedRecipe === m.id ? <ChevronUp className="size-5" /> : <Info className="size-5" />}
+                        </Button>
+                        {eleccion?.minuta_id === m.id && eleccion.confirmo_asistencia && (
+                            <CheckCircle2 className="size-6 text-[#51872E]" />
+                        )}
+                      </div>
                     </div>
+
+                    {expandedRecipe === m.id && (
+                        <div className="mb-4 bg-white/50 rounded-2xl p-4 border border-slate-200/50 animate-in slide-in-from-top-2 duration-300">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Ingredientes Principales</p>
+                            <div className="flex flex-wrap gap-2">
+                                {m.receta?.cocina_ingredientes?.length > 0 ? (
+                                    m.receta.cocina_ingredientes.map((ing: any, idx: number) => (
+                                        <Badge key={idx} variant="secondary" className="bg-white border-slate-100 text-[#323232] text-[10px] font-bold">
+                                            {ing.nombre}
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <p className="text-[10px] text-slate-400 italic">No hay detalles extra.</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     
                     <Button 
                       className={`w-full rounded-2xl h-12 font-black uppercase tracking-widest transition-all ${
