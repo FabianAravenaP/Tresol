@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Tresol",
   description: "Tresol - Gestión y Valorización de Residuos",
   icons: {
-    icon: "https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg",
+    icon: "/logo.png",
   }
 };
 

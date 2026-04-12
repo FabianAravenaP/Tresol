@@ -270,7 +270,7 @@ export default function DigitalizadorPage() {
       <div className="flex justify-center border-t border-muted/30 pt-8 pb-12">
           <div className="flex flex-col items-center gap-2">
             <img 
-               src="https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg" 
+               src="/logo.png" 
                alt="Tresol Logo Footer" 
                className="h-8 w-auto grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all cursor-crosshair"
             />

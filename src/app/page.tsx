@@ -157,7 +157,7 @@ export default function Home() {
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-zinc-200/50 h-20 shadow-sm">
         <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
           <img
-            src="https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg"
+            src="/logo.png"
             alt="Tresol Logo"
             className="h-10 w-auto"
           />
@@ -478,7 +478,7 @@ export default function Home() {
       <footer className="py-20 border-t border-zinc-200 bg-[#FFF9F0]">
         <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-10">
           <img
-            src="https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg"
+            src="/logo.png"
             alt="Tresol Logo Footer"
             className="h-12 w-auto"
           />

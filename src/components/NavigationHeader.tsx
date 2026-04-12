@@ -67,7 +67,7 @@ export function NavigationHeader({
         <Link href="/" className="flex items-center shrink-0">
           <div className="p-1 px-1.5 bg-white rounded-lg shadow-sm ring-1 ring-black/5">
             <img 
-              src="https://tresol.cl/es/wp-content/uploads/2025/05/Recurso-5Logo-oficial-de-tresol.svg" 
+              src="/logo.png" 
               alt="Tresol" 
               className="h-4 w-auto object-contain"
             />
