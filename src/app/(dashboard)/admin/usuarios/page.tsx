@@ -31,7 +31,7 @@ import {
 import { Label } from "@/components/uib/label"
 import { Switch } from "@/components/uib/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/uib/select"
-import { ALL_MODULES, parseSidebarConfig, hasDualView, type SidebarEntry } from "@/lib/modules"
+import { ALL_MODULES, parseSidebarConfig, hasDualView, getModuleDisplayName, type SidebarEntry } from "@/lib/modules"
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<any[]>([])
@@ -438,7 +438,9 @@ export default function UsuariosPage() {
                       "font-black uppercase tracking-tight text-sm",
                       isEnabled ? "text-[#51872E]" : "text-slate-600 dark:text-slate-300"
                     )}>
-                      {mod.name}
+                      {isEnabled && entry
+                        ? getModuleDisplayName(mod.id, entry.view)
+                        : mod.name}
                     </p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{mod.category}</p>
                   </div>

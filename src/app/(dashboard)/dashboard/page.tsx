@@ -20,7 +20,7 @@ import {
   ChevronRight,
   Lock
 } from "lucide-react"
-import { ALL_MODULES, parseSidebarConfig, getModuleHref, type SidebarEntry } from "@/lib/modules"
+import { ALL_MODULES, parseSidebarConfig, getModuleHref, getModuleDisplayName, type SidebarEntry } from "@/lib/modules"
 import { cn } from "@/lib/utils"
 
 const IconMap: Record<string, React.ElementType> = {
@@ -133,14 +133,9 @@ export default function DashboardPage() {
                           <Icon className={cn("size-8", !mod.color.startsWith('#') && mod.color.replace('bg-', 'text-'))} />
                         </div>
                       </div>
-                      {mod.view === 'admin' && (
-                        <span className="text-[9px] font-black uppercase tracking-widest bg-[#116CA2]/10 text-[#116CA2] px-2 py-1 rounded-lg">
-                          Admin
-                        </span>
-                      )}
                     </div>
                     <div className="flex-1 space-y-2">
-                      <h3 className="font-black text-[#323232] dark:text-white uppercase tracking-tight">{mod.name}</h3>
+                      <h3 className="font-black text-[#323232] dark:text-white uppercase tracking-tight">{getModuleDisplayName(mod.id, mod.view)}</h3>
                       <p className="text-[12px] text-slate-500 font-medium leading-relaxed">{mod.description}</p>
                     </div>
                     <div className="flex justify-end">

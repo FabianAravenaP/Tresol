@@ -31,6 +31,14 @@ export function getModuleHref(id: string, view: "user" | "admin" = "user"): stri
   return mod?.href ?? '/dashboard'
 }
 
+/** Returns the display name for a module with its view context, e.g. "Cocina/Admin" */
+export function getModuleDisplayName(id: string, view: "user" | "admin"): string {
+  const mod = ALL_MODULES.find(m => m.id === id)
+  if (!mod) return id
+  const viewLabel = view === 'admin' ? 'Admin' : 'Usuario'
+  return `${mod.name}/${viewLabel}`
+}
+
 /** Normalise whatever is stored in config_sidebar to SidebarEntry[] */
 export function parseSidebarConfig(raw: unknown): SidebarEntry[] {
   if (!Array.isArray(raw) || raw.length === 0) return []
@@ -57,7 +65,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "conductores", 
-    name: "Gestión Conductores", 
+    name: "Conductores",
     description: "Control de licencias, roles y asignación de personal de conducción.",
     href: "/admin/conductores", 
     icon: "Truck", 
@@ -67,7 +75,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "porteria", 
-    name: "Control Portería", 
+    name: "Portería",
     description: "Registro de ingresos y salidas para las porterías de la empresa.",
     href: "/porteria", 
     icon: "ShieldCheck",
@@ -107,7 +115,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "flota", 
-    name: "Maestro Flota", 
+    name: "Flota",
     description: "Inventario técnico de camiones y vehículos menores de la empresa.",
     href: "/admin/flota", 
     icon: "Truck", 
@@ -137,7 +145,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "activos", 
-    name: "Gestión Activos", 
+    name: "Activos",
     description: "Control, ubicación y estado de contenedores y otros activos.",
     href: "/activos", 
     icon: "Package",
@@ -147,7 +155,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "cocina", 
-    name: "Gestión Cocina", 
+    name: "Cocina",
     description: "Control de minutas, producción diaria e inventario de casino para el personal.",
     href: "/cocina", 
     icon: "Utensils", 
@@ -157,7 +165,7 @@ export const ALL_MODULES: ModuleDef[] = [
   },
   { 
     id: "prestamos", 
-    name: "Mis Préstamos", 
+    name: "Préstamo Vehículo",
     description: "Plataforma de solicitud y control de vehículos menores prestados por la empresa.",
     href: "/prestamos", 
     icon: "Car", 

@@ -26,7 +26,7 @@ import {
 } from "lucide-react"
 import { UserProfile } from "@/components/UserProfile"
 import { supabase } from "@/lib/supabase"
-import { ALL_MODULES, parseSidebarConfig, getModuleHref, type SidebarEntry } from "@/lib/modules"
+import { ALL_MODULES, parseSidebarConfig, getModuleHref, getModuleDisplayName, type SidebarEntry } from "@/lib/modules"
 
 const IconMap: Record<string, React.ElementType> = {
   LayoutDashboard, MapPin, Activity, Users, Truck, Settings,
@@ -46,8 +46,8 @@ function isSuperUser(user: any): boolean {
 // Admin nav items — only shown to master_admin / super users
 const ADMIN_NAV = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Préstamo Vehículo", href: "/prestamos", icon: Car },
-  { name: "Gestión Cocina", href: "/cocina", icon: Utensils },
+  { name: "Préstamo Vehículo/Admin", href: "/prestamos", icon: Car },
+  { name: "Cocina/Admin", href: "/cocina", icon: Utensils },
   { name: "Analíticas", href: "/admin/analiticas", icon: Activity },
   { name: "Usuarios", href: "/admin/usuarios", icon: Users },
   { name: "Flota", href: "/admin/flota", icon: Truck },
@@ -161,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   else if (pathname.startsWith('/admin/analiticas')) pageTitle = "Analíticas"
   else if (pathname.startsWith('/admin/flota')) pageTitle = "Flota"
   else if (pathname.startsWith('/admin/personal')) pageTitle = "Personal"
-  else if (pathname.startsWith('/admin/vehiculos_menores')) pageTitle = "Vehículos Menores"
+  else if (pathname.startsWith('/admin/vehiculos_menores')) pageTitle = "Préstamo Vehículo/Admin"
   else if (pathname.startsWith('/admin/clientes')) pageTitle = "Clientes"
   else if (pathname.startsWith('/admin/config')) pageTitle = "Configuración"
   else if (pathname.startsWith('/admin')) pageTitle = "Dashboard"
@@ -169,8 +169,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   else if (pathname.startsWith('/porteria')) pageTitle = "Portería"
   else if (pathname.startsWith('/activos')) pageTitle = "Gestión de Activos"
   else if (pathname.startsWith('/digitalizador')) pageTitle = "Digitalizador"
-  else if (pathname.startsWith('/cocina')) pageTitle = "Gestión Cocina"
-  else if (pathname.startsWith('/prestamos')) pageTitle = "Mis Préstamos"
+  else if (pathname.startsWith('/mobile/cocina')) pageTitle = "Cocina/Usuario"
+  else if (pathname.startsWith('/cocina')) pageTitle = "Cocina/Admin"
+  else if (pathname.startsWith('/prestamos')) pageTitle = "Préstamo Vehículo/Usuario"
 
   // ── Shared nav link renderer ───────────────────────────────────────────────
   const NavLink = ({ href, name, icon: Icon, badge }: {
@@ -277,7 +278,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {userSidebarModules.map(item => {
                 const DynIcon = IconMap[item.icon] ?? Package
                 return (
-                  <NavLink key={item.id} href={item.href} name={item.name} icon={DynIcon} />
+                  <NavLink key={item.id} href={item.href} name={getModuleDisplayName(item.id, item.view as "user" | "admin")} icon={DynIcon} />
                 )
               })}
             </>
